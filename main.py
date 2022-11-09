@@ -10,10 +10,107 @@ import yaml
 from PySide2.QtCore import Qt, Signal, QSize, QDateTime, QDate
 from PySide2.QtGui import QFont, QPalette, QColor, QPen, QPainter
 from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QListWidget, QApplication, \
-    QLabel, QPushButton, QCheckBox, QTreeWidget, QTreeWidgetItem, QHeaderView, QDateEdit
+    QLabel, QPushButton, QCheckBox, QTreeWidget, QTreeWidgetItem, QHeaderView, QDateEdit, QDialog, QVBoxLayout
+
+
+class AddTaskDialog(QDialog):
+
+    def __init__(self, mainWin):
+        super(AddTaskDialog, self).__init__()
+
+        self.mainWin = mainWin
+
+        self.setWindowTitle("Ajouter une tâche")
+
+        titleFontSize = 14
+        subtitleFontSize = 11
+        itemFontSize = 9
+
+        grid = QGridLayout()
+
+        lbl = QLabel("Nom")
+        lbl.setFont(QFont('AnyStyle', subtitleFontSize))
+        lbl.setAlignment(Qt.AlignCenter)
+        grid.addWidget(lbl, 0, 0)
+
+        lbl = QLabel("Description")
+        lbl.setFont(QFont('AnyStyle', subtitleFontSize))
+        lbl.setAlignment(Qt.AlignCenter)
+        grid.addWidget(lbl, 1, 0)
+
+        lbl = QLabel("Date de fin")
+        lbl.setFont(QFont('AnyStyle', subtitleFontSize))
+        lbl.setAlignment(Qt.AlignCenter)
+        grid.addWidget(lbl, 2, 0)
+
+        self.nameTextEdit = QLineEdit()
+        self.nameTextEdit.setFixedWidth(200)
+        self.nameTextEdit.setFixedHeight(30)
+        self.nameTextEdit.setFont(QFont('AnyStyle', itemFontSize))
+        grid.addWidget(self.nameTextEdit, 0, 1)
+
+        self.descTextEdit = QLineEdit()
+        self.descTextEdit.setFixedWidth(200)
+        self.descTextEdit.setFixedHeight(90)
+        self.descTextEdit.setFont(QFont('AnyStyle', itemFontSize))
+        grid.addWidget(self.descTextEdit, 1, 1)
+
+        self.startDateEdit = QDateEdit(calendarPopup=True)
+        self.startDateEdit.setDateTime(QDateTime.currentDateTime())
+        self.startDateEdit.setFixedWidth(200)
+        self.startDateEdit.setFixedHeight(30)
+        self.startDateEdit.setFont(QFont('AnyStyle', itemFontSize))
+        grid.addWidget(self.startDateEdit, 2, 1)
+
+        endDateLayout = QHBoxLayout()
+
+        self.endDateCheckBox = QCheckBox()
+        self.endDateCheckBox.stateChanged.connect(self.EndDateCheckBoxStateChanged)
+        endDateLayout.addWidget(self.endDateCheckBox, 0)
+
+        self.endDateEdit = QDateEdit(calendarPopup=True)
+        self.endDateEdit.setEnabled(False)
+        self.endDateEdit.setDateTime(QDateTime.currentDateTime())
+        self.endDateEdit.setFixedWidth(170)
+        self.endDateEdit.setFixedHeight(30)
+        self.endDateEdit.setFont(QFont('AnyStyle', itemFontSize))
+        endDateLayout.addWidget(self.endDateEdit, 1)
+
+        grid.addLayout(endDateLayout, 3, 1)
+
+        enterTaskBtn = QPushButton("Entrer")
+        enterTaskBtn.setFixedHeight(30)
+        # enterTaskBtn.setFixedWidth(90)
+        enterTaskBtn.setFont(QFont('AnyStyle', subtitleFontSize))
+        enterTaskBtn.clicked.connect(self.EnterTaskBtnClicked)
+        grid.addWidget(enterTaskBtn, 4, 0, 1, 2)
+
+        self.setLayout(grid)
+
+    def EndDateCheckBoxStateChanged(self):
+        if self.endDateCheckBox.isChecked():
+            self.endDateEdit.setEnabled(True)
+        else:
+            self.endDateEdit.setEnabled(False)
+
+    def EnterTaskBtnClicked(self):
+        taskName = self.nameTextEdit.text()
+        taskDescription = self.descTextEdit.text()
+        taskStartDate = self.startDateEdit.date().toString(Qt.ISODate)
+        if not self.endDateCheckBox.isChecked():
+            taskEndDate = "-"
+        else:
+            taskEndDate = self.endDateEdit.date().toString(Qt.ISODate)
+        task = {"Name": taskName, "Description": taskDescription, "StartDate": taskStartDate, "EndDate": taskEndDate}
+        self.mainWin.new_task.emit(task)
+
+        self.hide()
+
 
 
 class MainWindow(QWidget):
+
+    new_task = Signal(object)
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -37,6 +134,8 @@ class MainWindow(QWidget):
                 f.close()
 
         self.setWindowTitle("Task Manager")
+        self.setFixedWidth(1000)
+        self.setFixedHeight(500)
 
         self.tasksList = []
         self.selectedItem = None
@@ -48,60 +147,13 @@ class MainWindow(QWidget):
             with open('tasks.yaml', 'w') as f:
                 yaml.dump(None, f, sort_keys=False)
 
+        self.addTaskDialog = AddTaskDialog(self)
+
         titleFontSize = 14
         subtitleFontSize = 11
         itemFontSize = 9
 
         grid = QGridLayout()
-
-        lbl = QLabel("Nom")
-        lbl.setFont(QFont('AnyStyle', titleFontSize))
-        lbl.setAlignment(Qt.AlignCenter)
-        grid.addWidget(lbl, 0, 0)
-
-        lbl = QLabel("Description")
-        lbl.setFont(QFont('AnyStyle', titleFontSize))
-        lbl.setAlignment(Qt.AlignCenter)
-        grid.addWidget(lbl, 0, 1)
-
-        lbl = QLabel("Date de fin")
-        lbl.setFont(QFont('AnyStyle', titleFontSize))
-        lbl.setAlignment(Qt.AlignCenter)
-        grid.addWidget(lbl, 0, 2)
-
-        self.nameTextEdit = QLineEdit()
-        self.nameTextEdit.setFixedWidth(200)
-        self.nameTextEdit.setFixedHeight(30)
-        self.nameTextEdit.setFont(QFont('AnyStyle', itemFontSize))
-        grid.addWidget(self.nameTextEdit, 1, 0)
-
-        self.descTextEdit = QLineEdit()
-        self.descTextEdit.setFixedWidth(600)
-        self.descTextEdit.setFixedHeight(30)
-        self.descTextEdit.setFont(QFont('AnyStyle', itemFontSize))
-        grid.addWidget(self.descTextEdit, 1, 1)
-
-        endDateLayout = QHBoxLayout()
-
-        self.endDateCheckBox = QCheckBox()
-        self.endDateCheckBox.stateChanged.connect(self.EndDateCheckBoxStateChanged)
-        endDateLayout.addWidget(self.endDateCheckBox, 0)
-
-        self.endDateEdit = QDateEdit(calendarPopup=True)
-        self.endDateEdit.setEnabled(False)
-        self.endDateEdit.setDateTime(QDateTime.currentDateTime())
-        self.endDateEdit.setFixedWidth(100)
-        self.endDateEdit.setFixedHeight(30)
-        endDateLayout.addWidget(self.endDateEdit, 1)
-
-        grid.addLayout(endDateLayout, 1, 2)
-
-        enterTaskBtn = QPushButton("Entrer")
-        enterTaskBtn.setFixedHeight(30)
-        enterTaskBtn.setFixedWidth(90)
-        enterTaskBtn.setFont(QFont('AnyStyle', subtitleFontSize))
-        enterTaskBtn.clicked.connect(self.EnterTaskBtnClicked)
-        grid.addWidget(enterTaskBtn, 1, 3)
 
         self.listTree = QTreeWidget()
         self.listTree.setHeaderLabels(["", "Nom", "Description", "Début", "Fin"])
@@ -116,6 +168,13 @@ class MainWindow(QWidget):
         # self.listTreeHeader.setSectionResizeMode()
 
         modifyDeleteLayout = QHBoxLayout()
+
+        addTaskBtn = QPushButton("Ajouter")
+        addTaskBtn.setFixedHeight(30)
+        addTaskBtn.setFixedWidth(100)
+        addTaskBtn.setFont(QFont('AnyStyle', subtitleFontSize))
+        addTaskBtn.clicked.connect(self.AddTaskBtnClicked)
+        modifyDeleteLayout.addWidget(addTaskBtn, 0)
 
         modifyTaskBtn = QPushButton("Modifier")
         modifyTaskBtn.setFixedHeight(30)
@@ -136,6 +195,8 @@ class MainWindow(QWidget):
         self.setLayout(grid)
 
         self.Update_changes()
+
+        self.new_task.connect(self.New_task)
 
     def Save(self):
         with open('tasks.yaml', 'w') as f:
@@ -161,6 +222,12 @@ class MainWindow(QWidget):
         self.Save()
         self.Update_changes()
 
+    def New_task(self, task):
+        self.tasksList.append(task)
+
+        self.Save()
+        self.Update_changes()
+
     def Update_changes(self):
         self.listTree.clear()
         for task in self.tasksList:
@@ -181,35 +248,23 @@ class MainWindow(QWidget):
 
     def listTree_changed(self, item, col):
         if item.checkState(0) == Qt.Checked:
-            f1 = item.font(1)
-            f1.setStrikeOut(True)
-            item.setFont(1, f1)
-            f2 = item.font(2)
-            f2.setStrikeOut(True)
-            item.setFont(2, f2)
-            f3 = item.font(3)
-            f3.setStrikeOut(True)
-            item.setFont(3, f3)
-            f4 = item.font(4)
-            f4.setStrikeOut(True)
-            item.setFont(4, f4)
+            for i in range(1, self.listTree.columnCount()):
+                f = item.font(i)
+                f.setStrikeOut(True)
+                item.setFont(i, f)
+
         elif item.checkState(0) == Qt.Unchecked:
-            f1 = item.font(1)
-            f1.setStrikeOut(False)
-            item.setFont(1, f1)
-            f2 = item.font(2)
-            f2.setStrikeOut(False)
-            item.setFont(2, f2)
-            f3 = item.font(3)
-            f3.setStrikeOut(False)
-            item.setFont(3, f3)
-            f4 = item.font(4)
-            f4.setStrikeOut(False)
-            item.setFont(4, f4)
+            for i in range(1, self.listTree.columnCount()):
+                f = item.font(i)
+                f.setStrikeOut(False)
+                item.setFont(i, f)
 
     def listTree_itemClicked(self, item, col):
         if item.isSelected():
             self.selectedItem = item
+
+    def AddTaskBtnClicked(self):
+        self.addTaskDialog.show()
 
     def ModifyTaskBtnClicked(self):
         pass
