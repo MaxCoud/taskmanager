@@ -2,3 +2,7 @@
   Description: azerty
 - Name: Tache2
   Description: azerty
+- Name: Tache3
+  Description: azerty
+- Name: Tache 4 avec un long nom
+  Description: "Ainsi qu'une longue description par rapport \xE0 azerty"

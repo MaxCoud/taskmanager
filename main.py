@@ -7,10 +7,10 @@ import time
 from pathlib import Path
 
 import yaml
-from PySide2.QtCore import Qt, Signal
+from PySide2.QtCore import Qt, Signal, QSize
 from PySide2.QtGui import QFont, QPalette, QColor, QPen, QPainter
 from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QListWidget, QApplication, \
-    QLabel, QPushButton, QCheckBox
+    QLabel, QPushButton, QCheckBox, QTreeWidget, QTreeWidgetItem, QHeaderView
 
 
 class MainWindow(QWidget):
@@ -82,7 +82,20 @@ class MainWindow(QWidget):
         enterTaskBtn.clicked.connect(self.EnterTaskBtnClicked)
         grid.addWidget(enterTaskBtn, 1, 2)
 
+        self.listTree = QTreeWidget()
+        self.listTree.setHeaderLabels(["", "Nom", "Description"])
+        self.listTree.setFont(QFont('AnyStyle', subtitleFontSize))
+        self.listTree.itemChanged.connect(self.listTree_changed)
+        grid.addWidget(self.listTree, 2, 0, 1, 3)
+
+        self.listTreeHeader = self.listTree.header()
+        self.listTreeHeader.setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.listTreeHeader.setStretchLastSection(False)
+        # self.listTreeHeader.setSectionResizeMode()
+
         self.setLayout(grid)
+
+        self.Update_changes()
 
     def Save(self):
         with open('tasks.yaml', 'w') as f:
@@ -95,6 +108,37 @@ class MainWindow(QWidget):
         self.tasksList.append(task)
 
         self.Save()
+        self.Update_changes()
+
+    def Update_changes(self):
+        self.listTree.clear()
+        for task in self.tasksList:
+            elmt = QTreeWidgetItem(self.listTree)
+            elmt.setFlags(elmt.flags() | Qt.ItemIsUserCheckable)
+
+            elmt.setText(1, task["Name"])
+            elmt.setText(2, task["Description"])
+            elmt.setTextAlignment(1, Qt.AlignCenter)
+            elmt.setTextAlignment(2, Qt.AlignLeft)
+            # toolTip = "test"
+            # elmt.setToolTip(0, toolTip)
+            elmt.setCheckState(0, Qt.Unchecked)
+
+    def listTree_changed(self, item, col):
+        if item.checkState(0) == Qt.Checked:
+            f1 = item.font(1)
+            f1.setStrikeOut(True)
+            item.setFont(1, f1)
+            f2 = item.font(2)
+            f2.setStrikeOut(True)
+            item.setFont(2, f2)
+        elif item.checkState(0) == Qt.Unchecked:
+            f1 = item.font(1)
+            f1.setStrikeOut(False)
+            item.setFont(1, f1)
+            f2 = item.font(2)
+            f2.setStrikeOut(False)
+            item.setFont(2, f2)
 
 if __name__ == "__main__":
     app = QApplication([])
