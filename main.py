@@ -7,10 +7,10 @@ import time
 from pathlib import Path
 
 import yaml
-from PySide2.QtCore import Qt, Signal, QSize
+from PySide2.QtCore import Qt, Signal, QSize, QDateTime, QDate
 from PySide2.QtGui import QFont, QPalette, QColor, QPen, QPainter
 from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QListWidget, QApplication, \
-    QLabel, QPushButton, QCheckBox, QTreeWidget, QTreeWidgetItem, QHeaderView
+    QLabel, QPushButton, QCheckBox, QTreeWidget, QTreeWidgetItem, QHeaderView, QDateEdit
 
 
 class MainWindow(QWidget):
@@ -64,6 +64,11 @@ class MainWindow(QWidget):
         lbl.setAlignment(Qt.AlignCenter)
         grid.addWidget(lbl, 0, 1)
 
+        lbl = QLabel("Date de fin")
+        lbl.setFont(QFont('AnyStyle', titleFontSize))
+        lbl.setAlignment(Qt.AlignCenter)
+        grid.addWidget(lbl, 0, 2)
+
         self.nameTextEdit = QLineEdit()
         self.nameTextEdit.setFixedWidth(200)
         self.nameTextEdit.setFixedHeight(30)
@@ -76,19 +81,34 @@ class MainWindow(QWidget):
         self.descTextEdit.setFont(QFont('AnyStyle', itemFontSize))
         grid.addWidget(self.descTextEdit, 1, 1)
 
+        endDateLayout = QHBoxLayout()
+
+        self.endDateCheckBox = QCheckBox()
+        self.endDateCheckBox.stateChanged.connect(self.EndDateCheckBoxStateChanged)
+        endDateLayout.addWidget(self.endDateCheckBox, 0)
+
+        self.endDateEdit = QDateEdit(calendarPopup=True)
+        self.endDateEdit.setEnabled(False)
+        self.endDateEdit.setDateTime(QDateTime.currentDateTime())
+        self.endDateEdit.setFixedWidth(100)
+        self.endDateEdit.setFixedHeight(30)
+        endDateLayout.addWidget(self.endDateEdit, 1)
+
+        grid.addLayout(endDateLayout, 1, 2)
+
         enterTaskBtn = QPushButton("Entrer")
         enterTaskBtn.setFixedHeight(30)
         enterTaskBtn.setFixedWidth(90)
         enterTaskBtn.setFont(QFont('AnyStyle', subtitleFontSize))
         enterTaskBtn.clicked.connect(self.EnterTaskBtnClicked)
-        grid.addWidget(enterTaskBtn, 1, 2)
+        grid.addWidget(enterTaskBtn, 1, 3)
 
         self.listTree = QTreeWidget()
-        self.listTree.setHeaderLabels(["", "Nom", "Description"])
+        self.listTree.setHeaderLabels(["", "Nom", "Description", "Début", "Fin"])
         self.listTree.setFont(QFont('AnyStyle', subtitleFontSize))
         self.listTree.itemChanged.connect(self.listTree_changed)
         self.listTree.itemClicked.connect(self.listTree_itemClicked)
-        grid.addWidget(self.listTree, 2, 0, 1, 3)
+        grid.addWidget(self.listTree, 2, 0, 1, 4)
 
         self.listTreeHeader = self.listTree.header()
         self.listTreeHeader.setSectionResizeMode(QHeaderView.ResizeToContents)
@@ -111,7 +131,7 @@ class MainWindow(QWidget):
         delTaskBtn.clicked.connect(self.DeleteTaskBtnClicked)
         modifyDeleteLayout.addWidget(delTaskBtn, 1)
 
-        grid.addLayout(modifyDeleteLayout, 3, 0, 1, 3)
+        grid.addLayout(modifyDeleteLayout, 3, 0, 1, 4)
 
         self.setLayout(grid)
 
@@ -121,10 +141,21 @@ class MainWindow(QWidget):
         with open('tasks.yaml', 'w') as f:
             yaml.dump(self.tasksList, f, sort_keys=False)
 
+    def EndDateCheckBoxStateChanged(self):
+        if self.endDateCheckBox.isChecked():
+            self.endDateEdit.setEnabled(True)
+        else:
+            self.endDateEdit.setEnabled(False)
+
     def EnterTaskBtnClicked(self):
         taskName = self.nameTextEdit.text()
         taskDescription = self.descTextEdit.text()
-        task = {"Name": taskName, "Description": taskDescription}
+        taskStartDate = QDate.currentDate().toString(Qt.ISODate)
+        if self.endDateCheckBox.isChecked():
+            taskEndDate = "-"
+        else:
+            taskEndDate = self.endDateEdit.date().toString(Qt.ISODate)
+        task = {"Name": taskName, "Description": taskDescription, "StartDate": taskStartDate, "EndDate": taskEndDate}
         self.tasksList.append(task)
 
         self.Save()
@@ -138,8 +169,12 @@ class MainWindow(QWidget):
 
             elmt.setText(1, task["Name"])
             elmt.setText(2, task["Description"])
+            elmt.setText(3, task["StartDate"])
+            elmt.setText(4, task["EndDate"])
             elmt.setTextAlignment(1, Qt.AlignCenter)
             elmt.setTextAlignment(2, Qt.AlignLeft)
+            elmt.setTextAlignment(3, Qt.AlignCenter)
+            elmt.setTextAlignment(4, Qt.AlignCenter)
             # toolTip = "test"
             # elmt.setToolTip(0, toolTip)
             elmt.setCheckState(0, Qt.Unchecked)
@@ -152,6 +187,12 @@ class MainWindow(QWidget):
             f2 = item.font(2)
             f2.setStrikeOut(True)
             item.setFont(2, f2)
+            f3 = item.font(3)
+            f3.setStrikeOut(True)
+            item.setFont(3, f3)
+            f4 = item.font(4)
+            f4.setStrikeOut(True)
+            item.setFont(4, f4)
         elif item.checkState(0) == Qt.Unchecked:
             f1 = item.font(1)
             f1.setStrikeOut(False)
@@ -159,6 +200,12 @@ class MainWindow(QWidget):
             f2 = item.font(2)
             f2.setStrikeOut(False)
             item.setFont(2, f2)
+            f3 = item.font(3)
+            f3.setStrikeOut(False)
+            item.setFont(3, f3)
+            f4 = item.font(4)
+            f4.setStrikeOut(False)
+            item.setFont(4, f4)
 
     def listTree_itemClicked(self, item, col):
         if item.isSelected():

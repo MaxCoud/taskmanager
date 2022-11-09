@@ -1,6 +1,16 @@
-- Name: Tache2
-  Description: azerty
 - Name: Tache3
   Description: azerty
+  StartDate: '2022-11-08'
+  EndDate: '-'
 - Name: Tache 4 avec un long nom
   Description: "Ainsi qu'une longue description par rapport \xE0 azerty"
+  StartDate: '2022-11-08'
+  EndDate: '-'
+- Name: ze
+  Description: zggzgzrg
+  StartDate: '2022-11-09'
+  EndDate: '2022-11-09'
+- Name: ergrgz
+  Description: rgzrgzegeg
+  StartDate: '2022-11-09'
+  EndDate: '-'
