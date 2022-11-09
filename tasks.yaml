@@ -1,32 +1,19 @@
-- Name: Tache3
-  Description: azerty
-  StartDate: '2022-11-08'
+- Name: "Tache n\xB01"
+  Description: "Faire en sorte que la description dans l'ajout de t\xE2che soit mieux\
+    \ fait"
+  StartDate: '2022-11-09'
   EndDate: '-'
-- Name: Tache 4 avec un long nom
-  Description: "Ainsi qu'une longue description par rapport \xE0 azerty"
-  StartDate: '2022-11-08'
-  EndDate: '-'
-- Name: ze
-  Description: zggzgzrg
+- Name: Hello
+  Description: "Grace \xE0 \xE7a, je peux \xE9crire autant que je veux dans ma zone\
+    \ de texte sans que ce la soit probl\xE9matique, trop bien"
   StartDate: '2022-11-09'
   EndDate: '2022-11-09'
-- Name: ergrgz
-  Description: rgzrgzegeg
+- Name: Loooooooooog titre de tache
+  Description: "Grace \xE0 \xE7a, je peux \xE9crire autant que je veux dans ma zone\
+    \ de texte sans que cela soit probl\xE9matique, trop bien"
   StartDate: '2022-11-09'
   EndDate: '-'
-- Name: new
-  Description: erg
+- Name: Description sur plusieurs lignes
+  Description: Rendre lisible les noms et descriptions
   StartDate: '2022-11-09'
-  EndDate: '-'
-- Name: new1
-  Description: zrf
-  StartDate: '2022-11-09'
-  EndDate: '-'
-- Name: new3
-  Description: zef
-  StartDate: '2022-11-09'
-  EndDate: '2022-11-17'
-- Name: hello
-  Description: zrg
-  StartDate: '2022-11-09'
-  EndDate: '2022-11-09'
+  EndDate: '2022-11-11'
