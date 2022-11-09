@@ -39,6 +39,7 @@ class MainWindow(QWidget):
         self.setWindowTitle("Task Manager")
 
         self.tasksList = []
+        self.selectedItem = None
 
         try:
             with open('tasks.yaml', 'r') as f:
@@ -86,12 +87,31 @@ class MainWindow(QWidget):
         self.listTree.setHeaderLabels(["", "Nom", "Description"])
         self.listTree.setFont(QFont('AnyStyle', subtitleFontSize))
         self.listTree.itemChanged.connect(self.listTree_changed)
+        self.listTree.itemClicked.connect(self.listTree_itemClicked)
         grid.addWidget(self.listTree, 2, 0, 1, 3)
 
         self.listTreeHeader = self.listTree.header()
         self.listTreeHeader.setSectionResizeMode(QHeaderView.ResizeToContents)
         self.listTreeHeader.setStretchLastSection(False)
         # self.listTreeHeader.setSectionResizeMode()
+
+        modifyDeleteLayout = QHBoxLayout()
+
+        modifyTaskBtn = QPushButton("Modifier")
+        modifyTaskBtn.setFixedHeight(30)
+        modifyTaskBtn.setFixedWidth(100)
+        modifyTaskBtn.setFont(QFont('AnyStyle', subtitleFontSize))
+        modifyTaskBtn.clicked.connect(self.ModifyTaskBtnClicked)
+        modifyDeleteLayout.addWidget(modifyTaskBtn, 0)
+
+        delTaskBtn = QPushButton("Supprimer")
+        delTaskBtn.setFixedHeight(30)
+        delTaskBtn.setFixedWidth(100)
+        delTaskBtn.setFont(QFont('AnyStyle', subtitleFontSize))
+        delTaskBtn.clicked.connect(self.DeleteTaskBtnClicked)
+        modifyDeleteLayout.addWidget(delTaskBtn, 1)
+
+        grid.addLayout(modifyDeleteLayout, 3, 0, 1, 3)
 
         self.setLayout(grid)
 
@@ -139,6 +159,23 @@ class MainWindow(QWidget):
             f2 = item.font(2)
             f2.setStrikeOut(False)
             item.setFont(2, f2)
+
+    def listTree_itemClicked(self, item, col):
+        if item.isSelected():
+            self.selectedItem = item
+
+    def ModifyTaskBtnClicked(self):
+        pass
+
+    def DeleteTaskBtnClicked(self):
+        taskName = self.selectedItem.text(1)
+        taskDescription = self.selectedItem.text(2)
+        task = {"Name": taskName, "Description": taskDescription}
+        print(task)
+        self.tasksList.remove(task)
+
+        self.Save()
+        self.Update_changes()
 
 if __name__ == "__main__":
     app = QApplication([])
