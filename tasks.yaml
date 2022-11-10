@@ -25,3 +25,17 @@
     \ le format ISO pour le tri (ou a retransformer plus tard)"
   StartDate: '2022-11-10'
   EndDate: '2022-11-14'
+- Check: 0
+  Name: gestion projets
+  Description: "A la suppression d'un projet, supprimer toutes les taches associ\xE9\
+    es ? mettre un avertissement"
+  StartDate: '2022-11-10'
+  EndDate: '2022-11-21'
+- Check: 0
+  Name: ajouter projet depuis ajout de tache
+  Description: "on pourrait faire une liste deroulante pour s\xE9lectionner un projet,\
+    \ la derniere valeur de la liste serait \"Nouveau\". De la on ouvre le gestionnaire\
+    \ de taches, et on l'ajoute. Ce nouveau projet serait d\xE9ja s\xE9lectrionn\xE9\
+    \ dans l'ajout de tache"
+  StartDate: '2022-11-10'
+  EndDate: '2022-11-15'
