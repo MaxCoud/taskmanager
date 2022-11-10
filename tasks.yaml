@@ -1,10 +1,4 @@
 - Check: 1
-  Name: Loooooooooog titre de tache
-  Description: "Grace \xE0 \xE7a, je peux \xE9crire autant que je veux dans ma zone\
-    \ de texte sans que cela soit probl\xE9matique, trop bien"
-  StartDate: '2022-11-09'
-  EndDate: '-'
-- Check: 1
   Name: Description sur plusieurs lignes
   Description: Rendre lisible les noms et descriptions
   StartDate: '2022-11-09'
@@ -20,3 +14,14 @@
   Description: "liste de projets que l'on peut \xE9galement modifier"
   StartDate: '2022-11-10'
   EndDate: '2022-11-21'
+- Check: 0
+  Name: ajouter des fonctions de tri
+  Description: trier par date, nom, ou projet
+  StartDate: '2022-11-10'
+  EndDate: '2022-11-21'
+- Check: 0
+  Name: affichage date
+  Description: "Afficher la date au format fran\xE7ais, mais garder en m\xE9moire\
+    \ le format ISO pour le tri (ou a retransformer plus tard)"
+  StartDate: '2022-11-10'
+  EndDate: '2022-11-14'

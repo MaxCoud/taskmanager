@@ -11,7 +11,7 @@ from PySide2.QtCore import Qt, Signal, QSize, QDateTime, QDate
 from PySide2.QtGui import QFont, QPalette, QColor, QTextOption
 from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QListWidget, QApplication, \
     QLabel, QPushButton, QCheckBox, QTreeWidget, QTreeWidgetItem, QHeaderView, QDateEdit, QDialog, QVBoxLayout, \
-    QPlainTextEdit, QMessageBox
+    QPlainTextEdit, QMessageBox, QInputDialog
 
 
 class AddTaskDialog(QDialog):
@@ -193,6 +193,84 @@ class AddTaskDialog(QDialog):
         self.show()
 
 
+class ProjectsDialog(QDialog):
+
+    def __init__(self, mainWin):
+        super(ProjectsDialog, self).__init__()
+
+        self.mainWin = mainWin
+
+        self.setWindowTitle("Gestion des projets")
+
+        titleFontSize = 14
+        subtitleFontSize = 11
+        itemFontSize = 9
+
+        grid = QGridLayout()
+
+        buttonLayout = QVBoxLayout()
+
+        AddProjectBtn = QPushButton("Ajouter")
+        AddProjectBtn.setFixedHeight(30)
+        AddProjectBtn.setFixedWidth(100)
+        AddProjectBtn.setFont(QFont('AnyStyle', subtitleFontSize))
+        AddProjectBtn.clicked.connect(self.AddProjectBtnClicked)
+        buttonLayout.addWidget(AddProjectBtn, 0)
+
+        DelProjectBtn = QPushButton("Supprimer")
+        DelProjectBtn.setFixedHeight(30)
+        DelProjectBtn.setFixedWidth(100)
+        DelProjectBtn.setFont(QFont('AnyStyle', subtitleFontSize))
+        DelProjectBtn.clicked.connect(self.DeleteProjectBtnClicked)
+        buttonLayout.addWidget(DelProjectBtn, 1)
+
+        grid.addLayout(buttonLayout, 0, 0)
+
+        self.projectTree = QTreeWidget()
+        self.projectTree.setHeaderHidden(True)
+        self.projectTree.setFont(QFont('AnyStyle', itemFontSize))
+        self.projectTree.setFixedWidth(300)
+        self.projectTree.setFixedHeight(300)
+        self.projectTree.itemChanged.connect(self.projectTree_changed)
+        self.projectTree.itemClicked.connect(self.projectTree_itemClicked)
+        self.projectTree.itemDoubleClicked.connect(self.ModifyProjectBtnClicked)
+        grid.addWidget(self.projectTree, 0, 1)
+
+        self.Update_project_tree()
+
+        self.setLayout(grid)
+
+    def Save(self):
+        with open('projects.yaml', 'w') as f:
+            yaml.dump(self.mainWin.projectList, f, sort_keys=False)
+
+    def Update_project_tree(self):
+        self.projectTree.clear()
+        for project in self.mainWin.projectList:
+            elmt = QTreeWidgetItem(self.projectTree)
+            elmt.setText(0, project["Name"])
+
+    def AddProjectBtnClicked(self):
+        text, ok = QInputDialog.getText(self, 'Entrer un projet', 'Nom du projet :')
+        if ok:
+            self.mainWin.projectList.append({"Name": text})
+
+        self.Save()
+        self.Update_project_tree()
+
+    def DeleteProjectBtnClicked(self):
+        pass
+
+    def projectTree_changed(self):
+        pass
+
+    def projectTree_itemClicked(self):
+        pass
+
+    def ModifyProjectBtnClicked(self):
+        pass
+
+
 class MainWindow(QWidget):
 
     new_task = Signal(object)
@@ -225,6 +303,7 @@ class MainWindow(QWidget):
         self.setFixedHeight(500)
 
         self.tasksList = []
+        self.projectList = []
         self.selectedItem = None
         self.updating = False
 
@@ -235,7 +314,15 @@ class MainWindow(QWidget):
             with open('tasks.yaml', 'w') as f:
                 yaml.dump(None, f, sort_keys=False)
 
+        try:
+            with open('projects.yaml', 'r') as f:
+                self.projectList = yaml.load(f, Loader=yaml.FullLoader)
+        except FileNotFoundError:
+            with open('projects.yaml', 'w') as f:
+                yaml.dump(None, f, sort_keys=False)
+
         self.addTaskDialog = AddTaskDialog(self)
+        self.projectsDialog = ProjectsDialog(self)
 
         titleFontSize = 14
         subtitleFontSize = 11
@@ -265,17 +352,24 @@ class MainWindow(QWidget):
 
         addTaskBtn = QPushButton("Ajouter")
         addTaskBtn.setFixedHeight(30)
-        addTaskBtn.setFixedWidth(100)
+        addTaskBtn.setFixedWidth(150)
         addTaskBtn.setFont(QFont('AnyStyle', subtitleFontSize))
         addTaskBtn.clicked.connect(self.AddTaskBtnClicked)
         addDeleteLayout.addWidget(addTaskBtn, 0)
 
+        manageProjectsBtn = QPushButton("Gestion projets")
+        manageProjectsBtn.setFixedHeight(30)
+        manageProjectsBtn.setFixedWidth(150)
+        manageProjectsBtn.setFont(QFont('AnyStyle', subtitleFontSize))
+        manageProjectsBtn.clicked.connect(self.ManageProjectsBtnClicked)
+        addDeleteLayout.addWidget(manageProjectsBtn, 1)
+
         delTaskBtn = QPushButton("Supprimer")
         delTaskBtn.setFixedHeight(30)
-        delTaskBtn.setFixedWidth(100)
+        delTaskBtn.setFixedWidth(150)
         delTaskBtn.setFont(QFont('AnyStyle', subtitleFontSize))
         delTaskBtn.clicked.connect(self.DeleteTaskBtnClicked)
-        addDeleteLayout.addWidget(delTaskBtn, 1)
+        addDeleteLayout.addWidget(delTaskBtn, 2)
 
         grid.addLayout(addDeleteLayout, 3, 0, 1, 4)
 
@@ -298,9 +392,10 @@ class MainWindow(QWidget):
         self.Update_changes()
 
     def Update_changes(self):
-        self.updating = True
+
         self.listTree.clear()
         for task in self.tasksList:
+            self.updating = True
             elmt = QTreeWidgetItem(self.listTree)
             elmt.setFlags(elmt.flags() | Qt.ItemIsUserCheckable)
 
@@ -324,12 +419,14 @@ class MainWindow(QWidget):
             lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             self.listTree.setItemWidget(elmt, 4, lbl)
 
+            self.updating = False
+
             if task["Check"] == 1:
                 elmt.setCheckState(0, Qt.Checked)
             else:
                 elmt.setCheckState(0, Qt.Unchecked)
 
-        self.updating = False
+
 
     def listTree_changed(self, item, col):
         if not self.updating:
@@ -399,6 +496,9 @@ class MainWindow(QWidget):
 
         self.Save()
         self.Update_changes()
+
+    def ManageProjectsBtnClicked(self):
+        self.projectsDialog.show()
 
 if __name__ == "__main__":
     app = QApplication([])
