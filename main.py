@@ -150,7 +150,7 @@ class AddTaskDialog(QDialog):
             taskEndDate = "-"
         else:
             taskEndDate = self.endDateEdit.date().toString(Qt.ISODate)
-        self.task = {"Name": taskName, "Description": taskDescription, "StartDate": taskStartDate, "EndDate": taskEndDate}
+        self.task = {"Check": 0,"Name": taskName, "Description": taskDescription, "StartDate": taskStartDate, "EndDate": taskEndDate}
 
 
         if self.modifying:
@@ -226,6 +226,7 @@ class MainWindow(QWidget):
 
         self.tasksList = []
         self.selectedItem = None
+        self.updating = False
 
         try:
             with open('tasks.yaml', 'r') as f:
@@ -297,6 +298,7 @@ class MainWindow(QWidget):
         self.Update_changes()
 
     def Update_changes(self):
+        self.updating = True
         self.listTree.clear()
         for task in self.tasksList:
             elmt = QTreeWidgetItem(self.listTree)
@@ -322,22 +324,38 @@ class MainWindow(QWidget):
             lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             self.listTree.setItemWidget(elmt, 4, lbl)
 
-            elmt.setCheckState(0, Qt.Unchecked)
+            if task["Check"] == 1:
+                elmt.setCheckState(0, Qt.Checked)
+            else:
+                elmt.setCheckState(0, Qt.Unchecked)
+
+        self.updating = False
 
     def listTree_changed(self, item, col):
-        if item.checkState(0) == Qt.Checked:
-            for i in range(1, self.listTree.columnCount()):
-                itemWidget = self.listTree.itemWidget(item, i)
-                f = itemWidget.font()
-                f.setStrikeOut(True)
-                itemWidget.setFont(f)
+        if not self.updating:
+            if item.checkState(0) == Qt.Checked:
+                for task in self.tasksList:
+                    if task["Name"] == self.listTree.itemWidget(item, 1).text() and task["Description"] == self.listTree.itemWidget(item, 2).text():
+                        task["Check"] = 1
+                        break
+                for i in range(1, self.listTree.columnCount()):
+                    itemWidget = self.listTree.itemWidget(item, i)
+                    f = itemWidget.font()
+                    f.setStrikeOut(True)
+                    itemWidget.setFont(f)
 
-        elif item.checkState(0) == Qt.Unchecked:
-            for i in range(1, self.listTree.columnCount()):
-                itemWidget = self.listTree.itemWidget(item, i)
-                f = itemWidget.font()
-                f.setStrikeOut(False)
-                itemWidget.setFont(f)
+            elif item.checkState(0) == Qt.Unchecked:
+                for task in self.tasksList:
+                    if task["Name"] == self.listTree.itemWidget(item, 1).text() and task["Description"] == self.listTree.itemWidget(item, 2).text():
+                        task["Check"] = 0
+                        break
+                for i in range(1, self.listTree.columnCount()):
+                    itemWidget = self.listTree.itemWidget(item, i)
+                    f = itemWidget.font()
+                    f.setStrikeOut(False)
+                    itemWidget.setFont(f)
+
+            self.Save()
 
     def listTree_itemClicked(self, item, col):
         if item.isSelected():
@@ -361,18 +379,23 @@ class MainWindow(QWidget):
                 task["Description"] = modifiedTask["Description"]
                 task["StartDate"] = modifiedTask["StartDate"]
                 task["EndDate"] = modifiedTask["EndDate"]
+                break
 
         self.Save()
         self.Update_changes()
 
     def DeleteTaskBtnClicked(self):
-        taskName = self.listTree.itemWidget(self.selectedItem, 1).text()
-        taskDescription = self.listTree.itemWidget(self.selectedItem, 2).text()
-        taskStart = self.listTree.itemWidget(self.selectedItem, 3).text()
-        taskEnd = self.listTree.itemWidget(self.selectedItem, 4).text()
 
-        task = {"Name": taskName, "Description": taskDescription, "StartDate": taskStart, "EndDate": taskEnd}
-        self.tasksList.remove(task)
+        taskToDelete = None
+        for task in self.tasksList:
+            if task["Name"] == self.listTree.itemWidget(self.selectedItem, 1).text() and task["Description"] == self.listTree.itemWidget(self.selectedItem, 2).text():
+                taskToDelete = task
+                break
+
+        self.tasksList.remove(taskToDelete)
+
+        # task = {"Name": taskName, "Description": taskDescription, "StartDate": taskStart, "EndDate": taskEnd}
+        # self.tasksList.remove(task)
 
         self.Save()
         self.Update_changes()
