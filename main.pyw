@@ -260,30 +260,23 @@ class MainWindow(QWidget):
         self.listTreeHeader.setStretchLastSection(False)
         # self.listTreeHeader.setSectionResizeMode()
 
-        modifyDeleteLayout = QHBoxLayout()
+        addDeleteLayout = QHBoxLayout()
 
         addTaskBtn = QPushButton("Ajouter")
         addTaskBtn.setFixedHeight(30)
         addTaskBtn.setFixedWidth(100)
         addTaskBtn.setFont(QFont('AnyStyle', subtitleFontSize))
         addTaskBtn.clicked.connect(self.AddTaskBtnClicked)
-        modifyDeleteLayout.addWidget(addTaskBtn, 0)
-
-        """modifyTaskBtn = QPushButton("Modifier")
-        modifyTaskBtn.setFixedHeight(30)
-        modifyTaskBtn.setFixedWidth(100)
-        modifyTaskBtn.setFont(QFont('AnyStyle', subtitleFontSize))
-        modifyTaskBtn.clicked.connect(self.ModifyTaskBtnClicked)
-        modifyDeleteLayout.addWidget(modifyTaskBtn, 0)"""
+        addDeleteLayout.addWidget(addTaskBtn, 0)
 
         delTaskBtn = QPushButton("Supprimer")
         delTaskBtn.setFixedHeight(30)
         delTaskBtn.setFixedWidth(100)
         delTaskBtn.setFont(QFont('AnyStyle', subtitleFontSize))
         delTaskBtn.clicked.connect(self.DeleteTaskBtnClicked)
-        modifyDeleteLayout.addWidget(delTaskBtn, 1)
+        addDeleteLayout.addWidget(delTaskBtn, 1)
 
-        grid.addLayout(modifyDeleteLayout, 3, 0, 1, 4)
+        grid.addLayout(addDeleteLayout, 3, 0, 1, 4)
 
         self.setLayout(grid)
 
@@ -309,14 +302,35 @@ class MainWindow(QWidget):
             elmt = QTreeWidgetItem(self.listTree)
             elmt.setFlags(elmt.flags() | Qt.ItemIsUserCheckable)
 
-            elmt.setText(1, task["Name"])
-            elmt.setText(2, task["Description"])
-            elmt.setText(3, task["StartDate"])
-            elmt.setText(4, task["EndDate"])
-            elmt.setTextAlignment(1, Qt.AlignCenter)
-            elmt.setTextAlignment(2, Qt.AlignLeft)
-            elmt.setTextAlignment(3, Qt.AlignCenter)
-            elmt.setTextAlignment(4, Qt.AlignCenter)
+            lbl = QLabel(task["Name"])
+            lbl.setWordWrap(True)
+            lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+            self.listTree.setItemWidget(elmt, 1, lbl)
+
+            lbl = QLabel(task["Description"])
+            lbl.setWordWrap(True)
+            lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            self.listTree.setItemWidget(elmt, 2, lbl)
+
+            lbl = QLabel(task["StartDate"])
+            lbl.setWordWrap(True)
+            lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+            self.listTree.setItemWidget(elmt, 3, lbl)
+
+            lbl = QLabel(task["EndDate"])
+            lbl.setWordWrap(True)
+            lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+            self.listTree.setItemWidget(elmt, 4, lbl)
+
+            # elmt.setText(1, task["Name"])
+            # elmt.setText(2, task["Description"])
+            # elmt.setText(3, task["StartDate"])
+            # elmt.setText(4, task["EndDate"])
+
+            # elmt.setTextAlignment(1, Qt.AlignCenter)
+            # elmt.setTextAlignment(2, Qt.AlignLeft)
+            # elmt.setTextAlignment(3, Qt.AlignCenter)
+            # elmt.setTextAlignment(4, Qt.AlignCenter)
             # toolTip = "test"
             # elmt.setToolTip(0, toolTip)
             elmt.setCheckState(0, Qt.Unchecked)
@@ -324,15 +338,25 @@ class MainWindow(QWidget):
     def listTree_changed(self, item, col):
         if item.checkState(0) == Qt.Checked:
             for i in range(1, self.listTree.columnCount()):
-                f = item.font(i)
+                itemWidget = self.listTree.itemWidget(item, i)
+                f = itemWidget.font()
                 f.setStrikeOut(True)
-                item.setFont(i, f)
+                itemWidget.setFont(f)
+
+                # f = item.font(i)
+                # f.setStrikeOut(True)
+                # item.setFont(i, f)
 
         elif item.checkState(0) == Qt.Unchecked:
             for i in range(1, self.listTree.columnCount()):
-                f = item.font(i)
+                itemWidget = self.listTree.itemWidget(item, i)
+                f = itemWidget.font()
                 f.setStrikeOut(False)
-                item.setFont(i, f)
+                itemWidget.setFont(f)
+
+                # f = item.font(i)
+                # f.setStrikeOut(False)
+                # item.setFont(i, f)
 
     def listTree_itemClicked(self, item, col):
         if item.isSelected():
@@ -342,29 +366,48 @@ class MainWindow(QWidget):
         self.addTaskDialog.show()
 
     def ModifyTaskBtnClicked(self):
-        taskName = self.selectedItem.text(1)
-        taskDescription = self.selectedItem.text(2)
-        taskStart = self.selectedItem.text(3)
-        taskEnd = self.selectedItem.text(4)
 
-        self.modify_task.emit([taskName, taskDescription, taskStart, taskEnd])
+        taskToSend = []
+        for i in range(1, self.listTree.columnCount()):
+            taskToSend.append(self.listTree.itemWidget(self.selectedItem, i).text())
+
+        self.modify_task.emit(taskToSend)
+
+        # taskName = self.selectedItem.text(1)
+        # taskDescription = self.selectedItem.text(2)
+        # taskStart = self.selectedItem.text(3)
+        # taskEnd = self.selectedItem.text(4)
+
+        # self.modify_task.emit([taskName, taskDescription, taskStart, taskEnd])
 
     def ModifiedTask(self, modifiedTask):
         for task in self.tasksList:
-            if task["Name"] == self.selectedItem.text(1) and task["Description"] == self.selectedItem.text(2):
+            if task["Name"] == self.listTree.itemWidget(self.selectedItem, 1).text() and task["Description"] ==self.listTree.itemWidget(self.selectedItem, 2).text():
                 task["Name"] = modifiedTask["Name"]
                 task["Description"] = modifiedTask["Description"]
                 task["StartDate"] = modifiedTask["StartDate"]
                 task["EndDate"] = modifiedTask["EndDate"]
 
+
+            # if task["Name"] == self.selectedItem.text(1) and task["Description"] == self.selectedItem.text(2):
+            #     task["Name"] = modifiedTask["Name"]
+            #     task["Description"] = modifiedTask["Description"]
+            #     task["StartDate"] = modifiedTask["StartDate"]
+            #     task["EndDate"] = modifiedTask["EndDate"]
+
         self.Save()
         self.Update_changes()
 
     def DeleteTaskBtnClicked(self):
-        taskName = self.selectedItem.text(1)
-        taskDescription = self.selectedItem.text(2)
-        taskStart = self.selectedItem.text(3)
-        taskEnd = self.selectedItem.text(4)
+        taskName = self.listTree.itemWidget(self.selectedItem, 1).text()
+        taskDescription = self.listTree.itemWidget(self.selectedItem, 2).text()
+        taskStart = self.listTree.itemWidget(self.selectedItem, 3).text()
+        taskEnd = self.listTree.itemWidget(self.selectedItem, 4).text()
+
+        # taskName = self.selectedItem.text(1)
+        # taskDescription = self.selectedItem.text(2)
+        # taskStart = self.selectedItem.text(3)
+        # taskEnd = self.selectedItem.text(4)
         task = {"Name": taskName, "Description": taskDescription, "StartDate": taskStart, "EndDate": taskEnd}
         self.tasksList.remove(task)
 

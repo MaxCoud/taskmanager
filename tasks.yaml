@@ -1,13 +1,3 @@
-- Name: "Tache n\xB01"
-  Description: "Faire en sorte que la description dans l'ajout de t\xE2che soit mieux\
-    \ fait"
-  StartDate: '2022-11-09'
-  EndDate: '-'
-- Name: Hello
-  Description: "Grace \xE0 \xE7a, je peux \xE9crire autant que je veux dans ma zone\
-    \ de texte sans que ce la soit probl\xE9matique, trop bien"
-  StartDate: '2022-11-09'
-  EndDate: '2022-11-09'
 - Name: Loooooooooog titre de tache
   Description: "Grace \xE0 \xE7a, je peux \xE9crire autant que je veux dans ma zone\
     \ de texte sans que cela soit probl\xE9matique, trop bien"
@@ -17,3 +7,8 @@
   Description: Rendre lisible les noms et descriptions
   StartDate: '2022-11-09'
   EndDate: '2022-11-11'
+- Name: Tenir compte des checked
+  Description: "Actuellement, quand on red\xE9marre, l'appli ne tient pas compte de\
+    \ si l'item \xE9tait check\xE9 ou pas"
+  StartDate: '2022-11-10'
+  EndDate: '2022-11-14'
