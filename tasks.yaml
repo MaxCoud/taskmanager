@@ -1,22 +1,3 @@
-- Check: 1
-  Name: Description sur plusieurs lignes
-  Description: Rendre lisible les noms et descriptions
-  Project: task manager
-  StartDate: '2022-11-09'
-  EndDate: '2022-11-11'
-- Check: 1
-  Name: Tenir compte des checked
-  Description: "Actuellement, quand on red\xE9marre, l'appli ne tient pas compte de\
-    \ si l'item \xE9tait check\xE9 ou pas"
-  Project: task manager
-  StartDate: '2022-11-10'
-  EndDate: '2022-11-14'
-- Check: 1
-  Name: Prendre en compte des projets
-  Description: "liste de projets que l'on peut \xE9galement modifier"
-  Project: task manager
-  StartDate: '2022-11-14'
-  EndDate: '2022-11-10'
 - Check: 0
   Name: ajouter des fonctions de tri
   Description: trier par date, nom, ou projet
@@ -37,12 +18,9 @@
   Project: task manager
   StartDate: '2022-11-10'
   EndDate: '2022-11-21'
-- Check: 1
-  Name: ajouter projet depuis ajout de tache
-  Description: "on pourrait faire une liste deroulante pour s\xE9lectionner un projet,\
-    \ la derniere valeur de la liste serait \"Nouveau\". De la on ouvre le gestionnaire\
-    \ de taches, et on l'ajoute. Ce nouveau projet serait d\xE9ja s\xE9lectrionn\xE9\
-    \ dans l'ajout de tache"
+- Check: 0
+  Name: Confirmation suppression
+  Description: Demande confirmation avant suppression de tache ou de projet
   Project: task manager
-  StartDate: '2022-11-10'
-  EndDate: '2022-11-15'
+  StartDate: '2022-11-14'
+  EndDate: '2022-11-21'

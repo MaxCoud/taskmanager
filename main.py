@@ -191,12 +191,13 @@ class AddTaskDialog(QDialog):
     def ModifyTask(self, task):
         self.nameTextEdit.setText(task[0])
         self.descTextEdit.setPlainText(task[1])
-        self.startDateEdit.setDate(QDate.fromString(task[2], Qt.ISODate))
-        if task[3] == "-":
+        self.projectComboBox.setCurrentText(task[2])
+        self.startDateEdit.setDate(QDate.fromString(task[3], Qt.ISODate))
+        if task[4] == "-":
             self.endDateEdit.setDate(QDate.currentDate())
             self.endDateCheckBox.setChecked(False)
         else:
-            self.endDateEdit.setDate(QDate.fromString(task[3], Qt.ISODate))
+            self.endDateEdit.setDate(QDate.fromString(task[4], Qt.ISODate))
             self.endDateCheckBox.setChecked(True)
 
         self.setWindowTitle("Modifier une tâche")
@@ -526,15 +527,18 @@ class MainWindow(QWidget):
         if item.isSelected():
             self.selectedItem = item
 
-    def AddTaskBtnClicked(self):
+    def Update_project_combo_box(self):
         self.addTaskDialog.projectComboBox.clear()
         for i in range(0, len(self.projectList)):
             self.addTaskDialog.projectComboBox.insertItem(i, self.projectList[i]["Name"])
         self.addTaskDialog.projectComboBox.insertItem(len(self.projectList), "--Nouveau--")
+
+    def AddTaskBtnClicked(self):
+        self.Update_project_combo_box()
         self.addTaskDialog.show()
 
     def ModifyTaskBtnClicked(self):
-
+        self.Update_project_combo_box()
         taskToSend = []
         for i in range(1, self.listTree.columnCount()):
             taskToSend.append(self.listTree.itemWidget(self.selectedItem, i).text())
@@ -571,10 +575,7 @@ class MainWindow(QWidget):
         self.projectsDialog.show()
 
     def New_project(self, received_object):
-        self.addTaskDialog.projectComboBox.clear()
-        for i in range(0, len(self.projectList)):
-            self.addTaskDialog.projectComboBox.insertItem(i, self.projectList[i]["Name"])
-        self.addTaskDialog.projectComboBox.insertItem(len(self.projectList), "--Nouveau--")
+        self.Update_project_combo_box()
 
         self.addTaskDialog.projectComboBox.setCurrentText(received_object)
 
