@@ -2,25 +2,12 @@
   Name: ajouter des fonctions de tri
   Description: trier par date, nom, ou projet
   Project: task manager
-  StartDate: '2022-11-10'
-  EndDate: '2022-11-21'
+  StartDate: 10/11/2022
+  EndDate: 21/11/2022
 - Check: 0
-  Name: affichage date
-  Description: "Afficher la date au format fran\xE7ais, mais garder en m\xE9moire\
-    \ le format ISO pour le tri (ou a retransformer plus tard)"
-  Project: task manager
-  StartDate: '2022-11-10'
-  EndDate: '2022-11-14'
-- Check: 0
-  Name: gestion projets
+  Name: Confirmation suppression projet
   Description: "A la suppression d'un projet, supprimer toutes les taches associ\xE9\
     es ? mettre un avertissement"
   Project: task manager
-  StartDate: '2022-11-10'
-  EndDate: '2022-11-21'
-- Check: 0
-  Name: Confirmation suppression
-  Description: Demande confirmation avant suppression de tache ou de projet
-  Project: task manager
-  StartDate: '2022-11-14'
-  EndDate: '2022-11-21'
+  StartDate: 10/11/2022
+  EndDate: 21/11/2022

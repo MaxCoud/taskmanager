@@ -158,11 +158,11 @@ class AddTaskDialog(QDialog):
         taskName = self.nameTextEdit.text()
         taskProject = self.projectComboBox.currentText()
         taskDescription = self.descTextEdit.toPlainText()
-        taskStartDate = self.startDateEdit.date().toString(Qt.ISODate)
+        taskStartDate = self.startDateEdit.date().toString(Qt.DefaultLocaleShortDate)
         if not self.endDateCheckBox.isChecked():
             taskEndDate = "-"
         else:
-            taskEndDate = self.endDateEdit.date().toString(Qt.ISODate)
+            taskEndDate = self.endDateEdit.date().toString(Qt.DefaultLocaleShortDate)
         self.task = {"Check": 0, "Name": taskName, "Description": taskDescription, "Project": taskProject, "StartDate": taskStartDate, "EndDate": taskEndDate}
 
 
@@ -192,12 +192,12 @@ class AddTaskDialog(QDialog):
         self.nameTextEdit.setText(task[0])
         self.descTextEdit.setPlainText(task[1])
         self.projectComboBox.setCurrentText(task[2])
-        self.startDateEdit.setDate(QDate.fromString(task[3], Qt.ISODate))
+        self.startDateEdit.setDate(QDate.fromString(task[3], Qt.DefaultLocaleShortDate))
         if task[4] == "-":
             self.endDateEdit.setDate(QDate.currentDate())
             self.endDateCheckBox.setChecked(False)
         else:
-            self.endDateEdit.setDate(QDate.fromString(task[4], Qt.ISODate))
+            self.endDateEdit.setDate(QDate.fromString(task[4], Qt.DefaultLocaleShortDate))
             self.endDateCheckBox.setChecked(True)
 
         self.setWindowTitle("Modifier une tâche")
@@ -447,6 +447,10 @@ class MainWindow(QWidget):
         self.get_new_project.connect(self.projectsDialog.GetNewProject)
         self.new_project.connect(self.New_project)
 
+    def keyPressEvent(self, e):
+        if e.key() == 16777223:
+            self.DeleteTaskBtnClicked()
+
     def Save(self):
         with open('tasks.yaml', 'w') as f:
             yaml.dump(self.tasksList, f, sort_keys=False)
@@ -559,17 +563,32 @@ class MainWindow(QWidget):
         self.Update_changes()
 
     def DeleteTaskBtnClicked(self):
+        taskName = self.listTree.itemWidget(self.selectedItem, 1).text()
 
-        taskToDelete = None
-        for task in self.tasksList:
-            if task["Name"] == self.listTree.itemWidget(self.selectedItem, 1).text() and task["Description"] == self.listTree.itemWidget(self.selectedItem, 2).text():
-                taskToDelete = task
-                break
+        msg = QMessageBox()
+        msg.setWindowTitle("Suppression d'une tâche")
+        msg.setText(f'La tache "{taskName}" va être supprimée')
+        msg.setIcon(QMessageBox.Warning)
+        msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
+        msg.setDefaultButton(QMessageBox.Ok)
+        msg.buttonClicked.connect(self.onDeleteMsgBoxBtnClicked)
 
-        self.tasksList.remove(taskToDelete)
+        msg.setButtonText(QMessageBox.Cancel, "Annuler")
+        msg.exec_()
 
-        self.Save()
-        self.Update_changes()
+    def onDeleteMsgBoxBtnClicked(self, button):
+        if button.text() == 'OK':
+            taskToDelete = None
+            for task in self.tasksList:
+                if task["Name"] == self.listTree.itemWidget(self.selectedItem, 1).text() and \
+                        task["Description"] == self.listTree.itemWidget(self.selectedItem, 2).text():
+                    taskToDelete = task
+                    break
+
+            self.tasksList.remove(taskToDelete)
+
+            self.Save()
+            self.Update_changes()
 
     def ManageProjectsBtnClicked(self):
         self.projectsDialog.show()
