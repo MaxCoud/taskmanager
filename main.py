@@ -11,7 +11,7 @@ from PySide2.QtCore import Qt, Signal, QSize, QDateTime, QDate
 from PySide2.QtGui import QFont, QPalette, QColor, QTextOption
 from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QListWidget, QApplication, \
     QLabel, QPushButton, QCheckBox, QTreeWidget, QTreeWidgetItem, QHeaderView, QDateEdit, QDialog, QVBoxLayout, \
-    QPlainTextEdit, QMessageBox, QInputDialog
+    QPlainTextEdit, QMessageBox, QInputDialog, QComboBox
 
 
 class AddTaskDialog(QDialog):
@@ -55,28 +55,39 @@ class AddTaskDialog(QDialog):
         self.descTextEdit.setFont(QFont('AnyStyle', itemFontSize))
         grid.addWidget(self.descTextEdit, 1, 1)
 
-        lbl = QLabel("Date de début")
+        lbl = QLabel("Projet")
         lbl.setFont(QFont('AnyStyle', subtitleFontSize))
         lbl.setAlignment(Qt.AlignCenter)
         grid.addWidget(lbl, 2, 0)
+
+        self.projectComboBox = QComboBox()
+        self.projectComboBox.setFixedWidth(200)
+        self.projectComboBox.setFixedHeight(30)
+        self.projectComboBox.setFont(QFont('AnyStyle', itemFontSize))
+        self.projectComboBox.currentIndexChanged.connect(self.ProjectComboBoxIndexChanged)
+        grid.addWidget(self.projectComboBox, 2, 1)
+
+        lbl = QLabel("Date de début")
+        lbl.setFont(QFont('AnyStyle', subtitleFontSize))
+        lbl.setAlignment(Qt.AlignCenter)
+        grid.addWidget(lbl, 3, 0)
 
         self.startDateEdit = QDateEdit(calendarPopup=True)
         self.startDateEdit.setDateTime(QDateTime.currentDateTime())
         self.startDateEdit.setFixedWidth(170)
         self.startDateEdit.setFixedHeight(30)
         self.startDateEdit.setFont(QFont('AnyStyle', itemFontSize))
-        grid.addWidget(self.startDateEdit, 2, 1, Qt.AlignRight)
+        grid.addWidget(self.startDateEdit, 3, 1, Qt.AlignRight)
 
         lbl = QLabel("Date de fin")
         lbl.setFont(QFont('AnyStyle', subtitleFontSize))
         lbl.setAlignment(Qt.AlignCenter)
-        grid.addWidget(lbl, 3, 0)
+        grid.addWidget(lbl, 4, 0)
 
         endDateLayout = QHBoxLayout()
 
         self.endDateCheckBox = QCheckBox()
         self.endDateCheckBox.stateChanged.connect(self.EndDateCheckBoxStateChanged)
-        endDateLayout.addWidget(self.endDateCheckBox, 0)
 
         self.endDateEdit = QDateEdit(calendarPopup=True)
         self.endDateEdit.setEnabled(False)
@@ -84,16 +95,18 @@ class AddTaskDialog(QDialog):
         self.endDateEdit.setFixedWidth(170)
         self.endDateEdit.setFixedHeight(30)
         self.endDateEdit.setFont(QFont('AnyStyle', itemFontSize))
+
+        endDateLayout.addWidget(self.endDateCheckBox, 0)
         endDateLayout.addWidget(self.endDateEdit, 1)
 
-        grid.addLayout(endDateLayout, 3, 1)
+        grid.addLayout(endDateLayout, 4, 1)
 
         enterTaskBtn = QPushButton("Entrer")
         enterTaskBtn.setFixedHeight(30)
         # enterTaskBtn.setFixedWidth(90)
         enterTaskBtn.setFont(QFont('AnyStyle', subtitleFontSize))
         enterTaskBtn.clicked.connect(self.EnterTaskBtnClicked)
-        grid.addWidget(enterTaskBtn, 4, 0, 1, 2)
+        grid.addWidget(enterTaskBtn, 5, 0, 1, 2)
 
         self.setLayout(grid)
 
@@ -143,14 +156,14 @@ class AddTaskDialog(QDialog):
 
     def EnterTaskBtnClicked(self):
         taskName = self.nameTextEdit.text()
-        # taskDescription = self.descTextEdit.text()
+        taskProject = self.projectComboBox.currentText()
         taskDescription = self.descTextEdit.toPlainText()
         taskStartDate = self.startDateEdit.date().toString(Qt.ISODate)
         if not self.endDateCheckBox.isChecked():
             taskEndDate = "-"
         else:
             taskEndDate = self.endDateEdit.date().toString(Qt.ISODate)
-        self.task = {"Check": 0,"Name": taskName, "Description": taskDescription, "StartDate": taskStartDate, "EndDate": taskEndDate}
+        self.task = {"Check": 0, "Name": taskName, "Description": taskDescription, "Project": taskProject, "StartDate": taskStartDate, "EndDate": taskEndDate}
 
 
         if self.modifying:
@@ -192,6 +205,10 @@ class AddTaskDialog(QDialog):
 
         self.show()
 
+    def ProjectComboBoxIndexChanged(self, index):
+        if index == len(self.mainWin.projectList):
+            self.mainWin.get_new_project.emit()
+
 
 class ProjectsDialog(QDialog):
 
@@ -201,6 +218,9 @@ class ProjectsDialog(QDialog):
         self.mainWin = mainWin
 
         self.setWindowTitle("Gestion des projets")
+
+        self.selectedProject = None
+        self.getNewProject = False
 
         titleFontSize = 14
         subtitleFontSize = 11
@@ -250,25 +270,64 @@ class ProjectsDialog(QDialog):
             elmt = QTreeWidgetItem(self.projectTree)
             elmt.setText(0, project["Name"])
 
+    def projectTree_itemClicked(self, item, col):
+        if item.isSelected():
+            self.selectedProject = item
+
+    def projectTree_changed(self):
+        pass
+
+    def ModifyProjectBtnClicked(self):
+        initialProjectName = self.selectedProject.text(0)
+        modifyInputDialog = QInputDialog(self)
+        modifyInputDialog.setInputMode(QInputDialog.TextInput)
+        modifyInputDialog.setWindowTitle('Modifier un projet')
+        modifyInputDialog.setLabelText('Nom du projet :')
+        modifyInputDialog.setTextValue(initialProjectName)
+        modifyInputDialog.setFont(QFont('AnyStyle', 9))
+        ok = modifyInputDialog.exec_()
+        text = modifyInputDialog.textValue()
+        if ok:
+            for project in self.mainWin.projectList:
+                if project["Name"] == initialProjectName:
+                    project["Name"] = text
+                    break
+
+        self.Save()
+        self.Update_project_tree()
+
     def AddProjectBtnClicked(self):
-        text, ok = QInputDialog.getText(self, 'Entrer un projet', 'Nom du projet :')
+
+        addInputDialog = QInputDialog(self)
+        addInputDialog.setInputMode(QInputDialog.TextInput)
+        addInputDialog.setWindowTitle('Entrer un projet')
+        addInputDialog.setLabelText('Nom du projet :')
+        addInputDialog.setFont(QFont('AnyStyle', 9))
+        ok = addInputDialog.exec_()
+        text = addInputDialog.textValue()
+        # text, ok = QInputDialog.getText(self, 'Entrer un projet', 'Nom du projet :')
         if ok:
             self.mainWin.projectList.append({"Name": text})
 
         self.Save()
         self.Update_project_tree()
 
+        if self.getNewProject and ok:
+            self.getNewProject = False
+            self.hide()
+            self.mainWin.new_project.emit(text)
+
     def DeleteProjectBtnClicked(self):
-        pass
+        projectToDelete = {"Name": self.selectedProject.text(0)}
 
-    def projectTree_changed(self):
-        pass
+        self.mainWin.projectList.remove(projectToDelete)
 
-    def projectTree_itemClicked(self):
-        pass
+        self.Save()
+        self.Update_project_tree()
 
-    def ModifyProjectBtnClicked(self):
-        pass
+    def GetNewProject(self):
+        self.getNewProject = True
+        self.AddProjectBtnClicked()
 
 
 class MainWindow(QWidget):
@@ -276,6 +335,9 @@ class MainWindow(QWidget):
     new_task = Signal(object)
     modify_task = Signal(object)
     modified_task = Signal(object)
+
+    get_new_project = Signal()
+    new_project = Signal(object)
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -299,7 +361,7 @@ class MainWindow(QWidget):
                 f.close()
 
         self.setWindowTitle("Task Manager")
-        self.setFixedWidth(1000)
+        self.setFixedWidth(1120)
         self.setFixedHeight(500)
 
         self.tasksList = []
@@ -331,13 +393,14 @@ class MainWindow(QWidget):
         grid = QGridLayout()
 
         self.listTree = QTreeWidget()
-        self.listTree.setHeaderLabels(["", "Nom", "Description", "Début", "Fin"])
+        self.listTree.setHeaderLabels(["", "Nom", "Description", "Projets", "Début", "Fin"])
         self.listTree.setFont(QFont('AnyStyle', subtitleFontSize))
         self.listTree.setColumnWidth(0, 50)
         self.listTree.setColumnWidth(1, 200)
         self.listTree.setColumnWidth(2, 480)
         self.listTree.setColumnWidth(3, 120)
         self.listTree.setColumnWidth(4, 120)
+        self.listTree.setColumnWidth(5, 120)
         self.listTree.itemChanged.connect(self.listTree_changed)
         self.listTree.itemClicked.connect(self.listTree_itemClicked)
         self.listTree.itemDoubleClicked.connect(self.ModifyTaskBtnClicked)
@@ -380,6 +443,8 @@ class MainWindow(QWidget):
         self.new_task.connect(self.New_task)
         self.modify_task.connect(self.addTaskDialog.ModifyTask)
         self.modified_task.connect(self.ModifiedTask)
+        self.get_new_project.connect(self.projectsDialog.GetNewProject)
+        self.new_project.connect(self.New_project)
 
     def Save(self):
         with open('tasks.yaml', 'w') as f:
@@ -409,15 +474,20 @@ class MainWindow(QWidget):
             lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
             self.listTree.setItemWidget(elmt, 2, lbl)
 
-            lbl = QLabel(task["StartDate"])
+            lbl = QLabel(task["Project"])
             lbl.setWordWrap(True)
             lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             self.listTree.setItemWidget(elmt, 3, lbl)
 
-            lbl = QLabel(task["EndDate"])
+            lbl = QLabel(task["StartDate"])
             lbl.setWordWrap(True)
             lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             self.listTree.setItemWidget(elmt, 4, lbl)
+
+            lbl = QLabel(task["EndDate"])
+            lbl.setWordWrap(True)
+            lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+            self.listTree.setItemWidget(elmt, 5, lbl)
 
             self.updating = False
 
@@ -425,8 +495,6 @@ class MainWindow(QWidget):
                 elmt.setCheckState(0, Qt.Checked)
             else:
                 elmt.setCheckState(0, Qt.Unchecked)
-
-
 
     def listTree_changed(self, item, col):
         if not self.updating:
@@ -459,6 +527,10 @@ class MainWindow(QWidget):
             self.selectedItem = item
 
     def AddTaskBtnClicked(self):
+        self.addTaskDialog.projectComboBox.clear()
+        for i in range(0, len(self.projectList)):
+            self.addTaskDialog.projectComboBox.insertItem(i, self.projectList[i]["Name"])
+        self.addTaskDialog.projectComboBox.insertItem(len(self.projectList), "--Nouveau--")
         self.addTaskDialog.show()
 
     def ModifyTaskBtnClicked(self):
@@ -474,6 +546,7 @@ class MainWindow(QWidget):
             if task["Name"] == self.listTree.itemWidget(self.selectedItem, 1).text() and task["Description"] ==self.listTree.itemWidget(self.selectedItem, 2).text():
                 task["Name"] = modifiedTask["Name"]
                 task["Description"] = modifiedTask["Description"]
+                task["Project"] = modifiedTask["Project"]
                 task["StartDate"] = modifiedTask["StartDate"]
                 task["EndDate"] = modifiedTask["EndDate"]
                 break
@@ -491,14 +564,20 @@ class MainWindow(QWidget):
 
         self.tasksList.remove(taskToDelete)
 
-        # task = {"Name": taskName, "Description": taskDescription, "StartDate": taskStart, "EndDate": taskEnd}
-        # self.tasksList.remove(task)
-
         self.Save()
         self.Update_changes()
 
     def ManageProjectsBtnClicked(self):
         self.projectsDialog.show()
+
+    def New_project(self, received_object):
+        self.addTaskDialog.projectComboBox.clear()
+        for i in range(0, len(self.projectList)):
+            self.addTaskDialog.projectComboBox.insertItem(i, self.projectList[i]["Name"])
+        self.addTaskDialog.projectComboBox.insertItem(len(self.projectList), "--Nouveau--")
+
+        self.addTaskDialog.projectComboBox.setCurrentText(received_object)
+
 
 if __name__ == "__main__":
     app = QApplication([])

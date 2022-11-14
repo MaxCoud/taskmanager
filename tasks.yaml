@@ -1,41 +1,48 @@
 - Check: 1
   Name: Description sur plusieurs lignes
   Description: Rendre lisible les noms et descriptions
+  Project: task manager
   StartDate: '2022-11-09'
   EndDate: '2022-11-11'
 - Check: 1
   Name: Tenir compte des checked
   Description: "Actuellement, quand on red\xE9marre, l'appli ne tient pas compte de\
     \ si l'item \xE9tait check\xE9 ou pas"
+  Project: task manager
   StartDate: '2022-11-10'
   EndDate: '2022-11-14'
-- Check: 0
+- Check: 1
   Name: Prendre en compte des projets
   Description: "liste de projets que l'on peut \xE9galement modifier"
-  StartDate: '2022-11-10'
-  EndDate: '2022-11-21'
+  Project: task manager
+  StartDate: '2022-11-14'
+  EndDate: '2022-11-10'
 - Check: 0
   Name: ajouter des fonctions de tri
   Description: trier par date, nom, ou projet
+  Project: task manager
   StartDate: '2022-11-10'
   EndDate: '2022-11-21'
 - Check: 0
   Name: affichage date
   Description: "Afficher la date au format fran\xE7ais, mais garder en m\xE9moire\
     \ le format ISO pour le tri (ou a retransformer plus tard)"
+  Project: task manager
   StartDate: '2022-11-10'
   EndDate: '2022-11-14'
 - Check: 0
   Name: gestion projets
   Description: "A la suppression d'un projet, supprimer toutes les taches associ\xE9\
     es ? mettre un avertissement"
+  Project: task manager
   StartDate: '2022-11-10'
   EndDate: '2022-11-21'
-- Check: 0
+- Check: 1
   Name: ajouter projet depuis ajout de tache
   Description: "on pourrait faire une liste deroulante pour s\xE9lectionner un projet,\
     \ la derniere valeur de la liste serait \"Nouveau\". De la on ouvre le gestionnaire\
     \ de taches, et on l'ajoute. Ce nouveau projet serait d\xE9ja s\xE9lectrionn\xE9\
     \ dans l'ajout de tache"
+  Project: task manager
   StartDate: '2022-11-10'
   EndDate: '2022-11-15'
