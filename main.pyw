@@ -319,12 +319,23 @@ class ProjectsDialog(QDialog):
             self.mainWin.new_project.emit(text)
 
     def DeleteProjectBtnClicked(self):
-        projectToDelete = {"Name": self.selectedProject.text(0)}
+        projectName = self.selectedProject.text(0)
+        msg = QMessageBox()
+        msg.setWindowTitle("Suppression d'un projet")
+        msg.setText(f'Le projet "{projectName}" va être supprimé, ainsi que toutes les tâches associées')
+        msg.setIcon(QMessageBox.Critical)
+        msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
+        msg.setDefaultButton(QMessageBox.Ok)
+        msg.buttonClicked.connect(self.onDeleteMsgBoxBtnClicked)
 
-        self.mainWin.projectList.remove(projectToDelete)
+        msg.setButtonText(QMessageBox.Cancel, "Annuler")
+        msg.exec_()
 
-        self.Save()
-        self.Update_project_tree()
+    def onDeleteMsgBoxBtnClicked(self, button):
+        if button.text() == 'OK':
+            projectToDelete = {"Name": self.selectedProject.text(0)}
+
+            self.mainWin.delete_project.emit(self.selectedProject.text(0))
 
     def GetNewProject(self):
         self.getNewProject = True
@@ -339,6 +350,7 @@ class MainWindow(QWidget):
 
     get_new_project = Signal()
     new_project = Signal(object)
+    delete_project = Signal(object)
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -446,6 +458,7 @@ class MainWindow(QWidget):
         self.modified_task.connect(self.ModifiedTask)
         self.get_new_project.connect(self.projectsDialog.GetNewProject)
         self.new_project.connect(self.New_project)
+        self.delete_project.connect(self.DeleteProject)
 
     def keyPressEvent(self, e):
         if e.key() == 16777223:
@@ -597,6 +610,26 @@ class MainWindow(QWidget):
         self.Update_project_combo_box()
 
         self.addTaskDialog.projectComboBox.setCurrentText(received_object)
+
+    def DeleteProject(self, received_object):
+        projectName = received_object
+        tasks = []
+
+        for task in self.tasksList:
+            print("project: ", projectName, "project task: ", task["Project"])
+            if projectName == task["Project"]:
+                tasks.append(task)
+
+        for task in tasks:
+            self.tasksList.remove(task)
+
+        self.Save()
+        self.Update_changes()
+
+        self.projectList.remove({"Name": projectName})
+
+        self.projectsDialog.Save()
+        self.projectsDialog.Update_project_tree()
 
 
 if __name__ == "__main__":

@@ -5,9 +5,8 @@
   StartDate: 10/11/2022
   EndDate: 21/11/2022
 - Check: 0
-  Name: Confirmation suppression projet
-  Description: "A la suppression d'un projet, supprimer toutes les taches associ\xE9\
-    es ? mettre un avertissement"
+  Name: Systeme de notif
+  Description: "Quand une date approche, pr\xE9venir par notification"
   Project: task manager
-  StartDate: 10/11/2022
-  EndDate: 21/11/2022
+  StartDate: 14/11/2022
+  EndDate: 25/11/2022
