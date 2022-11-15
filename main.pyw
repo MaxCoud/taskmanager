@@ -7,7 +7,7 @@ import time
 from pathlib import Path
 
 import yaml
-from PySide2.QtCore import Qt, Signal, QSize, QDateTime, QDate
+from PySide2.QtCore import Qt, Signal, QSize, QDateTime, QDate, QTimer
 from PySide2.QtGui import QFont, QPalette, QColor, QTextOption
 from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QListWidget, QApplication, \
     QLabel, QPushButton, QCheckBox, QTreeWidget, QTreeWidgetItem, QHeaderView, QDateEdit, QDialog, QVBoxLayout, \
@@ -249,7 +249,7 @@ class ProjectsDialog(QDialog):
 
         self.projectTree = QTreeWidget()
         self.projectTree.setHeaderHidden(True)
-        self.projectTree.setFont(QFont('AnyStyle', itemFontSize))
+        self.projectTree.setFont(QFont('AnyStyle', subtitleFontSize))
         self.projectTree.setFixedWidth(300)
         self.projectTree.setFixedHeight(300)
         self.projectTree.itemChanged.connect(self.projectTree_changed)
@@ -374,8 +374,8 @@ class MainWindow(QWidget):
                 f.close()
 
         self.setWindowTitle("Task Manager")
-        self.setFixedWidth(1120)
-        self.setFixedHeight(500)
+        self.setFixedWidth(1118)
+        self.setFixedHeight(550)
 
         self.tasksList = []
         self.projectList = []
@@ -385,6 +385,7 @@ class MainWindow(QWidget):
         self.projectAscending = None
         self.startDateAscending = None
         self.endDateAscending = None
+        self.waitForNotifications = 1800000  # msec  30min = 30*60*1000 = 1.800.000
 
         try:
             with open('tasks.yaml', 'r') as f:
@@ -424,6 +425,7 @@ class MainWindow(QWidget):
         grid.addWidget(self.listTree, 2, 0, 1, 4)
 
         self.listTreeHeader = self.listTree.header()
+        self.listTreeHeader.setDefaultAlignment(Qt.AlignCenter | Qt.AlignVCenter)
         self.listTreeHeader.setSectionResizeMode(QHeaderView.Fixed)
         self.listTreeHeader.setStretchLastSection(False)
         # self.listTreeHeader.setSectionResizeMode()
@@ -459,12 +461,19 @@ class MainWindow(QWidget):
 
         self.Update_changes()
 
+        self.notifyTimer = QTimer()
+        self.notifyTimer.timeout.connect(self.NotifyUser)
+        self.notifyTimer.start(self.waitForNotifications)
+
         self.new_task.connect(self.New_task)
         self.modify_task.connect(self.addTaskDialog.ModifyTask)
         self.modified_task.connect(self.ModifiedTask)
         self.get_new_project.connect(self.projectsDialog.GetNewProject)
         self.new_project.connect(self.New_project)
         self.delete_project.connect(self.DeleteProject)
+
+        self.show()
+        self.NotifyUser()
 
     def keyPressEvent(self, e):
         if e.key() == 16777223:
@@ -503,12 +512,24 @@ class MainWindow(QWidget):
             lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             self.listTree.setItemWidget(elmt, 3, lbl)
 
-            lbl = QLabel(task["StartDate"])
+            try:
+                year, month, day = task["StartDate"].split("-")
+                date = f'{day}/{month}/{year}'
+            except:
+                date = task["StartDate"]
+
+            lbl = QLabel(date)
             lbl.setWordWrap(True)
             lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             self.listTree.setItemWidget(elmt, 4, lbl)
 
-            lbl = QLabel(task["EndDate"])
+            try:
+                year, month, day = task["EndDate"].split("-")
+                date = f'{day}/{month}/{year}'
+            except:
+                date = task["EndDate"]
+
+            lbl = QLabel(date)
             lbl.setWordWrap(True)
             lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             self.listTree.setItemWidget(elmt, 5, lbl)
@@ -638,28 +659,6 @@ class MainWindow(QWidget):
         self.projectsDialog.Update_project_tree()
 
     def customSortByColumn(self, column):
-        # self.test = []
-        #
-        # a = {"Name": "oui", "Count": 1}
-        # b = {"Name": "non", "Count": 2}
-        #
-        # self.test.append(a)
-        # self.test.append(b)
-        #
-        # print(self.test)
-        #
-        # self.test.sort(key=lambda x: x.get("Name"))
-        #
-        # print(self.test)
-        #
-        # self.test.sort(key=lambda x: x.get("Count"))
-        #
-        # print(self.test)
-
-        # self.listTree.sortItems(column, Qt.AscendingOrder)
-
-        print(self.tasksList)
-
         if column == 3:
             if self.projectAscending is None or not self.projectAscending:
                 self.tasksList.sort(key=lambda x: x.get("Project"))
@@ -683,10 +682,72 @@ class MainWindow(QWidget):
                 self.tasksList.sort(key=lambda x: x.get("EndDate"), reverse=True)
                 self.endDateAscending = False
 
-        print(self.tasksList)
-
         self.Save()
         self.Update_changes()
+
+    def NotifyUser(self):
+
+        today = QDate.currentDate()
+
+        date = QDate()
+        date.setDate(QDate.year(today), QDate.month(today), QDate.day(today))
+        dayNumber = date.dayOfWeek()
+
+        endOfWeek = today.addDays(7-dayNumber)
+
+        todayDay, todayMonth, todayYear = today.toString(Qt.ISODate).split("-")
+        todayStr = todayDay + todayMonth + todayYear
+        endOfWeekDay, endOfWeekMonth, endOfWeekYear = endOfWeek.toString(Qt.ISODate).split("-")
+        endOfWeekStr = endOfWeekDay + endOfWeekMonth + endOfWeekYear
+
+        passedList = []
+        passedList.append("TÂCHES DONT LE DÉLAI EST DÉPASSÉ :")
+
+        todayList = []
+        todayList.append("Voici les tâches à accomplir aujourd'hui :")
+
+        endOfWeekList = []
+        endOfWeekList.append("Voici les tâches à accomplir cette semaine :")
+
+        for task in self.tasksList:
+            try:
+                taskEndDateDay, taskEndDateMonth, taskEndDateYear = task["EndDate"].split("-")
+                taskEndDate = taskEndDateDay + taskEndDateMonth + taskEndDateYear
+
+                if taskEndDate < todayStr:
+                    passedList.append(f' - {task["Name"]}')
+                elif taskEndDate == todayStr:
+                    todayList.append(f' - {task["Name"]}')
+                elif taskEndDate <= endOfWeekStr:
+                    endOfWeekList.append(f' - {task["Name"]}')
+            except:
+                pass  # no end date
+
+        notficationText = ""
+
+        if len(passedList) > 1:
+            for line in passedList:
+                notficationText += ("\n" + line)
+            notficationText += "\n"
+
+        if len(todayList) > 1:
+            for line in todayList:
+                notficationText += ("\n" + line)
+            notficationText += "\n"
+
+        if len(endOfWeekList) > 1:
+            for line in endOfWeekList:
+                notficationText += ("\n" + line)
+
+        msg = QMessageBox()
+        msg.setWindowTitle("Vos tâches")
+        msg.setText(notficationText)
+        msg.setIcon(QMessageBox.Information)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.setDefaultButton(QMessageBox.Ok)
+        self.notifyTimer.stop()
+        msg.exec_()
+        self.notifyTimer.start(self.waitForNotifications)
 
 if __name__ == "__main__":
     app = QApplication([])
@@ -724,5 +785,4 @@ if __name__ == "__main__":
     app.setPalette(palette)
 
     mainWindow = MainWindow()
-    mainWindow.show()
     sys.exit(app.exec_())
