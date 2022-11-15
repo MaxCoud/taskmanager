@@ -158,11 +158,11 @@ class AddTaskDialog(QDialog):
         taskName = self.nameTextEdit.text()
         taskProject = self.projectComboBox.currentText()
         taskDescription = self.descTextEdit.toPlainText()
-        taskStartDate = self.startDateEdit.date().toString(Qt.DefaultLocaleShortDate)
+        taskStartDate = self.startDateEdit.date().toString(Qt.ISODate)
         if not self.endDateCheckBox.isChecked():
             taskEndDate = "-"
         else:
-            taskEndDate = self.endDateEdit.date().toString(Qt.DefaultLocaleShortDate)
+            taskEndDate = self.endDateEdit.date().toString(Qt.ISODate)
         self.task = {"Check": 0, "Name": taskName, "Description": taskDescription, "Project": taskProject, "StartDate": taskStartDate, "EndDate": taskEndDate}
 
 
@@ -192,12 +192,12 @@ class AddTaskDialog(QDialog):
         self.nameTextEdit.setText(task[0])
         self.descTextEdit.setPlainText(task[1])
         self.projectComboBox.setCurrentText(task[2])
-        self.startDateEdit.setDate(QDate.fromString(task[3], Qt.DefaultLocaleShortDate))
+        self.startDateEdit.setDate(QDate.fromString(task[3], Qt.ISODate))
         if task[4] == "-":
             self.endDateEdit.setDate(QDate.currentDate())
             self.endDateCheckBox.setChecked(False)
         else:
-            self.endDateEdit.setDate(QDate.fromString(task[4], Qt.DefaultLocaleShortDate))
+            self.endDateEdit.setDate(QDate.fromString(task[4], Qt.ISODate))
             self.endDateCheckBox.setChecked(True)
 
         self.setWindowTitle("Modifier une tâche")
@@ -382,6 +382,10 @@ class MainWindow(QWidget):
         self.selectedItem = None
         self.updating = False
 
+        self.projectAscending = None
+        self.startDateAscending = None
+        self.endDateAscending = None
+
         try:
             with open('tasks.yaml', 'r') as f:
                 self.tasksList = yaml.load(f, Loader=yaml.FullLoader)
@@ -423,6 +427,8 @@ class MainWindow(QWidget):
         self.listTreeHeader.setSectionResizeMode(QHeaderView.Fixed)
         self.listTreeHeader.setStretchLastSection(False)
         # self.listTreeHeader.setSectionResizeMode()
+        self.listTreeHeader.setSectionsClickable(True)
+        self.listTreeHeader.sectionClicked.connect(self.customSortByColumn)
 
         addDeleteLayout = QHBoxLayout()
 
@@ -631,6 +637,56 @@ class MainWindow(QWidget):
         self.projectsDialog.Save()
         self.projectsDialog.Update_project_tree()
 
+    def customSortByColumn(self, column):
+        # self.test = []
+        #
+        # a = {"Name": "oui", "Count": 1}
+        # b = {"Name": "non", "Count": 2}
+        #
+        # self.test.append(a)
+        # self.test.append(b)
+        #
+        # print(self.test)
+        #
+        # self.test.sort(key=lambda x: x.get("Name"))
+        #
+        # print(self.test)
+        #
+        # self.test.sort(key=lambda x: x.get("Count"))
+        #
+        # print(self.test)
+
+        # self.listTree.sortItems(column, Qt.AscendingOrder)
+
+        print(self.tasksList)
+
+        if column == 3:
+            if self.projectAscending is None or not self.projectAscending:
+                self.tasksList.sort(key=lambda x: x.get("Project"))
+                self.projectAscending = True
+            else:
+                self.tasksList.sort(key=lambda x: x.get("Project"), reverse=True)
+                self.projectAscending = False
+
+        elif column == 4:
+            if self.startDateAscending is None or not self.startDateAscending:
+                self.tasksList.sort(key=lambda x: x.get("StartDate"))
+                self.startDateAscending = True
+            else:
+                self.tasksList.sort(key=lambda x: x.get("StartDate"), reverse=True)
+                self.startDateAscending = False
+        elif column == 5:
+            if self.endDateAscending is None or not self.endDateAscending:
+                self.tasksList.sort(key=lambda x: x.get("EndDate"))
+                self.endDateAscending = True
+            else:
+                self.tasksList.sort(key=lambda x: x.get("EndDate"), reverse=True)
+                self.endDateAscending = False
+
+        print(self.tasksList)
+
+        self.Save()
+        self.Update_changes()
 
 if __name__ == "__main__":
     app = QApplication([])

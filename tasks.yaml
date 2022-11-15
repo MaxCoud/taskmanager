@@ -1,12 +1,18 @@
 - Check: 0
+  Name: boring
+  Description: azert
+  Project: berges
+  StartDate: '2022-11-08'
+  EndDate: '2022-12-13'
+- Check: 0
   Name: ajouter des fonctions de tri
   Description: trier par date, nom, ou projet
   Project: task manager
-  StartDate: 10/11/2022
-  EndDate: 21/11/2022
+  StartDate: '2022-11-10'
+  EndDate: '2022-11-21'
 - Check: 0
   Name: Systeme de notif
   Description: "Quand une date approche, pr\xE9venir par notification"
   Project: task manager
-  StartDate: 14/11/2022
-  EndDate: 25/11/2022
+  StartDate: '2022-11-14'
+  EndDate: '2022-11-25'
