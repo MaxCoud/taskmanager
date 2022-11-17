@@ -1,24 +1,38 @@
 - Check: 0
-  Name: test
-  Description: ergerg
-  Project: task manager
-  StartDate: '2022-11-08'
-  EndDate: '2022-11-14'
-- Check: 0
-  Name: segsegsegsegerg
-  Description: eggergrg
-  Project: laser berges
-  StartDate: '2022-11-15'
-  EndDate: '-'
-- Check: 0
-  Name: Test pour gestion notifications
-  Description: zerzerzerz
+  Name: gestion modbus
+  Description: voir notes
   Project: berges
-  StartDate: '2022-11-15'
-  EndDate: '2022-11-15'
+  StartDate: '2022-11-16'
+  EndDate: '2022-11-18'
 - Check: 0
-  Name: srgsrgsg
-  Description: segseg
+  Name: contacter ATEC
+  Description: "Probl\xE8me avec un transfo, on s'en est rendu compte pendant la mise\
+    \ au point d'une machine, la CN finissait par nous dire qu'une phase manquait\
+    \ et effectivement une phase d\xE9conne, semble ne pas \xEAtre reli\xE9e au neutre"
+  Project: berges
+  StartDate: '2022-11-16'
+  EndDate: '2022-11-18'
+- Check: 0
+  Name: Changer l'icone quand notif
+  Description: "Lorsque l'app est allum\xE9e, et qu'une notif arrive, on pourrait\
+    \ changer l'icone ? On peut essayer de mettre une bulle avec le nombre de tache\
+    \ a faire avant la fin de la semaine (normalement \xE7a clignote deja quand une\
+    \ fenetre s'affiche au premier plan)"
   Project: task manager
-  StartDate: '2022-11-15'
-  EndDate: '2022-11-19'
+  StartDate: '2022-11-16'
+  EndDate: '2022-11-22'
+- Check: 0
+  Name: Referer l'accomplissement d'une tache a un commit ?
+  Description: "Je ne sais pas si c'est faisable et comment, mais l'interet de garder\
+    \ des taches finies en barr\xE9es serait peut etre de garder une trace sur les\
+    \ commits"
+  Project: task manager
+  StartDate: '2022-11-16'
+  EndDate: '2022-11-23'
+- Check: 0
+  Name: "R\xE9gler pb nombre lignes limit\xE9 description"
+  Description: "Il semblerait que la description soit limit\xE9e en hauteur, ou en\
+    \ nombre de ligne (equivalent 4 lignes)"
+  Project: task manager
+  StartDate: '2022-11-16'
+  EndDate: '2022-11-23'

@@ -26,61 +26,61 @@ class AddTaskDialog(QDialog):
 
         self.setWindowTitle("Ajouter une tâche")
 
-        titleFontSize = 14
-        subtitleFontSize = 11
-        itemFontSize = 9
+        self.titleFontSize = 14
+        self.subtitleFontSize = 11
+        self.itemFontSize = 9.5
 
         grid = QGridLayout()
 
         lbl = QLabel("Nom")
-        lbl.setFont(QFont('AnyStyle', subtitleFontSize))
+        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
         lbl.setAlignment(Qt.AlignCenter)
         grid.addWidget(lbl, 0, 0)
 
         self.nameTextEdit = QLineEdit()
-        self.nameTextEdit.setFixedWidth(200)
+        self.nameTextEdit.setFixedWidth(240)
         self.nameTextEdit.setFixedHeight(30)
-        self.nameTextEdit.setFont(QFont('AnyStyle', itemFontSize))
+        self.nameTextEdit.setFont(QFont('AnyStyle', self.itemFontSize))
         grid.addWidget(self.nameTextEdit, 0, 1)
 
         lbl = QLabel("Description")
-        lbl.setFont(QFont('AnyStyle', subtitleFontSize))
+        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
         lbl.setAlignment(Qt.AlignCenter)
         grid.addWidget(lbl, 1, 0)
 
         self.descTextEdit = QPlainTextEdit()
-        self.descTextEdit.setFixedWidth(200)
-        self.descTextEdit.setFixedHeight(90)
+        self.descTextEdit.setFixedWidth(240)
+        self.descTextEdit.setFixedHeight(110)
         self.descTextEdit.setWordWrapMode(QTextOption.WordWrap.WrapAtWordBoundaryOrAnywhere)
-        self.descTextEdit.setFont(QFont('AnyStyle', itemFontSize))
+        self.descTextEdit.setFont(QFont('AnyStyle', self.itemFontSize))
         grid.addWidget(self.descTextEdit, 1, 1)
 
         lbl = QLabel("Projet")
-        lbl.setFont(QFont('AnyStyle', subtitleFontSize))
+        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
         lbl.setAlignment(Qt.AlignCenter)
         grid.addWidget(lbl, 2, 0)
 
         self.projectComboBox = QComboBox()
-        self.projectComboBox.setFixedWidth(200)
+        self.projectComboBox.setFixedWidth(240)
         self.projectComboBox.setFixedHeight(30)
-        self.projectComboBox.setFont(QFont('AnyStyle', itemFontSize))
+        self.projectComboBox.setFont(QFont('AnyStyle', self.itemFontSize))
         self.projectComboBox.currentIndexChanged.connect(self.ProjectComboBoxIndexChanged)
         grid.addWidget(self.projectComboBox, 2, 1)
 
         lbl = QLabel("Date de début")
-        lbl.setFont(QFont('AnyStyle', subtitleFontSize))
+        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
         lbl.setAlignment(Qt.AlignCenter)
         grid.addWidget(lbl, 3, 0)
 
         self.startDateEdit = QDateEdit(calendarPopup=True)
         self.startDateEdit.setDateTime(QDateTime.currentDateTime())
-        self.startDateEdit.setFixedWidth(170)
+        self.startDateEdit.setFixedWidth(210)
         self.startDateEdit.setFixedHeight(30)
-        self.startDateEdit.setFont(QFont('AnyStyle', itemFontSize))
+        self.startDateEdit.setFont(QFont('AnyStyle', self.itemFontSize))
         grid.addWidget(self.startDateEdit, 3, 1, Qt.AlignRight)
 
         lbl = QLabel("Date de fin")
-        lbl.setFont(QFont('AnyStyle', subtitleFontSize))
+        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
         lbl.setAlignment(Qt.AlignCenter)
         grid.addWidget(lbl, 4, 0)
 
@@ -92,9 +92,9 @@ class AddTaskDialog(QDialog):
         self.endDateEdit = QDateEdit(calendarPopup=True)
         self.endDateEdit.setEnabled(False)
         self.endDateEdit.setDateTime(QDateTime.currentDateTime())
-        self.endDateEdit.setFixedWidth(170)
+        self.endDateEdit.setFixedWidth(210)
         self.endDateEdit.setFixedHeight(30)
-        self.endDateEdit.setFont(QFont('AnyStyle', itemFontSize))
+        self.endDateEdit.setFont(QFont('AnyStyle', self.itemFontSize))
 
         endDateLayout.addWidget(self.endDateCheckBox, 0)
         endDateLayout.addWidget(self.endDateEdit, 1)
@@ -104,7 +104,7 @@ class AddTaskDialog(QDialog):
         enterTaskBtn = QPushButton("Entrer")
         enterTaskBtn.setFixedHeight(30)
         # enterTaskBtn.setFixedWidth(90)
-        enterTaskBtn.setFont(QFont('AnyStyle', subtitleFontSize))
+        enterTaskBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
         enterTaskBtn.clicked.connect(self.EnterTaskBtnClicked)
         grid.addWidget(enterTaskBtn, 5, 0, 1, 2)
 
@@ -189,15 +189,15 @@ class AddTaskDialog(QDialog):
             self.hide()
 
     def ModifyTask(self, task):
-        self.nameTextEdit.setText(task[0])
-        self.descTextEdit.setPlainText(task[1])
-        self.projectComboBox.setCurrentText(task[2])
-        self.startDateEdit.setDate(QDate.fromString(task[3], Qt.ISODate))
-        if task[4] == "-":
+        self.nameTextEdit.setText(task["Name"])
+        self.descTextEdit.setPlainText(task["Description"])
+        self.projectComboBox.setCurrentText(task["Project"])
+        self.startDateEdit.setDate(QDate.fromString(task["StartDate"], Qt.ISODate))
+        if task["EndDate"] == "-":
             self.endDateEdit.setDate(QDate.currentDate())
             self.endDateCheckBox.setChecked(False)
         else:
-            self.endDateEdit.setDate(QDate.fromString(task[4], Qt.ISODate))
+            self.endDateEdit.setDate(QDate.fromString(task["EndDate"], Qt.ISODate))
             self.endDateCheckBox.setChecked(True)
 
         self.setWindowTitle("Modifier une tâche")
@@ -223,9 +223,9 @@ class ProjectsDialog(QDialog):
         self.selectedProject = None
         self.getNewProject = False
 
-        titleFontSize = 14
-        subtitleFontSize = 11
-        itemFontSize = 9
+        self.titleFontSize = 14
+        self.subtitleFontSize = 11
+        self.itemFontSize = 10
 
         grid = QGridLayout()
 
@@ -234,14 +234,14 @@ class ProjectsDialog(QDialog):
         AddProjectBtn = QPushButton("Ajouter")
         AddProjectBtn.setFixedHeight(30)
         AddProjectBtn.setFixedWidth(100)
-        AddProjectBtn.setFont(QFont('AnyStyle', subtitleFontSize))
+        AddProjectBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
         AddProjectBtn.clicked.connect(self.AddProjectBtnClicked)
         buttonLayout.addWidget(AddProjectBtn, 0)
 
         DelProjectBtn = QPushButton("Supprimer")
         DelProjectBtn.setFixedHeight(30)
         DelProjectBtn.setFixedWidth(100)
-        DelProjectBtn.setFont(QFont('AnyStyle', subtitleFontSize))
+        DelProjectBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
         DelProjectBtn.clicked.connect(self.DeleteProjectBtnClicked)
         buttonLayout.addWidget(DelProjectBtn, 1)
 
@@ -249,7 +249,7 @@ class ProjectsDialog(QDialog):
 
         self.projectTree = QTreeWidget()
         self.projectTree.setHeaderHidden(True)
-        self.projectTree.setFont(QFont('AnyStyle', subtitleFontSize))
+        self.projectTree.setFont(QFont('AnyStyle', self.subtitleFontSize))
         self.projectTree.setFixedWidth(300)
         self.projectTree.setFixedHeight(300)
         self.projectTree.itemChanged.connect(self.projectTree_changed)
@@ -404,21 +404,24 @@ class MainWindow(QWidget):
         self.addTaskDialog = AddTaskDialog(self)
         self.projectsDialog = ProjectsDialog(self)
 
-        titleFontSize = 14
-        subtitleFontSize = 11
-        itemFontSize = 9
+        self.titleFontSize = 14
+        self.subtitleFontSize = 11
+        self.itemFontSize = 10
 
         grid = QGridLayout()
 
         self.listTree = QTreeWidget()
         self.listTree.setHeaderLabels(["", "Nom", "Description", "Projets", "Début", "Fin"])
-        self.listTree.setFont(QFont('AnyStyle', subtitleFontSize))
+        self.listTree.setFont(QFont('AnyStyle', self.subtitleFontSize))
         self.listTree.setColumnWidth(0, 50)
         self.listTree.setColumnWidth(1, 200)
         self.listTree.setColumnWidth(2, 480)
         self.listTree.setColumnWidth(3, 120)
         self.listTree.setColumnWidth(4, 120)
         self.listTree.setColumnWidth(5, 120)
+        # self.listTree.setStyleSheet("QTreeWidget::Item{border-bottom: 10px solid red}")
+        self.listTree.setStyleSheet("QTreeWidget::Item{padding: 5px}")
+        # elmt.setStyleSheet("QTreeWidgetItem {margin: 20px}")
         self.listTree.itemChanged.connect(self.listTree_changed)
         self.listTree.itemClicked.connect(self.listTree_itemClicked)
         self.listTree.itemDoubleClicked.connect(self.ModifyTaskBtnClicked)
@@ -432,26 +435,29 @@ class MainWindow(QWidget):
         self.listTreeHeader.setSectionsClickable(True)
         self.listTreeHeader.sectionClicked.connect(self.customSortByColumn)
 
+
+
         addDeleteLayout = QHBoxLayout()
 
         addTaskBtn = QPushButton("Ajouter")
         addTaskBtn.setFixedHeight(30)
         addTaskBtn.setFixedWidth(150)
-        addTaskBtn.setFont(QFont('AnyStyle', subtitleFontSize))
+        addTaskBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
         addTaskBtn.clicked.connect(self.AddTaskBtnClicked)
         addDeleteLayout.addWidget(addTaskBtn, 0)
 
         manageProjectsBtn = QPushButton("Gestion projets")
         manageProjectsBtn.setFixedHeight(30)
         manageProjectsBtn.setFixedWidth(150)
-        manageProjectsBtn.setFont(QFont('AnyStyle', subtitleFontSize))
+        manageProjectsBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
         manageProjectsBtn.clicked.connect(self.ManageProjectsBtnClicked)
         addDeleteLayout.addWidget(manageProjectsBtn, 1)
 
         delTaskBtn = QPushButton("Supprimer")
+        delTaskBtn.setStyleSheet("QPushButton {background-color: red}")
         delTaskBtn.setFixedHeight(30)
         delTaskBtn.setFixedWidth(150)
-        delTaskBtn.setFont(QFont('AnyStyle', subtitleFontSize))
+        delTaskBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
         delTaskBtn.clicked.connect(self.DeleteTaskBtnClicked)
         addDeleteLayout.addWidget(delTaskBtn, 2)
 
@@ -499,16 +505,20 @@ class MainWindow(QWidget):
 
             lbl = QLabel(task["Name"])
             lbl.setWordWrap(True)
+            lbl.setFont(QFont('AnyStyle', self.itemFontSize))
             lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             self.listTree.setItemWidget(elmt, 1, lbl)
 
             lbl = QLabel(task["Description"])
             lbl.setWordWrap(True)
+            lbl.setFont(QFont('AnyStyle', self.itemFontSize))
+            lbl.setMaximumWidth(500)
             lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
             self.listTree.setItemWidget(elmt, 2, lbl)
 
             lbl = QLabel(task["Project"])
             lbl.setWordWrap(True)
+            lbl.setFont(QFont('AnyStyle', self.itemFontSize))
             lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             self.listTree.setItemWidget(elmt, 3, lbl)
 
@@ -520,6 +530,7 @@ class MainWindow(QWidget):
 
             lbl = QLabel(date)
             lbl.setWordWrap(True)
+            lbl.setFont(QFont('AnyStyle', self.itemFontSize))
             lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             self.listTree.setItemWidget(elmt, 4, lbl)
 
@@ -531,6 +542,7 @@ class MainWindow(QWidget):
 
             lbl = QLabel(date)
             lbl.setWordWrap(True)
+            lbl.setFont(QFont('AnyStyle', self.itemFontSize))
             lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             self.listTree.setItemWidget(elmt, 5, lbl)
 
@@ -583,11 +595,12 @@ class MainWindow(QWidget):
 
     def ModifyTaskBtnClicked(self):
         self.Update_project_combo_box()
-        taskToSend = []
-        for i in range(1, self.listTree.columnCount()):
-            taskToSend.append(self.listTree.itemWidget(self.selectedItem, i).text())
 
-        self.modify_task.emit(taskToSend)
+        for task in self.tasksList:
+            if task["Name"] == self.listTree.itemWidget(self.selectedItem, 1).text() and \
+                    task["Description"] == self.listTree.itemWidget(self.selectedItem, 2).text():
+                self.modify_task.emit(task)
+                break
 
     def ModifiedTask(self, modifiedTask):
         for task in self.tasksList:
@@ -739,6 +752,9 @@ class MainWindow(QWidget):
             for line in endOfWeekList:
                 notficationText += ("\n" + line)
 
+        if len(passedList) == 1 and len(todayList) == 1 and len(endOfWeekList) == 1:
+            notficationText = "Vous êtes à jour pour cette semaine"
+
         msg = QMessageBox()
         msg.setWindowTitle("Vos tâches")
         msg.setText(notficationText)
@@ -753,6 +769,11 @@ if __name__ == "__main__":
     app = QApplication([])
 
     app.setStyle("Fusion")
+
+    # app.setStyleSheet("QTreeWidgetItem {margin: 20px}")
+    # app.setStyleSheet("QTreeWidget {margin: 5px}")
+
+
 
     # Palette to switch to dark colors:
     palette = QPalette()
