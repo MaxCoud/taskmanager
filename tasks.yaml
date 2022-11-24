@@ -1,10 +1,34 @@
 - Check: 0
+  Name: Changer l'icone quand notif
+  Description: "Lorsque l'app est allum\xE9e, et qu'une notif arrive, on pourrait\
+    \ changer l'icone ? On peut essayer de mettre une bulle avec le nombre de tache\
+    \ a faire avant la fin de la semaine (normalement \xE7a clignote deja quand une\
+    \ fenetre s'affiche au premier plan)"
+  Project: task manager
+  StartDate: '2022-11-16'
+  EndDate: '-'
+- Check: 0
+  Name: Referer l'accomplissement d'une tache a un commit ?
+  Description: "Je ne sais pas si c'est faisable et comment, mais l'interet de garder\
+    \ des taches finies en barr\xE9es serait peut etre de garder une trace sur les\
+    \ commits"
+  Project: task manager
+  StartDate: '2022-11-16'
+  EndDate: '-'
+- Check: 0
+  Name: Gerer les notifs pour les taches barrees
+  Description: "Acutellement, les taches barr\xE9es apparaissent dans les notifs si\
+    \ leur date de fin est d\xE9pass\xE9e"
+  Project: task manager
+  StartDate: '2022-11-23'
+  EndDate: '-'
+- Check: 1
   Name: gestion modbus
   Description: voir notes
   Project: berges
   StartDate: '2022-11-16'
   EndDate: '2022-11-18'
-- Check: 0
+- Check: 1
   Name: contacter ATEC
   Description: "Probl\xE8me avec un transfo, on s'en est rendu compte pendant la mise\
     \ au point d'une machine, la CN finissait par nous dire qu'une phase manquait\
@@ -13,26 +37,15 @@
   StartDate: '2022-11-16'
   EndDate: '2022-11-18'
 - Check: 0
-  Name: Changer l'icone quand notif
-  Description: "Lorsque l'app est allum\xE9e, et qu'une notif arrive, on pourrait\
-    \ changer l'icone ? On peut essayer de mettre une bulle avec le nombre de tache\
-    \ a faire avant la fin de la semaine (normalement \xE7a clignote deja quand une\
-    \ fenetre s'affiche au premier plan)"
-  Project: task manager
-  StartDate: '2022-11-16'
-  EndDate: '2022-11-22'
-- Check: 0
-  Name: Referer l'accomplissement d'une tache a un commit ?
-  Description: "Je ne sais pas si c'est faisable et comment, mais l'interet de garder\
-    \ des taches finies en barr\xE9es serait peut etre de garder une trace sur les\
-    \ commits"
-  Project: task manager
-  StartDate: '2022-11-16'
-  EndDate: '2022-11-23'
-- Check: 0
   Name: "R\xE9gler pb nombre lignes limit\xE9 description"
   Description: "Il semblerait que la description soit limit\xE9e en hauteur, ou en\
     \ nombre de ligne (equivalent 4 lignes)"
   Project: task manager
   StartDate: '2022-11-16'
-  EndDate: '2022-11-23'
+  EndDate: '2022-11-28'
+- Check: 0
+  Name: Faire schema cablage Faure
+  Description: "Faire schema synth\xE9tique"
+  Project: Faure
+  StartDate: '2022-11-23'
+  EndDate: '2022-11-30'
