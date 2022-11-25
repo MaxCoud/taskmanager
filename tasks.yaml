@@ -43,15 +43,27 @@
   Project: task manager
   StartDate: '2022-11-16'
   EndDate: '2022-11-28'
-- Check: 0
+- Check: 1
   Name: Faire schema cablage Faure
   Description: "Faire schema synth\xE9tique"
   Project: Faure
   StartDate: '2022-11-23'
   EndDate: '2022-11-30'
-- Check: 0
+- Check: 1
   Name: reparer schema CNC
   Description: "modules d'entree, il y a une redondance la pin n\xB02"
   Project: berges
   StartDate: '2022-11-24'
   EndDate: '-'
+- Check: 0
+  Name: S'occuper des stagiaires
+  Description: caler des entretiens ?
+  Project: Stagiaires
+  StartDate: '2022-11-25'
+  EndDate: '-'
+- Check: 1
+  Name: Adapter modbusServer
+  Description: "Adapter ModbusServer pour que \xE7a corresponde \xE0 modbusServerTest"
+  Project: berges
+  StartDate: '2022-11-25'
+  EndDate: '2022-11-28'
