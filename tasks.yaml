@@ -49,3 +49,9 @@
   Project: Faure
   StartDate: '2022-11-23'
   EndDate: '2022-11-30'
+- Check: 0
+  Name: reparer schema CNC
+  Description: "modules d'entree, il y a une redondance la pin n\xB02"
+  Project: berges
+  StartDate: '2022-11-24'
+  EndDate: '-'
