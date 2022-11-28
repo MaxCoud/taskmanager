@@ -9,9 +9,9 @@ from pathlib import Path
 import yaml
 from PySide2.QtCore import Qt, Signal, QSize, QDateTime, QDate, QTimer
 from PySide2.QtGui import QFont, QPalette, QColor, QTextOption
-from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QListWidget, QApplication, \
-    QLabel, QPushButton, QCheckBox, QTreeWidget, QTreeWidgetItem, QHeaderView, QDateEdit, QDialog, QVBoxLayout, \
-    QPlainTextEdit, QMessageBox, QInputDialog, QComboBox
+from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QApplication, QLabel, QPushButton, \
+    QCheckBox, QTreeWidget, QTreeWidgetItem, QHeaderView, QDateEdit, QDialog, QVBoxLayout, QPlainTextEdit, \
+    QMessageBox, QInputDialog, QComboBox, QDesktopWidget, QTabWidget, QAction, QMainWindow
 
 
 class AddTaskDialog(QDialog):
@@ -342,7 +342,8 @@ class ProjectsDialog(QDialog):
         self.AddProjectBtnClicked()
 
 
-class MainWindow(QWidget):
+# class MainWindow(QWidget):
+class MainWindow(QMainWindow):
 
     new_task = Signal(object)
     modify_task = Signal(object)
@@ -353,7 +354,7 @@ class MainWindow(QWidget):
     delete_project = Signal(object)
 
     def __init__(self):
-        super(MainWindow, self).__init__()
+        super().__init__()
 
         self.os = sys.platform
         path1 = os.fspath(Path(__file__).resolve().parent / "main.py")
@@ -374,10 +375,12 @@ class MainWindow(QWidget):
                 f.close()
 
         self.setWindowTitle("Task Manager")
-        self.setFixedWidth(1118)
-        self.setFixedHeight(550)
+        # self.setFixedWidth(1118)
+        # self.setFixedHeight(550)
+        self.setMinimumHeight(550)
 
         self.tasksList = []
+        self.finishedTasksList = []
         self.projectList = []
         self.selectedItem = None
         self.updating = False
@@ -389,7 +392,10 @@ class MainWindow(QWidget):
 
         try:
             with open('tasks.yaml', 'r') as f:
-                self.tasksList = yaml.load(f, Loader=yaml.FullLoader)
+                # self.tasksList = yaml.load(f, Loader=yaml.FullLoader)
+                totalList = yaml.load(f, Loader=yaml.FullLoader)
+                self.tasksList = totalList["Running"]
+                self.finishedTasksList = totalList["Finished"]
         except FileNotFoundError:
             with open('tasks.yaml', 'w') as f:
                 yaml.dump(None, f, sort_keys=False)
@@ -408,62 +414,111 @@ class MainWindow(QWidget):
         self.subtitleFontSize = 11
         self.itemFontSize = 10
 
-        grid = QGridLayout()
+        menu = self.menuBar()
+        file = menu.addMenu("Fichier")
+        file.addAction("Quitter", lambda: sys.exit(0))
+        taskMenu = menu.addMenu("Tâches")
+        taskMenu.addAction("Ajouter une tâche ...", lambda: self.AddTaskBtnClicked())
+        taskMenu.addAction("Supprimer une tâche", lambda: self.DeleteTaskBtnClicked())
+        projectMenu = menu.addMenu("Projets")
+        projectMenu.addAction("Gérer les projets ...", lambda: self.ManageProjectsBtnClicked())
 
-        self.listTree = QTreeWidget()
+        layout = QVBoxLayout()
+
+        runningWidget = QWidget(self)
+        runningLayout = QGridLayout()
+
+        self.listTree = QTreeWidget(self)
         self.listTree.setHeaderLabels(["", "Nom", "Description", "Projets", "Début", "Fin"])
         self.listTree.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        self.listTree.setMinimumWidth(1090)
         self.listTree.setColumnWidth(0, 50)
         self.listTree.setColumnWidth(1, 200)
         self.listTree.setColumnWidth(2, 480)
         self.listTree.setColumnWidth(3, 120)
-        self.listTree.setColumnWidth(4, 120)
-        self.listTree.setColumnWidth(5, 120)
+        self.listTree.setColumnWidth(4, 112)
+        self.listTree.setColumnWidth(5, 112)
         # self.listTree.setStyleSheet("QTreeWidget::Item{border-bottom: 10px solid red}")
-        self.listTree.setStyleSheet("QTreeWidget::Item{padding: 5px}")
+        # self.listTree.setStyleSheet("QTreeWidget::Item{padding: 5px}")
         # elmt.setStyleSheet("QTreeWidgetItem {margin: 20px}")
         self.listTree.itemChanged.connect(self.listTree_changed)
         self.listTree.itemClicked.connect(self.listTree_itemClicked)
         self.listTree.itemDoubleClicked.connect(self.ModifyTaskBtnClicked)
-        grid.addWidget(self.listTree, 2, 0, 1, 4)
+        runningLayout.addWidget(self.listTree, 2, 0, 1, 4)
 
         self.listTreeHeader = self.listTree.header()
         self.listTreeHeader.setDefaultAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-        self.listTreeHeader.setSectionResizeMode(QHeaderView.Fixed)
+        # self.listTreeHeader.setSectionResizeMode(QHeaderView.Fixed)
         self.listTreeHeader.setStretchLastSection(False)
-        # self.listTreeHeader.setSectionResizeMode()
+        # self.listTreeHeader.setSectionResizeMode(2, QHeaderView.ResizeToContents)
         self.listTreeHeader.setSectionsClickable(True)
         self.listTreeHeader.sectionClicked.connect(self.customSortByColumn)
 
+        # addDeleteLayout = QHBoxLayout()
+        #
+        # addTaskBtn = QPushButton("Ajouter", self)
+        # addTaskBtn.setFixedHeight(30)
+        # addTaskBtn.setFixedWidth(150)
+        # addTaskBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        # addTaskBtn.clicked.connect(self.AddTaskBtnClicked)
+        # addDeleteLayout.addWidget(addTaskBtn, 0)
+        #
+        # manageProjectsBtn = QPushButton("Gestion projets", self)
+        # manageProjectsBtn.setFixedHeight(30)
+        # manageProjectsBtn.setFixedWidth(150)
+        # manageProjectsBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        # manageProjectsBtn.clicked.connect(self.ManageProjectsBtnClicked)
+        # addDeleteLayout.addWidget(manageProjectsBtn, 1)
+        #
+        # delTaskBtn = QPushButton("Supprimer", self)
+        # delTaskBtn.setStyleSheet("QPushButton {background-color: red}")
+        # delTaskBtn.setFixedHeight(30)
+        # delTaskBtn.setFixedWidth(150)
+        # delTaskBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        # delTaskBtn.clicked.connect(self.DeleteTaskBtnClicked)
+        # addDeleteLayout.addWidget(delTaskBtn, 2)
+        #
+        # runningLayout.addLayout(addDeleteLayout, 3, 0, 1, 4)
+
+        runningWidget.setLayout(runningLayout)
+
+        finishedWidget = QWidget(self)
+        finishedLayout = QGridLayout()
+
+        self.finishedTasksTree = QTreeWidget(self)
+        self.finishedTasksTree.setHeaderLabels(["", "Nom", "Description", "Projets", "Début", "Fin"])
+        self.finishedTasksTree.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        self.finishedTasksTree.setMinimumWidth(1090)
+        self.finishedTasksTree.setColumnWidth(0, 50)
+        self.finishedTasksTree.setColumnWidth(1, 200)
+        self.finishedTasksTree.setColumnWidth(2, 480)
+        self.finishedTasksTree.setColumnWidth(3, 120)
+        self.finishedTasksTree.setColumnWidth(4, 112)
+        self.finishedTasksTree.setColumnWidth(5, 112)
+        # self.finishedTasksTree.itemChanged.connect(self.finishedTasksTree_changed)
+        # self.finishedTasksTree.itemClicked.connect(self.finishedTasksTree_itemClicked)
+        self.finishedTasksTree.itemDoubleClicked.connect(self.ModifyTaskBtnClicked)
+        finishedLayout.addWidget(self.finishedTasksTree, 2, 0, 1, 4)
+
+        self.finishedTasksTreeHeader = self.finishedTasksTree.header()
+        self.finishedTasksTreeHeader.setDefaultAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+        self.finishedTasksTreeHeader.setStretchLastSection(False)
+        self.finishedTasksTreeHeader.setSectionsClickable(True)
+        self.finishedTasksTreeHeader.sectionClicked.connect(self.customSortByColumn)
 
 
-        addDeleteLayout = QHBoxLayout()
+        finishedWidget.setLayout(finishedLayout)
 
-        addTaskBtn = QPushButton("Ajouter")
-        addTaskBtn.setFixedHeight(30)
-        addTaskBtn.setFixedWidth(150)
-        addTaskBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        addTaskBtn.clicked.connect(self.AddTaskBtnClicked)
-        addDeleteLayout.addWidget(addTaskBtn, 0)
+        tabs = QTabWidget(self)
+        tabs.addTab(runningWidget, "En cours")
+        tabs.addTab(finishedWidget, "Terminées")
 
-        manageProjectsBtn = QPushButton("Gestion projets")
-        manageProjectsBtn.setFixedHeight(30)
-        manageProjectsBtn.setFixedWidth(150)
-        manageProjectsBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        manageProjectsBtn.clicked.connect(self.ManageProjectsBtnClicked)
-        addDeleteLayout.addWidget(manageProjectsBtn, 1)
+        layout.addWidget(tabs)
 
-        delTaskBtn = QPushButton("Supprimer")
-        delTaskBtn.setStyleSheet("QPushButton {background-color: red}")
-        delTaskBtn.setFixedHeight(30)
-        delTaskBtn.setFixedWidth(150)
-        delTaskBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        delTaskBtn.clicked.connect(self.DeleteTaskBtnClicked)
-        addDeleteLayout.addWidget(delTaskBtn, 2)
-
-        grid.addLayout(addDeleteLayout, 3, 0, 1, 4)
-
-        self.setLayout(grid)
+        main_window = QWidget()
+        main_window.setLayout(layout)  # runningLayout
+        self.setCentralWidget(main_window)
+        # self.setLayout(runningLayout)
 
         self.Update_changes()
 
@@ -478,6 +533,8 @@ class MainWindow(QWidget):
         self.new_project.connect(self.New_project)
         self.delete_project.connect(self.DeleteProject)
 
+
+
         self.show()
         self.NotifyUser()
 
@@ -487,7 +544,9 @@ class MainWindow(QWidget):
 
     def Save(self):
         with open('tasks.yaml', 'w') as f:
-            yaml.dump(self.tasksList, f, sort_keys=False)
+            totalList = {"Running": self.tasksList, "Finished": self.finishedTasksList}
+            # yaml.dump(self.tasksList, f, sort_keys=False)
+            yaml.dump(totalList, f, sort_keys=False)
 
     def New_task(self, task):
         self.tasksList.append(task)
@@ -498,6 +557,9 @@ class MainWindow(QWidget):
     def Update_changes(self):
 
         self.listTree.clear()
+        i = 0
+        tasksListLen = len(self.tasksList)
+
         for task in self.tasksList:
             self.updating = True
             elmt = QTreeWidgetItem(self.listTree)
@@ -545,6 +607,16 @@ class MainWindow(QWidget):
             lbl.setFont(QFont('AnyStyle', self.itemFontSize))
             lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             self.listTree.setItemWidget(elmt, 5, lbl)
+
+            i += 1
+            if i < tasksListLen:
+                spacer = QTreeWidgetItem(self.listTree)
+                spacer.setFlags(Qt.NoItemFlags)
+
+                lbl = QLabel("")
+                lbl.setFont(QFont('AnyStyle', 1))
+
+                self.listTree.setItemWidget(spacer, 0, lbl)
 
             self.updating = False
 
@@ -616,18 +688,27 @@ class MainWindow(QWidget):
         self.Update_changes()
 
     def DeleteTaskBtnClicked(self):
-        taskName = self.listTree.itemWidget(self.selectedItem, 1).text()
+        try:
+            taskName = self.listTree.itemWidget(self.selectedItem, 1).text()
 
-        msg = QMessageBox()
-        msg.setWindowTitle("Suppression d'une tâche")
-        msg.setText(f'La tache "{taskName}" va être supprimée')
-        msg.setIcon(QMessageBox.Warning)
-        msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
-        msg.setDefaultButton(QMessageBox.Ok)
-        msg.buttonClicked.connect(self.onDeleteMsgBoxBtnClicked)
+            msg = QMessageBox()
+            msg.setWindowTitle("Suppression d'une tâche")
+            msg.setText(f'La tache "{taskName}" va être supprimée')
+            msg.setIcon(QMessageBox.Warning)
+            msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
+            msg.setDefaultButton(QMessageBox.Ok)
+            msg.buttonClicked.connect(self.onDeleteMsgBoxBtnClicked)
 
-        msg.setButtonText(QMessageBox.Cancel, "Annuler")
-        msg.exec_()
+            msg.setButtonText(QMessageBox.Cancel, "Annuler")
+            msg.exec_()
+        except:
+            msg = QMessageBox()
+            msg.setWindowTitle("Suppression d'une tâche")
+            msg.setText(f"Aucune tâche sélectionnée")
+            msg.setIcon(QMessageBox.Warning)
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.setDefaultButton(QMessageBox.Ok)
+            msg.exec_()
 
     def onDeleteMsgBoxBtnClicked(self, button):
         if button.text() == 'OK':
@@ -765,6 +846,7 @@ class MainWindow(QWidget):
         msg.exec_()
         self.notifyTimer.start(self.waitForNotifications)
 
+
 if __name__ == "__main__":
     app = QApplication([])
 
@@ -772,8 +854,6 @@ if __name__ == "__main__":
 
     # app.setStyleSheet("QTreeWidgetItem {margin: 20px}")
     # app.setStyleSheet("QTreeWidget {margin: 5px}")
-
-
 
     # Palette to switch to dark colors:
     palette = QPalette()
