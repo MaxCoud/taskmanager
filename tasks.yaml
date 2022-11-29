@@ -1,4 +1,3 @@
-Running:
 - Check: 1
   Name: Gestion modbus
   Description: voir notes
@@ -63,9 +62,9 @@ Running:
   StartDate: '2022-11-25'
   EndDate: '2022-11-28'
 - Check: 0
-  Name: "gestion t\xE2ches barr\xE9es"
-  Description: "les mettre dans une fenetes \"taches termin\xE9es\" ?"
+  Name: Gerer problement passage tache d'un onglet a l'autre
+  Description: "je ne sais pas d'ou vient le probl\xE8me, il n'est pas r\xE9p\xE9\
+    table"
   Project: task manager
-  StartDate: '2022-11-28'
+  StartDate: '2022-11-29'
   EndDate: '-'
-Finished: null

@@ -380,7 +380,6 @@ class MainWindow(QMainWindow):
         self.setMinimumHeight(550)
 
         self.tasksList = []
-        self.finishedTasksList = []
         self.projectList = []
         self.selectedItem = None
         self.updating = False
@@ -392,10 +391,7 @@ class MainWindow(QMainWindow):
 
         try:
             with open('tasks.yaml', 'r') as f:
-                # self.tasksList = yaml.load(f, Loader=yaml.FullLoader)
-                totalList = yaml.load(f, Loader=yaml.FullLoader)
-                self.tasksList = totalList["Running"]
-                self.finishedTasksList = totalList["Finished"]
+                self.tasksList = yaml.load(f, Loader=yaml.FullLoader)
         except FileNotFoundError:
             with open('tasks.yaml', 'w') as f:
                 yaml.dump(None, f, sort_keys=False)
@@ -425,7 +421,7 @@ class MainWindow(QMainWindow):
 
         layout = QVBoxLayout()
 
-        runningWidget = QWidget(self)
+        self.runningWidget = QWidget(self)
         runningLayout = QGridLayout()
 
         self.listTree = QTreeWidget(self)
@@ -480,9 +476,9 @@ class MainWindow(QMainWindow):
         #
         # runningLayout.addLayout(addDeleteLayout, 3, 0, 1, 4)
 
-        runningWidget.setLayout(runningLayout)
+        self.runningWidget.setLayout(runningLayout)
 
-        finishedWidget = QWidget(self)
+        self.finishedWidget = QWidget(self)
         finishedLayout = QGridLayout()
 
         self.finishedTasksTree = QTreeWidget(self)
@@ -495,8 +491,8 @@ class MainWindow(QMainWindow):
         self.finishedTasksTree.setColumnWidth(3, 120)
         self.finishedTasksTree.setColumnWidth(4, 112)
         self.finishedTasksTree.setColumnWidth(5, 112)
-        # self.finishedTasksTree.itemChanged.connect(self.finishedTasksTree_changed)
-        # self.finishedTasksTree.itemClicked.connect(self.finishedTasksTree_itemClicked)
+        self.finishedTasksTree.itemChanged.connect(self.finishedTasksTree_changed)
+        self.finishedTasksTree.itemClicked.connect(self.finishedTasksTree_itemClicked)
         self.finishedTasksTree.itemDoubleClicked.connect(self.ModifyTaskBtnClicked)
         finishedLayout.addWidget(self.finishedTasksTree, 2, 0, 1, 4)
 
@@ -507,13 +503,13 @@ class MainWindow(QMainWindow):
         self.finishedTasksTreeHeader.sectionClicked.connect(self.customSortByColumn)
 
 
-        finishedWidget.setLayout(finishedLayout)
+        self.finishedWidget.setLayout(finishedLayout)
 
-        tabs = QTabWidget(self)
-        tabs.addTab(runningWidget, "En cours")
-        tabs.addTab(finishedWidget, "Terminées")
+        self.tabs = QTabWidget(self)
+        self.tabs.addTab(self.runningWidget, "En cours")
+        self.tabs.addTab(self.finishedWidget, "Terminées")
 
-        layout.addWidget(tabs)
+        layout.addWidget(self.tabs)
 
         main_window = QWidget()
         main_window.setLayout(layout)  # runningLayout
@@ -533,8 +529,6 @@ class MainWindow(QMainWindow):
         self.new_project.connect(self.New_project)
         self.delete_project.connect(self.DeleteProject)
 
-
-
         self.show()
         self.NotifyUser()
 
@@ -544,9 +538,7 @@ class MainWindow(QMainWindow):
 
     def Save(self):
         with open('tasks.yaml', 'w') as f:
-            totalList = {"Running": self.tasksList, "Finished": self.finishedTasksList}
-            # yaml.dump(self.tasksList, f, sort_keys=False)
-            yaml.dump(totalList, f, sort_keys=False)
+            yaml.dump(self.tasksList, f, sort_keys=False)
 
     def New_task(self, task):
         self.tasksList.append(task)
@@ -557,103 +549,200 @@ class MainWindow(QMainWindow):
     def Update_changes(self):
 
         self.listTree.clear()
+        self.finishedTasksTree.clear()
         i = 0
         tasksListLen = len(self.tasksList)
 
-        for task in self.tasksList:
-            self.updating = True
-            elmt = QTreeWidgetItem(self.listTree)
-            elmt.setFlags(elmt.flags() | Qt.ItemIsUserCheckable)
+        if self.tasksList is not None:
+            for task in self.tasksList:
+                self.updating = True
 
-            lbl = QLabel(task["Name"])
-            lbl.setWordWrap(True)
-            lbl.setFont(QFont('AnyStyle', self.itemFontSize))
-            lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-            self.listTree.setItemWidget(elmt, 1, lbl)
+                if task["Check"] == 0:
+                    tree_to_build = self.listTree
+                elif task["Check"] == 1:
+                    tree_to_build = self.finishedTasksTree
 
-            lbl = QLabel(task["Description"])
-            lbl.setWordWrap(True)
-            lbl.setFont(QFont('AnyStyle', self.itemFontSize))
-            lbl.setMaximumWidth(500)
-            lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-            self.listTree.setItemWidget(elmt, 2, lbl)
+                elmt = QTreeWidgetItem(tree_to_build)
+                elmt.setFlags(elmt.flags() | Qt.ItemIsUserCheckable)
 
-            lbl = QLabel(task["Project"])
-            lbl.setWordWrap(True)
-            lbl.setFont(QFont('AnyStyle', self.itemFontSize))
-            lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-            self.listTree.setItemWidget(elmt, 3, lbl)
+                lbl = QLabel(task["Name"])
+                lbl.setWordWrap(True)
+                lbl.setFont(QFont('AnyStyle', self.itemFontSize))
+                lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+                tree_to_build.setItemWidget(elmt, 1, lbl)
 
-            try:
-                year, month, day = task["StartDate"].split("-")
-                date = f'{day}/{month}/{year}'
-            except:
-                date = task["StartDate"]
+                lbl = QLabel(task["Description"])
+                lbl.setWordWrap(True)
+                lbl.setFont(QFont('AnyStyle', self.itemFontSize))
+                lbl.setMaximumWidth(500)
+                lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+                tree_to_build.setItemWidget(elmt, 2, lbl)
 
-            lbl = QLabel(date)
-            lbl.setWordWrap(True)
-            lbl.setFont(QFont('AnyStyle', self.itemFontSize))
-            lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-            self.listTree.setItemWidget(elmt, 4, lbl)
+                lbl = QLabel(task["Project"])
+                lbl.setWordWrap(True)
+                lbl.setFont(QFont('AnyStyle', self.itemFontSize))
+                lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+                tree_to_build.setItemWidget(elmt, 3, lbl)
 
-            try:
-                year, month, day = task["EndDate"].split("-")
-                date = f'{day}/{month}/{year}'
-            except:
-                date = task["EndDate"]
+                try:
+                    year, month, day = task["StartDate"].split("-")
+                    date = f'{day}/{month}/{year}'
+                except:
+                    date = task["StartDate"]
 
-            lbl = QLabel(date)
-            lbl.setWordWrap(True)
-            lbl.setFont(QFont('AnyStyle', self.itemFontSize))
-            lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-            self.listTree.setItemWidget(elmt, 5, lbl)
+                lbl = QLabel(date)
+                lbl.setWordWrap(True)
+                lbl.setFont(QFont('AnyStyle', self.itemFontSize))
+                lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+                tree_to_build.setItemWidget(elmt, 4, lbl)
 
-            i += 1
-            if i < tasksListLen:
-                spacer = QTreeWidgetItem(self.listTree)
+                try:
+                    year, month, day = task["EndDate"].split("-")
+                    date = f'{day}/{month}/{year}'
+                except:
+                    date = task["EndDate"]
+
+                lbl = QLabel(date)
+                lbl.setWordWrap(True)
+                lbl.setFont(QFont('AnyStyle', self.itemFontSize))
+                lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+                tree_to_build.setItemWidget(elmt, 5, lbl)
+
+                # i += 1
+                # if i < tasksListLen:
+                spacer = QTreeWidgetItem(tree_to_build)
                 spacer.setFlags(Qt.NoItemFlags)
 
                 lbl = QLabel("")
                 lbl.setFont(QFont('AnyStyle', 1))
 
-                self.listTree.setItemWidget(spacer, 0, lbl)
+                tree_to_build.setItemWidget(spacer, 0, lbl)
 
-            self.updating = False
+                if task["Check"] == 1:
+                    elmt.setCheckState(0, Qt.Checked)
+                else:
+                    elmt.setCheckState(0, Qt.Unchecked)
 
-            if task["Check"] == 1:
-                elmt.setCheckState(0, Qt.Checked)
-            else:
-                elmt.setCheckState(0, Qt.Unchecked)
+                self.updating = False
+
+        # for task in self.tasksList:
+        #     self.updating = True
+        #     elmt = QTreeWidgetItem(self.listTree)
+        #     elmt.setFlags(elmt.flags() | Qt.ItemIsUserCheckable)
+        #
+        #     lbl = QLabel(task["Name"])
+        #     lbl.setWordWrap(True)
+        #     lbl.setFont(QFont('AnyStyle', self.itemFontSize))
+        #     lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+        #     self.listTree.setItemWidget(elmt, 1, lbl)
+        #
+        #     lbl = QLabel(task["Description"])
+        #     lbl.setWordWrap(True)
+        #     lbl.setFont(QFont('AnyStyle', self.itemFontSize))
+        #     lbl.setMaximumWidth(500)
+        #     lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        #     self.listTree.setItemWidget(elmt, 2, lbl)
+        #
+        #     lbl = QLabel(task["Project"])
+        #     lbl.setWordWrap(True)
+        #     lbl.setFont(QFont('AnyStyle', self.itemFontSize))
+        #     lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+        #     self.listTree.setItemWidget(elmt, 3, lbl)
+        #
+        #     try:
+        #         year, month, day = task["StartDate"].split("-")
+        #         date = f'{day}/{month}/{year}'
+        #     except:
+        #         date = task["StartDate"]
+        #
+        #     lbl = QLabel(date)
+        #     lbl.setWordWrap(True)
+        #     lbl.setFont(QFont('AnyStyle', self.itemFontSize))
+        #     lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+        #     self.listTree.setItemWidget(elmt, 4, lbl)
+        #
+        #     try:
+        #         year, month, day = task["EndDate"].split("-")
+        #         date = f'{day}/{month}/{year}'
+        #     except:
+        #         date = task["EndDate"]
+        #
+        #     lbl = QLabel(date)
+        #     lbl.setWordWrap(True)
+        #     lbl.setFont(QFont('AnyStyle', self.itemFontSize))
+        #     lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+        #     self.listTree.setItemWidget(elmt, 5, lbl)
+        #
+        #     i += 1
+        #     if i < tasksListLen:
+        #         spacer = QTreeWidgetItem(self.listTree)
+        #         spacer.setFlags(Qt.NoItemFlags)
+        #
+        #         lbl = QLabel("")
+        #         lbl.setFont(QFont('AnyStyle', 1))
+        #
+        #         self.listTree.setItemWidget(spacer, 0, lbl)
+        #
+        #     self.updating = False
+        #
+        #     if task["Check"] == 1:
+        #         elmt.setCheckState(0, Qt.Checked)
+        #     else:
+        #         elmt.setCheckState(0, Qt.Unchecked)
+
+    def finishedTasksTree_changed(self, item, col):
+        if not self.updating:
+            print("finishedTasksTree_changed")
+            # if item.checkState(0) == Qt.Checked:
+            #     for task in self.tasksList:
+            #         if task["Name"] == self.finishedTasksTree.itemWidget(item, 1).text() and \
+            #                 task["Description"] == self.finishedTasksTree.itemWidget(item, 2).text():
+            #             task["Check"] = 1
+            #             break
+
+            if item.checkState(0) == Qt.Unchecked:
+                for task in self.tasksList:
+                    if task["Name"] == self.finishedTasksTree.itemWidget(item, 1).text() and \
+                            task["Description"] == self.finishedTasksTree.itemWidget(item, 2).text():
+                        task["Check"] = 0
+                        break
+
+            self.Save()
+            self.Update_changes()
 
     def listTree_changed(self, item, col):
         if not self.updating:
+            print("listTree_changed")
             if item.checkState(0) == Qt.Checked:
                 for task in self.tasksList:
-                    if task["Name"] == self.listTree.itemWidget(item, 1).text() and task["Description"] == self.listTree.itemWidget(item, 2).text():
+                    if task["Name"] == self.listTree.itemWidget(item, 1).text() and \
+                            task["Description"] == self.listTree.itemWidget(item, 2).text():
                         task["Check"] = 1
                         break
-                for i in range(1, self.listTree.columnCount()):
-                    itemWidget = self.listTree.itemWidget(item, i)
-                    f = itemWidget.font()
-                    f.setStrikeOut(True)
-                    itemWidget.setFont(f)
 
-            elif item.checkState(0) == Qt.Unchecked:
-                for task in self.tasksList:
-                    if task["Name"] == self.listTree.itemWidget(item, 1).text() and task["Description"] == self.listTree.itemWidget(item, 2).text():
-                        task["Check"] = 0
-                        break
-                for i in range(1, self.listTree.columnCount()):
-                    itemWidget = self.listTree.itemWidget(item, i)
-                    f = itemWidget.font()
-                    f.setStrikeOut(False)
-                    itemWidget.setFont(f)
+            # elif item.checkState(0) == Qt.Unchecked:
+            #     for task in self.tasksList:
+            #         if task["Name"] == self.listTree.itemWidget(item, 1).text() and \
+            #                 task["Description"] == self.listTree.itemWidget(item, 2).text():
+            #             task["Check"] = 0
+            #             break
 
             self.Save()
+            self.Update_changes()
 
     def listTree_itemClicked(self, item, col):
-        if item.isSelected():
-            self.selectedItem = item
+        try:
+            if item.isSelected():
+                self.selectedItem = item
+        except Exception as e:
+            print("listTree_itemClicked", e)
+
+    def finishedTasksTree_itemClicked(self, item, col):
+        try:
+            if item.isSelected():
+                self.selectedItem = item
+        except Exception as e:
+            print("finishedTasksTree_itemClicked", e)
 
     def Update_project_combo_box(self):
         self.addTaskDialog.projectComboBox.clear()
@@ -668,15 +757,21 @@ class MainWindow(QMainWindow):
     def ModifyTaskBtnClicked(self):
         self.Update_project_combo_box()
 
+        current_tree = self.SelectedTree()
+
         for task in self.tasksList:
-            if task["Name"] == self.listTree.itemWidget(self.selectedItem, 1).text() and \
-                    task["Description"] == self.listTree.itemWidget(self.selectedItem, 2).text():
+            if task["Name"] == current_tree.itemWidget(self.selectedItem, 1).text() and \
+                    task["Description"] == current_tree.itemWidget(self.selectedItem, 2).text():
                 self.modify_task.emit(task)
                 break
 
     def ModifiedTask(self, modifiedTask):
+
+        current_tree = self.SelectedTree()
+
         for task in self.tasksList:
-            if task["Name"] == self.listTree.itemWidget(self.selectedItem, 1).text() and task["Description"] ==self.listTree.itemWidget(self.selectedItem, 2).text():
+            if task["Name"] == current_tree.itemWidget(self.selectedItem, 1).text() and \
+                    task["Description"] == current_tree.itemWidget(self.selectedItem, 2).text():
                 task["Name"] = modifiedTask["Name"]
                 task["Description"] = modifiedTask["Description"]
                 task["Project"] = modifiedTask["Project"]
@@ -688,8 +783,11 @@ class MainWindow(QMainWindow):
         self.Update_changes()
 
     def DeleteTaskBtnClicked(self):
+
+        current_tree = self.SelectedTree()
+
         try:
-            taskName = self.listTree.itemWidget(self.selectedItem, 1).text()
+            taskName = current_tree.itemWidget(self.selectedItem, 1).text()
 
             msg = QMessageBox()
             msg.setWindowTitle("Suppression d'une tâche")
@@ -712,10 +810,13 @@ class MainWindow(QMainWindow):
 
     def onDeleteMsgBoxBtnClicked(self, button):
         if button.text() == 'OK':
+
+            current_tree = self.SelectedTree()
+
             taskToDelete = None
             for task in self.tasksList:
-                if task["Name"] == self.listTree.itemWidget(self.selectedItem, 1).text() and \
-                        task["Description"] == self.listTree.itemWidget(self.selectedItem, 2).text():
+                if task["Name"] == current_tree.itemWidget(self.selectedItem, 1).text() and \
+                        task["Description"] == current_tree.itemWidget(self.selectedItem, 2).text():
                     taskToDelete = task
                     break
 
@@ -778,6 +879,12 @@ class MainWindow(QMainWindow):
 
         self.Save()
         self.Update_changes()
+
+    def SelectedTree(self):
+        if self.tabs.currentWidget() == self.runningWidget:
+            return self.listTree
+        elif self.tabs.currentWidget() == self.finishedWidget:
+            return self.finishedTasksTree
 
     def NotifyUser(self):
 
