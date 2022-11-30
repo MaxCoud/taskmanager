@@ -11,10 +11,6 @@ from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QApp
     QCheckBox, QTreeWidget, QTreeWidgetItem, QHeaderView, QDateEdit, QDialog, QVBoxLayout, QPlainTextEdit, \
     QMessageBox, QInputDialog, QComboBox, QDesktopWidget, QTabWidget, QAction, QMainWindow
 
-from pympler import muppy
-all_object = muppy.get_objects()
-# print(all_object)
-
 
 class AddTaskDialog(QDialog):
 
@@ -440,8 +436,8 @@ class MainWindow(QMainWindow):
         # self.listTree.setStyleSheet("QTreeWidget::Item{padding: 5px}")
         # elmt.setStyleSheet("QTreeWidgetItem {margin: 20px}")
         self.listTree.itemChanged.connect(self.listTree_changed)
-        self.listTree.itemClicked.connect(self.listTree_itemClicked)
-        # self.listTree.itemPressed.connect(self.listTree_itemClicked)
+        # self.listTree.itemClicked.connect(self.listTree_itemClicked)
+        self.listTree.itemPressed.connect(self.listTree_itemClicked)
         self.listTree.itemDoubleClicked.connect(self.ModifyTaskBtnClicked)
         runningLayout.addWidget(self.listTree, 2, 0, 1, 4)
 
@@ -495,8 +491,8 @@ class MainWindow(QMainWindow):
         self.finishedTasksTree.setColumnWidth(4, 112)
         self.finishedTasksTree.setColumnWidth(5, 112)
         self.finishedTasksTree.itemChanged.connect(self.finishedTasksTree_changed)
-        self.finishedTasksTree.itemClicked.connect(self.finishedTasksTree_itemClicked)
-        # self.finishedTasksTree.itemPressed.connect(self.finishedTasksTree_itemClicked)
+        # self.finishedTasksTree.itemClicked.connect(self.finishedTasksTree_itemClicked)
+        self.finishedTasksTree.itemPressed.connect(self.finishedTasksTree_itemClicked)
         self.finishedTasksTree.itemDoubleClicked.connect(self.ModifyTaskBtnClicked)
         finishedLayout.addWidget(self.finishedTasksTree, 2, 0, 1, 4)
 
@@ -541,10 +537,8 @@ class MainWindow(QMainWindow):
             self.DeleteTaskBtnClicked()
 
     def Save(self):
-        print("Save()")
         with open('tasks.yaml', 'w') as f:
             yaml.dump(self.tasksList, f, sort_keys=False)
-        print("ok Save")
 
     def New_task(self, task):
         self.tasksList.append(task)
@@ -554,8 +548,8 @@ class MainWindow(QMainWindow):
 
     def Update_changes(self):
 
-        print("UPDATE")
-
+        self.listTree.clearFocus()
+        self.finishedTasksTree.clearFocus()
         self.listTree.clearSelection()
         self.finishedTasksTree.clearSelection()
         self.listTree.clear()
@@ -574,9 +568,10 @@ class MainWindow(QMainWindow):
             elif task["Check"] == 1:
                 finishedTasksNb += 1
 
+        self.updating = True
+
         if self.tasksList is not None:
             for task in self.tasksList:
-                self.updating = True
 
                 if task["Check"] == 0:
                     tree_to_build = self.listTree
@@ -592,13 +587,13 @@ class MainWindow(QMainWindow):
                 elmt = QTreeWidgetItem(tree_to_build)
                 elmt.setFlags(elmt.flags() | Qt.ItemIsUserCheckable)
 
-                lbl = QLabel(task["Name"])
+                lbl = QLabel(f'\n{task["Name"]}\n')
                 lbl.setWordWrap(True)
                 lbl.setFont(QFont('AnyStyle', self.itemFontSize))
                 lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
                 tree_to_build.setItemWidget(elmt, 1, lbl)
 
-                lbl = QLabel(task["Description"])
+                lbl = QLabel(f'\n{task["Description"]}\n')
                 lbl.setWordWrap(True)
                 lbl.setFont(QFont('AnyStyle', self.itemFontSize))
                 lbl.setMaximumWidth(500)
@@ -635,30 +630,25 @@ class MainWindow(QMainWindow):
                 lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
                 tree_to_build.setItemWidget(elmt, 5, lbl)
 
-                if i < tree_len:
-                    spacer = QTreeWidgetItem(tree_to_build)
-                    spacer.setFlags(Qt.NoItemFlags)
-
-                    lbl = QLabel("")
-                    lbl.setFont(QFont('AnyStyle', 1))
-
-                    tree_to_build.setItemWidget(spacer, 0, lbl)
+                # if i < tree_len:
+                #     spacer = QTreeWidgetItem(tree_to_build)
+                #     spacer.setFlags(Qt.NoItemFlags)
+                #
+                #     lbl = QLabel("")
+                #     lbl.setFont(QFont('AnyStyle', 1))
+                #
+                #     tree_to_build.setItemWidget(spacer, 0, lbl)
 
                 if task["Check"] == 1:
                     elmt.setCheckState(0, Qt.Checked)
                 else:
                     elmt.setCheckState(0, Qt.Unchecked)
 
-                print("update")
-                self.updating = False
-
-        print("UPDATE END")
-        # all_object = muppy.get_objects()
+        self.updating = False
 
     def finishedTasksTree_changed(self, item, col):
         try:
             if not self.updating:
-                print("finishedTasksTree_changed")
                 # if item.checkState(0) == Qt.Checked:
                 #     for task in self.tasksList:
                 #         if task["Name"] == self.finishedTasksTree.itemWidget(item, 1).text() and \
@@ -668,12 +658,11 @@ class MainWindow(QMainWindow):
 
                 if item.checkState(0) == Qt.Unchecked:
                     for task in self.tasksList:
-                        if task["Name"] == self.finishedTasksTree.itemWidget(item, 1).text() and \
-                                task["Description"] == self.finishedTasksTree.itemWidget(item, 2).text():
+                        if f'\n{task["Name"]}\n' == self.finishedTasksTree.itemWidget(item, 1).text() and \
+                                f'\n{task["Description"]}\n' == self.finishedTasksTree.itemWidget(item, 2).text():
                             task["Check"] = 0
                             break
 
-                print("ok finishedTasksTree_changed")
                 self.Save()
                 self.Update_changes()
         except Exception as e:
@@ -682,11 +671,10 @@ class MainWindow(QMainWindow):
     def listTree_changed(self, item, col):
         try:
             if not self.updating:
-                print("listTree_changed")
                 if item.checkState(0) == Qt.Checked:
                     for task in self.tasksList:
-                        if task["Name"] == self.listTree.itemWidget(item, 1).text() and \
-                                task["Description"] == self.listTree.itemWidget(item, 2).text():
+                        if f'\n{task["Name"]}\n' == self.listTree.itemWidget(item, 1).text() and \
+                                f'\n{task["Description"]}\n' == self.listTree.itemWidget(item, 2).text():
                             task["Check"] = 1
                             break
 
@@ -697,27 +685,22 @@ class MainWindow(QMainWindow):
                 #             task["Check"] = 0
                 #             break
 
-                print("ok listTree_changed")
                 self.Save()
                 self.Update_changes()
         except Exception as e:
             print("listTree_changed:", e)
 
     def listTree_itemClicked(self, item, col):
-        print("listTree_itemClicked()")
         try:
             if item.isSelected():
                 self.selectedItem = item
-            print("ok listTree_itemClicked")
         except Exception as e:
             print("listTree_itemClicked", e)
 
     def finishedTasksTree_itemClicked(self, item, col):
-        print("finishedTasksTree_itemClicked()")
         try:
             if item.isSelected():
                 self.selectedItem = item
-            print("ok finishedTasksTree_itemClicked")
         except Exception as e:
             print("finishedTasksTree_itemClicked", e)
 
@@ -737,8 +720,8 @@ class MainWindow(QMainWindow):
         current_tree = self.SelectedTree()
 
         for task in self.tasksList:
-            if task["Name"] == current_tree.itemWidget(self.selectedItem, 1).text() and \
-                    task["Description"] == current_tree.itemWidget(self.selectedItem, 2).text():
+            if f'\n{task["Name"]}\n' == current_tree.itemWidget(self.selectedItem, 1).text() and \
+                    f'\n{task["Description"]}\n' == current_tree.itemWidget(self.selectedItem, 2).text():
                 self.modify_task.emit(task)
                 break
 
@@ -747,8 +730,8 @@ class MainWindow(QMainWindow):
         current_tree = self.SelectedTree()
 
         for task in self.tasksList:
-            if task["Name"] == current_tree.itemWidget(self.selectedItem, 1).text() and \
-                    task["Description"] == current_tree.itemWidget(self.selectedItem, 2).text():
+            if f'\n{task["Name"]}\n' == current_tree.itemWidget(self.selectedItem, 1).text() and \
+                    f'\n{task["Description"]}\n' == current_tree.itemWidget(self.selectedItem, 2).text():
                 task["Name"] = modifiedTask["Name"]
                 task["Description"] = modifiedTask["Description"]
                 task["Project"] = modifiedTask["Project"]
@@ -792,8 +775,8 @@ class MainWindow(QMainWindow):
 
             taskToDelete = None
             for task in self.tasksList:
-                if task["Name"] == current_tree.itemWidget(self.selectedItem, 1).text() and \
-                        task["Description"] == current_tree.itemWidget(self.selectedItem, 2).text():
+                if f'\n{task["Name"]}\n' == current_tree.itemWidget(self.selectedItem, 1).text() and \
+                        f'\n{task["Description"]}\n' == current_tree.itemWidget(self.selectedItem, 2).text():
                     taskToDelete = task
                     break
 
