@@ -911,41 +911,42 @@ class MainWindow(QMainWindow):
         endOfWeekList.append("Voici les tâches à accomplir cette semaine :")
 
         for task in self.tasksList:
-            try:
-                taskEndDateDay, taskEndDateMonth, taskEndDateYear = task["EndDate"].split("-")
-                taskEndDate = taskEndDateDay + taskEndDateMonth + taskEndDateYear
+            if task["Check"] == 0:
+                try:
+                    taskEndDateDay, taskEndDateMonth, taskEndDateYear = task["EndDate"].split("-")
+                    taskEndDate = taskEndDateDay + taskEndDateMonth + taskEndDateYear
 
-                if taskEndDate < todayStr:
-                    passedList.append(f' - {task["Name"]}')
-                elif taskEndDate == todayStr:
-                    todayList.append(f' - {task["Name"]}')
-                elif taskEndDate <= endOfWeekStr:
-                    endOfWeekList.append(f' - {task["Name"]}')
-            except:
-                pass  # no end date
+                    if taskEndDate < todayStr:
+                        passedList.append(f' - {task["Name"]}')
+                    elif taskEndDate == todayStr:
+                        todayList.append(f' - {task["Name"]}')
+                    elif taskEndDate <= endOfWeekStr:
+                        endOfWeekList.append(f' - {task["Name"]}')
+                except:
+                    pass  # no end date
 
-        notficationText = ""
+        notificationText = ""
 
         if len(passedList) > 1:
             for line in passedList:
-                notficationText += ("\n" + line)
-            notficationText += "\n"
+                notificationText += ("\n" + line)
+            notificationText += "\n"
 
         if len(todayList) > 1:
             for line in todayList:
-                notficationText += ("\n" + line)
-            notficationText += "\n"
+                notificationText += ("\n" + line)
+            notificationText += "\n"
 
         if len(endOfWeekList) > 1:
             for line in endOfWeekList:
-                notficationText += ("\n" + line)
+                notificationText += ("\n" + line)
 
         if len(passedList) == 1 and len(todayList) == 1 and len(endOfWeekList) == 1:
-            notficationText = "Vous êtes à jour pour cette semaine"
+            notificationText = "Vous êtes à jour pour cette semaine"
 
         msg = QMessageBox()
         msg.setWindowTitle("Vos tâches")
-        msg.setText(notficationText)
+        msg.setText(notificationText)
         msg.setIcon(QMessageBox.Information)
         msg.setStandardButtons(QMessageBox.Ok)
         msg.setDefaultButton(QMessageBox.Ok)
