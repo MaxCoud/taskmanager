@@ -1,8 +1,6 @@
 import os
 import sys
-import math
 import shutil
-import time
 
 from pathlib import Path
 
@@ -551,7 +549,18 @@ class MainWindow(QMainWindow):
         self.listTree.clear()
         self.finishedTasksTree.clear()
         i = 0
-        tasksListLen = len(self.tasksList)
+        iRunning = 0
+        iFinished = 0
+        runningTasksNb = 0
+        finishedTasksNb = 0
+        tree_to_build = None
+        tree_len = 0
+
+        for task in self.tasksList:
+            if task["Check"] == 0:
+                runningTasksNb += 1
+            elif task["Check"] == 1:
+                finishedTasksNb += 1
 
         if self.tasksList is not None:
             for task in self.tasksList:
@@ -559,8 +568,14 @@ class MainWindow(QMainWindow):
 
                 if task["Check"] == 0:
                     tree_to_build = self.listTree
+                    iRunning += 1
+                    i = iRunning
+                    tree_len = runningTasksNb
                 elif task["Check"] == 1:
                     tree_to_build = self.finishedTasksTree
+                    iFinished += 1
+                    i = iFinished
+                    tree_len = finishedTasksNb
 
                 elmt = QTreeWidgetItem(tree_to_build)
                 elmt.setFlags(elmt.flags() | Qt.ItemIsUserCheckable)
@@ -608,15 +623,15 @@ class MainWindow(QMainWindow):
                 lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
                 tree_to_build.setItemWidget(elmt, 5, lbl)
 
-                # i += 1
-                # if i < tasksListLen:
-                spacer = QTreeWidgetItem(tree_to_build)
-                spacer.setFlags(Qt.NoItemFlags)
+                if i < tree_len:
+                    print("i=", i)
+                    spacer = QTreeWidgetItem(tree_to_build)
+                    spacer.setFlags(Qt.NoItemFlags)
 
-                lbl = QLabel("")
-                lbl.setFont(QFont('AnyStyle', 1))
+                    lbl = QLabel("")
+                    lbl.setFont(QFont('AnyStyle', 1))
 
-                tree_to_build.setItemWidget(spacer, 0, lbl)
+                    tree_to_build.setItemWidget(spacer, 0, lbl)
 
                 if task["Check"] == 1:
                     elmt.setCheckState(0, Qt.Checked)
@@ -624,71 +639,6 @@ class MainWindow(QMainWindow):
                     elmt.setCheckState(0, Qt.Unchecked)
 
                 self.updating = False
-
-        # for task in self.tasksList:
-        #     self.updating = True
-        #     elmt = QTreeWidgetItem(self.listTree)
-        #     elmt.setFlags(elmt.flags() | Qt.ItemIsUserCheckable)
-        #
-        #     lbl = QLabel(task["Name"])
-        #     lbl.setWordWrap(True)
-        #     lbl.setFont(QFont('AnyStyle', self.itemFontSize))
-        #     lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-        #     self.listTree.setItemWidget(elmt, 1, lbl)
-        #
-        #     lbl = QLabel(task["Description"])
-        #     lbl.setWordWrap(True)
-        #     lbl.setFont(QFont('AnyStyle', self.itemFontSize))
-        #     lbl.setMaximumWidth(500)
-        #     lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        #     self.listTree.setItemWidget(elmt, 2, lbl)
-        #
-        #     lbl = QLabel(task["Project"])
-        #     lbl.setWordWrap(True)
-        #     lbl.setFont(QFont('AnyStyle', self.itemFontSize))
-        #     lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-        #     self.listTree.setItemWidget(elmt, 3, lbl)
-        #
-        #     try:
-        #         year, month, day = task["StartDate"].split("-")
-        #         date = f'{day}/{month}/{year}'
-        #     except:
-        #         date = task["StartDate"]
-        #
-        #     lbl = QLabel(date)
-        #     lbl.setWordWrap(True)
-        #     lbl.setFont(QFont('AnyStyle', self.itemFontSize))
-        #     lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-        #     self.listTree.setItemWidget(elmt, 4, lbl)
-        #
-        #     try:
-        #         year, month, day = task["EndDate"].split("-")
-        #         date = f'{day}/{month}/{year}'
-        #     except:
-        #         date = task["EndDate"]
-        #
-        #     lbl = QLabel(date)
-        #     lbl.setWordWrap(True)
-        #     lbl.setFont(QFont('AnyStyle', self.itemFontSize))
-        #     lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-        #     self.listTree.setItemWidget(elmt, 5, lbl)
-        #
-        #     i += 1
-        #     if i < tasksListLen:
-        #         spacer = QTreeWidgetItem(self.listTree)
-        #         spacer.setFlags(Qt.NoItemFlags)
-        #
-        #         lbl = QLabel("")
-        #         lbl.setFont(QFont('AnyStyle', 1))
-        #
-        #         self.listTree.setItemWidget(spacer, 0, lbl)
-        #
-        #     self.updating = False
-        #
-        #     if task["Check"] == 1:
-        #         elmt.setCheckState(0, Qt.Checked)
-        #     else:
-        #         elmt.setCheckState(0, Qt.Unchecked)
 
     def finishedTasksTree_changed(self, item, col):
         if not self.updating:
