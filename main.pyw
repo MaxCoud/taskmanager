@@ -11,6 +11,10 @@ from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QApp
     QCheckBox, QTreeWidget, QTreeWidgetItem, QHeaderView, QDateEdit, QDialog, QVBoxLayout, QPlainTextEdit, \
     QMessageBox, QInputDialog, QComboBox, QDesktopWidget, QTabWidget, QAction, QMainWindow
 
+from pympler import muppy
+all_object = muppy.get_objects()
+# print(all_object)
+
 
 class AddTaskDialog(QDialog):
 
@@ -437,6 +441,7 @@ class MainWindow(QMainWindow):
         # elmt.setStyleSheet("QTreeWidgetItem {margin: 20px}")
         self.listTree.itemChanged.connect(self.listTree_changed)
         self.listTree.itemClicked.connect(self.listTree_itemClicked)
+        # self.listTree.itemPressed.connect(self.listTree_itemClicked)
         self.listTree.itemDoubleClicked.connect(self.ModifyTaskBtnClicked)
         runningLayout.addWidget(self.listTree, 2, 0, 1, 4)
 
@@ -491,6 +496,7 @@ class MainWindow(QMainWindow):
         self.finishedTasksTree.setColumnWidth(5, 112)
         self.finishedTasksTree.itemChanged.connect(self.finishedTasksTree_changed)
         self.finishedTasksTree.itemClicked.connect(self.finishedTasksTree_itemClicked)
+        # self.finishedTasksTree.itemPressed.connect(self.finishedTasksTree_itemClicked)
         self.finishedTasksTree.itemDoubleClicked.connect(self.ModifyTaskBtnClicked)
         finishedLayout.addWidget(self.finishedTasksTree, 2, 0, 1, 4)
 
@@ -535,8 +541,10 @@ class MainWindow(QMainWindow):
             self.DeleteTaskBtnClicked()
 
     def Save(self):
+        print("Save()")
         with open('tasks.yaml', 'w') as f:
             yaml.dump(self.tasksList, f, sort_keys=False)
+        print("ok Save")
 
     def New_task(self, task):
         self.tasksList.append(task)
@@ -546,8 +554,12 @@ class MainWindow(QMainWindow):
 
     def Update_changes(self):
 
-        self.listTree.clear()
-        self.finishedTasksTree.clear()
+        print("UPDATE")
+
+        # self.listTree.clearSelection()
+        # self.finishedTasksTree.clearSelection()
+        # self.listTree.clear()
+        # self.finishedTasksTree.clear()
         i = 0
         iRunning = 0
         iFinished = 0
@@ -624,7 +636,6 @@ class MainWindow(QMainWindow):
                 tree_to_build.setItemWidget(elmt, 5, lbl)
 
                 if i < tree_len:
-                    print("i=", i)
                     spacer = QTreeWidgetItem(tree_to_build)
                     spacer.setFlags(Qt.NoItemFlags)
 
@@ -638,59 +649,75 @@ class MainWindow(QMainWindow):
                 else:
                     elmt.setCheckState(0, Qt.Unchecked)
 
+                print("update")
                 self.updating = False
 
+        print("UPDATE END")
+        # all_object = muppy.get_objects()
+
     def finishedTasksTree_changed(self, item, col):
-        if not self.updating:
-            print("finishedTasksTree_changed")
-            # if item.checkState(0) == Qt.Checked:
-            #     for task in self.tasksList:
-            #         if task["Name"] == self.finishedTasksTree.itemWidget(item, 1).text() and \
-            #                 task["Description"] == self.finishedTasksTree.itemWidget(item, 2).text():
-            #             task["Check"] = 1
-            #             break
+        try:
+            if not self.updating:
+                print("finishedTasksTree_changed")
+                # if item.checkState(0) == Qt.Checked:
+                #     for task in self.tasksList:
+                #         if task["Name"] == self.finishedTasksTree.itemWidget(item, 1).text() and \
+                #                 task["Description"] == self.finishedTasksTree.itemWidget(item, 2).text():
+                #             task["Check"] = 1
+                #             break
 
-            if item.checkState(0) == Qt.Unchecked:
-                for task in self.tasksList:
-                    if task["Name"] == self.finishedTasksTree.itemWidget(item, 1).text() and \
-                            task["Description"] == self.finishedTasksTree.itemWidget(item, 2).text():
-                        task["Check"] = 0
-                        break
+                if item.checkState(0) == Qt.Unchecked:
+                    for task in self.tasksList:
+                        if task["Name"] == self.finishedTasksTree.itemWidget(item, 1).text() and \
+                                task["Description"] == self.finishedTasksTree.itemWidget(item, 2).text():
+                            task["Check"] = 0
+                            break
 
-            self.Save()
-            self.Update_changes()
+                print("ok finishedTasksTree_changed")
+                self.Save()
+                self.Update_changes()
+        except Exception as e:
+            print("finishedTasksTree_changed:", e)
 
     def listTree_changed(self, item, col):
-        if not self.updating:
-            print("listTree_changed")
-            if item.checkState(0) == Qt.Checked:
-                for task in self.tasksList:
-                    if task["Name"] == self.listTree.itemWidget(item, 1).text() and \
-                            task["Description"] == self.listTree.itemWidget(item, 2).text():
-                        task["Check"] = 1
-                        break
+        try:
+            if not self.updating:
+                print("listTree_changed")
+                if item.checkState(0) == Qt.Checked:
+                    for task in self.tasksList:
+                        if task["Name"] == self.listTree.itemWidget(item, 1).text() and \
+                                task["Description"] == self.listTree.itemWidget(item, 2).text():
+                            task["Check"] = 1
+                            break
 
-            # elif item.checkState(0) == Qt.Unchecked:
-            #     for task in self.tasksList:
-            #         if task["Name"] == self.listTree.itemWidget(item, 1).text() and \
-            #                 task["Description"] == self.listTree.itemWidget(item, 2).text():
-            #             task["Check"] = 0
-            #             break
+                # elif item.checkState(0) == Qt.Unchecked:
+                #     for task in self.tasksList:
+                #         if task["Name"] == self.listTree.itemWidget(item, 1).text() and \
+                #                 task["Description"] == self.listTree.itemWidget(item, 2).text():
+                #             task["Check"] = 0
+                #             break
 
-            self.Save()
-            self.Update_changes()
+                print("ok listTree_changed")
+                self.Save()
+                self.Update_changes()
+        except Exception as e:
+            print("listTree_changed:", e)
 
     def listTree_itemClicked(self, item, col):
+        print("listTree_itemClicked()")
         try:
             if item.isSelected():
                 self.selectedItem = item
+            print("ok listTree_itemClicked")
         except Exception as e:
             print("listTree_itemClicked", e)
 
     def finishedTasksTree_itemClicked(self, item, col):
+        print("finishedTasksTree_itemClicked()")
         try:
             if item.isSelected():
                 self.selectedItem = item
+            print("ok finishedTasksTree_itemClicked")
         except Exception as e:
             print("finishedTasksTree_itemClicked", e)
 
