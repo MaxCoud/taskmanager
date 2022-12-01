@@ -588,12 +588,14 @@ class MainWindow(QMainWindow):
                 elmt.setFlags(elmt.flags() | Qt.ItemIsUserCheckable)
 
                 lbl = QLabel(f'\n{task["Name"]}\n')
+                # lbl = QLabel(task["Name"])
                 lbl.setWordWrap(True)
                 lbl.setFont(QFont('AnyStyle', self.itemFontSize))
                 lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
                 tree_to_build.setItemWidget(elmt, 1, lbl)
 
                 lbl = QLabel(f'\n{task["Description"]}\n')
+                # lbl = QLabel(task["Description"])
                 lbl.setWordWrap(True)
                 lbl.setFont(QFont('AnyStyle', self.itemFontSize))
                 lbl.setMaximumWidth(500)
@@ -660,6 +662,8 @@ class MainWindow(QMainWindow):
                     for task in self.tasksList:
                         if f'\n{task["Name"]}\n' == self.finishedTasksTree.itemWidget(item, 1).text() and \
                                 f'\n{task["Description"]}\n' == self.finishedTasksTree.itemWidget(item, 2).text():
+                        # if task["Name"] == self.finishedTasksTree.itemWidget(item, 1).text() and \
+                        #         task["Description"] == self.finishedTasksTree.itemWidget(item, 2).text():
                             task["Check"] = 0
                             break
 
@@ -674,7 +678,9 @@ class MainWindow(QMainWindow):
                 if item.checkState(0) == Qt.Checked:
                     for task in self.tasksList:
                         if f'\n{task["Name"]}\n' == self.listTree.itemWidget(item, 1).text() and \
-                                f'\n{task["Description"]}\n' == self.listTree.itemWidget(item, 2).text():
+                                 f'\n{task["Description"]}\n' == self.listTree.itemWidget(item, 2).text():
+                        # if task["Name"] == self.listTree.itemWidget(item, 1).text() and \
+                        #         task["Description"] == self.listTree.itemWidget(item, 2).text():
                             task["Check"] = 1
                             break
 
@@ -719,25 +725,41 @@ class MainWindow(QMainWindow):
 
         current_tree = self.SelectedTree()
 
-        for task in self.tasksList:
-            if f'\n{task["Name"]}\n' == current_tree.itemWidget(self.selectedItem, 1).text() and \
-                    f'\n{task["Description"]}\n' == current_tree.itemWidget(self.selectedItem, 2).text():
-                self.modify_task.emit(task)
-                break
+        taskToModify = self.getTask(current_tree)
+
+        self.modify_task.emit(taskToModify)
+
+        # for task in self.tasksList:
+        #     if f'\n{task["Name"]}\n' == current_tree.itemWidget(self.selectedItem, 1).text() and \
+        #             f'\n{task["Description"]}\n' == current_tree.itemWidget(self.selectedItem, 2).text():
+        #     # if task["Name"] == current_tree.itemWidget(self.selectedItem, 1).text() and \
+        #     #         task["Description"] == current_tree.itemWidget(self.selectedItem, 2).text():
+        #         self.modify_task.emit(task)
+        #         break
 
     def ModifiedTask(self, modifiedTask):
 
         current_tree = self.SelectedTree()
 
-        for task in self.tasksList:
-            if f'\n{task["Name"]}\n' == current_tree.itemWidget(self.selectedItem, 1).text() and \
-                    f'\n{task["Description"]}\n' == current_tree.itemWidget(self.selectedItem, 2).text():
-                task["Name"] = modifiedTask["Name"]
-                task["Description"] = modifiedTask["Description"]
-                task["Project"] = modifiedTask["Project"]
-                task["StartDate"] = modifiedTask["StartDate"]
-                task["EndDate"] = modifiedTask["EndDate"]
-                break
+        task = self.getTask(current_tree)
+
+        task["Name"] = modifiedTask["Name"]
+        task["Description"] = modifiedTask["Description"]
+        task["Project"] = modifiedTask["Project"]
+        task["StartDate"] = modifiedTask["StartDate"]
+        task["EndDate"] = modifiedTask["EndDate"]
+
+        # for task in self.tasksList:
+        #     if f'\n{task["Name"]}\n' == current_tree.itemWidget(self.selectedItem, 1).text() and \
+        #             f'\n{task["Description"]}\n' == current_tree.itemWidget(self.selectedItem, 2).text():
+        #     # if task["Name"] == current_tree.itemWidget(self.selectedItem, 1).text() and \
+        #     #         task["Description"] == current_tree.itemWidget(self.selectedItem, 2).text():
+        #         task["Name"] = modifiedTask["Name"]
+        #         task["Description"] = modifiedTask["Description"]
+        #         task["Project"] = modifiedTask["Project"]
+        #         task["StartDate"] = modifiedTask["StartDate"]
+        #         task["EndDate"] = modifiedTask["EndDate"]
+        #         break
 
         self.Save()
         self.Update_changes()
@@ -748,6 +770,8 @@ class MainWindow(QMainWindow):
 
         try:
             taskName = current_tree.itemWidget(self.selectedItem, 1).text()
+
+            taskName = taskName.replace("\n", "")
 
             msg = QMessageBox()
             msg.setWindowTitle("Suppression d'une tâche")
@@ -773,17 +797,31 @@ class MainWindow(QMainWindow):
 
             current_tree = self.SelectedTree()
 
-            taskToDelete = None
-            for task in self.tasksList:
-                if f'\n{task["Name"]}\n' == current_tree.itemWidget(self.selectedItem, 1).text() and \
-                        f'\n{task["Description"]}\n' == current_tree.itemWidget(self.selectedItem, 2).text():
-                    taskToDelete = task
-                    break
+            # taskToDelete = None
+
+            taskToDelete = self.getTask(current_tree)
+
+            # for task in self.tasksList:
+            #     # if f'\n{task["Name"]}\n' == current_tree.itemWidget(self.selectedItem, 1).text() and \
+            #     #         f'\n{task["Description"]}\n' == current_tree.itemWidget(self.selectedItem, 2).text():
+            #     if task["Name"] == current_tree.itemWidget(self.selectedItem, 1).text() and \
+            #             task["Description"] == current_tree.itemWidget(self.selectedItem, 2).text():
+            #         taskToDelete = task
+            #         break
 
             self.tasksList.remove(taskToDelete)
 
             self.Save()
             self.Update_changes()
+
+    def getTask(self, tree):
+        for task in self.tasksList:
+            if f'\n{task["Name"]}\n' == tree.itemWidget(self.selectedItem, 1).text() and \
+                    f'\n{task["Description"]}\n' == tree.itemWidget(self.selectedItem, 2).text():
+            # if task["Name"] == tree.itemWidget(self.selectedItem, 1).text() and \
+            #         task["Description"] == tree.itemWidget(self.selectedItem, 2).text():
+                return task
+
 
     def ManageProjectsBtnClicked(self):
         self.projectsDialog.show()
