@@ -1,4 +1,4 @@
-- Check: 1
+- Check: 0
   Name: Gestion modbus
   Description: voir notes
   Project: berges
@@ -67,4 +67,24 @@
     table"
   Project: task manager
   StartDate: '2022-11-29'
+  EndDate: '-'
+- Check: 0
+  Name: test
+  Description: Ceci est un test sur une petite tache sans accents
+  Project: task manager
+  StartDate: '2022-12-01'
+  EndDate: '-'
+- Check: 0
+  Name: test
+  Description: "C\xE9ci est \xF9n t\xE8st s\xFBr une pet\xEFte t\xE2che avecv acce,nt"
+  Project: task manager
+  StartDate: '2022-12-01'
+  EndDate: '-'
+- Check: 0
+  Name: test
+  Description: "Ceci ezst un test avec unbe grande tache, sans accent, mais avec une\
+    \ description tellement longue que \xE7a prend plusieurs lignes. En pluys de \xE7\
+    a, il y a des accents, et j'ai vraiement beaucvoup de choses a raconter"
+  Project: berges
+  StartDate: '2022-12-01'
   EndDate: '-'
