@@ -518,7 +518,7 @@ class MainWindow(QMainWindow):
 
         self.Update_changes()
 
-        self.notifyTimer = QTimer()
+        self.notifyTimer = QTimer(self)
         self.notifyTimer.timeout.connect(self.NotifyUser)
         self.notifyTimer.start(self.waitForNotifications)
 
