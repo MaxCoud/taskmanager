@@ -518,9 +518,9 @@ class MainWindow(QMainWindow):
 
         self.Update_changes()
 
-        # self.notifyTimer = QTimer(self)
-        # self.notifyTimer.timeout.connect(self.NotifyUser)
-        # self.notifyTimer.start(self.waitForNotifications)
+        self.notifyTimer = QTimer(self)
+        self.notifyTimer.timeout.connect(self.NotifyUser)
+        self.notifyTimer.start(self.waitForNotifications)
 
         self.new_task.connect(self.New_task)
         self.modify_task.connect(self.addTaskDialog.ModifyTask)
@@ -948,9 +948,9 @@ class MainWindow(QMainWindow):
         msg.setIcon(QMessageBox.Information)
         msg.setStandardButtons(QMessageBox.Ok)
         msg.setDefaultButton(QMessageBox.Ok)
-        # self.notifyTimer.stop()
+        self.notifyTimer.stop()
         msg.exec_()
-        # self.notifyTimer.start(self.waitForNotifications)
+        self.notifyTimer.start(self.waitForNotifications)
 
 
 if __name__ == "__main__":
