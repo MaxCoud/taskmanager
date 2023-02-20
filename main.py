@@ -1,6 +1,7 @@
 import os
 import sys
 import shutil
+import time
 
 from pathlib import Path
 
@@ -547,7 +548,7 @@ class MainWindow(QMainWindow):
         self.Update_changes()
 
     def Update_changes(self):
-
+        time.sleep(0.1)
         self.listTree.clearFocus()
         self.finishedTasksTree.clearFocus()
         self.listTree.clearSelection()
