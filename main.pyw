@@ -24,6 +24,7 @@ class AddTaskDialog(QDialog):
         self.task = None
 
         self.setWindowTitle("Ajouter une tâche")
+        self.setWindowFlags(Qt.WindowCloseButtonHint)
 
         self.titleFontSize = 14
         self.subtitleFontSize = 11
@@ -125,6 +126,7 @@ class AddTaskDialog(QDialog):
             msg.buttonClicked.connect(self.onHideMsgBoxBtnClicked)
 
             msg.setButtonText(QMessageBox.Cancel, "Annuler")
+            msg.setButtonText(QMessageBox.Ok, "OK")
             msg.exec_()
 
         else:
@@ -175,6 +177,7 @@ class AddTaskDialog(QDialog):
             msg.buttonClicked.connect(self.onEnterMsgBoxBtnClicked)
 
             msg.setButtonText(QMessageBox.Cancel, "Annuler")
+            msg.setButtonText(QMessageBox.Ok, "OK")
             msg.exec_()
 
         else:
@@ -218,6 +221,7 @@ class ProjectsDialog(QDialog):
         self.mainWin = mainWin
 
         self.setWindowTitle("Gestion des projets")
+        self.setWindowFlags(Qt.WindowCloseButtonHint)
 
         self.selectedProject = None
         self.getNewProject = False
@@ -328,6 +332,7 @@ class ProjectsDialog(QDialog):
         msg.buttonClicked.connect(self.onDeleteMsgBoxBtnClicked)
 
         msg.setButtonText(QMessageBox.Cancel, "Annuler")
+        msg.setButtonText(QMessageBox.Ok, "OK")
         msg.exec_()
 
     def onDeleteMsgBoxBtnClicked(self, button):
@@ -783,6 +788,7 @@ class MainWindow(QMainWindow):
             msg.buttonClicked.connect(self.onDeleteMsgBoxBtnClicked)
 
             msg.setButtonText(QMessageBox.Cancel, "Annuler")
+            msg.setButtonText(QMessageBox.Ok, "OK")
             msg.exec_()
         except:
             msg = QMessageBox()
@@ -791,6 +797,7 @@ class MainWindow(QMainWindow):
             msg.setIcon(QMessageBox.Warning)
             msg.setStandardButtons(QMessageBox.Ok)
             msg.setDefaultButton(QMessageBox.Ok)
+            msg.setButtonText(QMessageBox.Ok, "OK")
             msg.exec_()
 
     def onDeleteMsgBoxBtnClicked(self, button):
@@ -948,6 +955,7 @@ class MainWindow(QMainWindow):
         msg.setText(notificationText)
         msg.setIcon(QMessageBox.Information)
         msg.setStandardButtons(QMessageBox.Ok)
+        msg.setButtonText(QMessageBox.Ok, "OK")
         msg.setDefaultButton(QMessageBox.Ok)
         self.notifyTimer.stop()
         msg.exec_()

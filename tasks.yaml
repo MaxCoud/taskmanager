@@ -1,17 +1,3 @@
-- Check: 1
-  Name: Gestion modbus
-  Description: voir notes
-  Project: berges
-  StartDate: '2022-11-16'
-  EndDate: '2022-11-18'
-- Check: 0
-  Name: contacter ATEC
-  Description: "Probl\xE8me avec un transfo, on s'en est rendu compte pendant la mise\
-    \ au point d'une machine, la CN finissait par nous dire qu'une phase manquait\
-    \ et effectivement une phase d\xE9conne, semble ne pas \xEAtre reli\xE9e au neutre"
-  Project: berges
-  StartDate: '2022-11-16'
-  EndDate: '2022-11-18'
 - Check: 0
   Name: Changer l'icone quand notif
   Description: "Lorsque l'app est allum\xE9e, et qu'une notif arrive, on pourrait\
@@ -43,24 +29,6 @@
   Project: task manager
   StartDate: '2022-11-23'
   EndDate: '-'
-- Check: 1
-  Name: reparer schema CNC
-  Description: "modules d'entree, il y a une redondance la pin n\xB02"
-  Project: berges
-  StartDate: '2022-11-24'
-  EndDate: '-'
-- Check: 0
-  Name: S'occuper des stagiaires
-  Description: caler des entretiens ?
-  Project: Stagiaires
-  StartDate: '2022-11-25'
-  EndDate: '-'
-- Check: 1
-  Name: Adapter modbusServer
-  Description: "Adapter ModbusServer pour que \xE7a corresponde \xE0 modbusServerTest"
-  Project: berges
-  StartDate: '2022-11-25'
-  EndDate: '2022-11-28'
 - Check: 0
   Name: Gerer problement passage tache d'un onglet a l'autre
   Description: "je ne sais pas d'ou vient le probl\xE8me, il n'est pas r\xE9p\xE9\
@@ -80,6 +48,32 @@
   Project: task manager
   StartDate: '2022-12-01'
   EndDate: '-'
+- Check: 1
+  Name: Gestion modbus
+  Description: voir notes
+  Project: berges
+  StartDate: '2022-11-16'
+  EndDate: '2022-11-18'
+- Check: 1
+  Name: contacter ATEC
+  Description: "Probl\xE8me avec un transfo, on s'en est rendu compte pendant la mise\
+    \ au point d'une machine, la CN finissait par nous dire qu'une phase manquait\
+    \ et effectivement une phase d\xE9conne, semble ne pas \xEAtre reli\xE9e au neutre"
+  Project: berges
+  StartDate: '2022-11-16'
+  EndDate: '2022-11-18'
+- Check: 1
+  Name: reparer schema CNC
+  Description: "modules d'entree, il y a une redondance la pin n\xB02"
+  Project: berges
+  StartDate: '2022-11-24'
+  EndDate: '-'
+- Check: 1
+  Name: Adapter modbusServer
+  Description: "Adapter ModbusServer pour que \xE7a corresponde \xE0 modbusServerTest"
+  Project: berges
+  StartDate: '2022-11-25'
+  EndDate: '2022-11-28'
 - Check: 0
   Name: test
   Description: "Ceci ezst un test avec unbe grande tache, sans accent, mais avec une\
@@ -94,3 +88,15 @@
   Project: berges
   StartDate: '2022-12-01'
   EndDate: '-'
+- Check: 0
+  Name: S'occuper des stagiaires
+  Description: caler des entretiens ?
+  Project: Stagiaires
+  StartDate: '2022-11-25'
+  EndDate: '-'
+- Check: 1
+  Name: erty
+  Description: rtryty
+  Project: berges
+  StartDate: '2023-02-27'
+  EndDate: '2023-02-28'
