@@ -2,15 +2,16 @@ import os
 import sys
 import shutil
 import time
+from style import style
 
 from pathlib import Path
 
 import yaml
 from PySide2.QtCore import Qt, Signal, QSize, QDateTime, QDate, QTimer
-from PySide2.QtGui import QFont, QPalette, QColor, QTextOption
+from PySide2.QtGui import QFont, QPalette, QColor, QTextOption, QKeySequence
 from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QApplication, QLabel, QPushButton, \
     QCheckBox, QTreeWidget, QTreeWidgetItem, QHeaderView, QDateEdit, QDialog, QVBoxLayout, QPlainTextEdit, \
-    QMessageBox, QInputDialog, QComboBox, QDesktopWidget, QTabWidget, QAction, QMainWindow
+    QMessageBox, QInputDialog, QComboBox, QDesktopWidget, QTabWidget, QAction, QMainWindow, QMenu
 
 
 class AddTaskDialog(QDialog):
@@ -22,6 +23,8 @@ class AddTaskDialog(QDialog):
 
         self.modifying = False
         self.task = None
+
+        self.setWindowModality(Qt.ApplicationModal)
 
         self.setWindowTitle("Ajouter une tâche")
         self.setWindowFlags(Qt.WindowCloseButtonHint)
@@ -223,6 +226,8 @@ class ProjectsDialog(QDialog):
         self.setWindowTitle("Gestion des projets")
         self.setWindowFlags(Qt.WindowCloseButtonHint)
 
+        self.setWindowModality(Qt.ApplicationModal)
+
         self.selectedProject = None
         self.getNewProject = False
 
@@ -230,25 +235,11 @@ class ProjectsDialog(QDialog):
         self.subtitleFontSize = 11
         self.itemFontSize = 10
 
-        grid = QGridLayout()
+        # grid = QGridLayout()
 
-        buttonLayout = QVBoxLayout()
+        # buttonLayout = QVBoxLayout()
 
-        AddProjectBtn = QPushButton("Ajouter")
-        AddProjectBtn.setFixedHeight(30)
-        AddProjectBtn.setFixedWidth(100)
-        AddProjectBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        AddProjectBtn.clicked.connect(self.AddProjectBtnClicked)
-        buttonLayout.addWidget(AddProjectBtn, 0)
-
-        DelProjectBtn = QPushButton("Supprimer")
-        DelProjectBtn.setFixedHeight(30)
-        DelProjectBtn.setFixedWidth(100)
-        DelProjectBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        DelProjectBtn.clicked.connect(self.DeleteProjectBtnClicked)
-        buttonLayout.addWidget(DelProjectBtn, 1)
-
-        grid.addLayout(buttonLayout, 0, 0)
+        layout = QVBoxLayout()
 
         self.projectTree = QTreeWidget()
         self.projectTree.setHeaderHidden(True)
@@ -256,13 +247,43 @@ class ProjectsDialog(QDialog):
         self.projectTree.setFixedWidth(300)
         self.projectTree.setFixedHeight(300)
         self.projectTree.itemChanged.connect(self.projectTree_changed)
+        self.projectTree.itemPressed.connect(self.projectTree_itemClicked)
         self.projectTree.itemClicked.connect(self.projectTree_itemClicked)
         self.projectTree.itemDoubleClicked.connect(self.ModifyProjectBtnClicked)
-        grid.addWidget(self.projectTree, 0, 1)
+        # grid.addWidget(self.projectTree, 0, 1)
+        layout.addWidget(self.projectTree, 0)
+
+        self.projectTree.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.projectTree.customContextMenuRequested.connect(self.Show_context_menu)
+
+        AddProjectBtn = QPushButton("Ajouter")
+        AddProjectBtn.setFixedHeight(30)
+        AddProjectBtn.setFixedWidth(100)
+        AddProjectBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        AddProjectBtn.clicked.connect(self.AddProjectBtnClicked)
+        # buttonLayout.addWidget(AddProjectBtn, 0)
+        layout.addWidget(AddProjectBtn, 1, Qt.AlignCenter)
+
+        # DelProjectBtn = QPushButton("Supprimer")
+        # DelProjectBtn.setFixedHeight(30)
+        # DelProjectBtn.setFixedWidth(100)
+        # DelProjectBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        # DelProjectBtn.clicked.connect(self.DeleteProjectBtnClicked)
+        # buttonLayout.addWidget(DelProjectBtn, 1)
+        #
+        # grid.addLayout(buttonLayout, 0, 0)
+
+
 
         self.Update_project_tree()
 
-        self.setLayout(grid)
+        # self.setLayout(grid)
+        self.setLayout(layout)
+
+    def keyPressEvent(self, e):
+        if e.key() == 16777223:
+            self.DeleteProjectBtnClicked()
+
 
     def Save(self):
         with open('projects.yaml', 'w') as f:
@@ -272,6 +293,7 @@ class ProjectsDialog(QDialog):
         self.projectTree.clear()
         for project in self.mainWin.projectList:
             elmt = QTreeWidgetItem(self.projectTree)
+            elmt.setFont(0, QFont('AnyStyle', self.subtitleFontSize))
             elmt.setText(0, project["Name"])
 
     def projectTree_itemClicked(self, item, col):
@@ -281,6 +303,18 @@ class ProjectsDialog(QDialog):
     def projectTree_changed(self):
         pass
 
+    def Show_context_menu(self, position):
+        display_action1 = QAction("Modifier le projet")
+        display_action1.triggered.connect(self.ModifyProjectBtnClicked)
+        display_action2 = QAction("Supprimer le projet")
+        display_action2.triggered.connect(self.DeleteProjectBtnClicked)
+
+        menu = QMenu(self.projectTree)
+        menu.addAction(display_action1)
+        menu.addAction(display_action2)
+
+        menu.exec_(self.projectTree.mapToGlobal(position))
+
     def ModifyProjectBtnClicked(self):
         initialProjectName = self.selectedProject.text(0)
         modifyInputDialog = QInputDialog(self)
@@ -288,13 +322,14 @@ class ProjectsDialog(QDialog):
         modifyInputDialog.setWindowTitle('Modifier un projet')
         modifyInputDialog.setLabelText('Nom du projet :')
         modifyInputDialog.setTextValue(initialProjectName)
-        modifyInputDialog.setFont(QFont('AnyStyle', 9))
+        modifyInputDialog.setFont(QFont('AnyStyle', self.subtitleFontSize))
         ok = modifyInputDialog.exec_()
         text = modifyInputDialog.textValue()
         if ok:
             for project in self.mainWin.projectList:
                 if project["Name"] == initialProjectName:
                     project["Name"] = text
+                    self.mainWin.modified_project.emit([initialProjectName, text])
                     break
 
         self.Save()
@@ -353,6 +388,8 @@ class MainWindow(QMainWindow):
     modify_task = Signal(object)
     modified_task = Signal(object)
 
+    modified_project = Signal(object)
+
     get_new_project = Signal()
     new_project = Signal(object)
     delete_project = Signal(object)
@@ -393,6 +430,8 @@ class MainWindow(QMainWindow):
         self.endDateAscending = None
         self.waitForNotifications = 1800000  # msec  30min = 30*60*1000 = 1.800.000
 
+        self.setWindowModality(Qt.ApplicationModal)
+
         try:
             with open('tasks.yaml', 'r') as f:
                 self.tasksList = yaml.load(f, Loader=yaml.FullLoader)
@@ -414,12 +453,13 @@ class MainWindow(QMainWindow):
         self.subtitleFontSize = 11
         self.itemFontSize = 10
 
+        # menu bar
         menu = self.menuBar()
         file = menu.addMenu("Fichier")
         file.addAction("Quitter", lambda: sys.exit(0))
         taskMenu = menu.addMenu("Tâches")
-        taskMenu.addAction("Ajouter une tâche ...", lambda: self.AddTaskBtnClicked())
-        taskMenu.addAction("Supprimer une tâche", lambda: self.DeleteTaskBtnClicked())
+        taskMenu.addAction("Ajouter une tâche ...", lambda: self.AddTaskBtnClicked(), QKeySequence("a"))
+        taskMenu.addAction("Supprimer une tâche", lambda: self.DeleteTaskBtnClicked(), QKeySequence.Delete)
         projectMenu = menu.addMenu("Projets")
         projectMenu.addAction("Gérer les projets ...", lambda: self.ManageProjectsBtnClicked())
 
@@ -441,6 +481,10 @@ class MainWindow(QMainWindow):
         # self.listTree.setStyleSheet("QTreeWidget::Item{border-bottom: 10px solid red}")
         # self.listTree.setStyleSheet("QTreeWidget::Item{padding: 5px}")
         # elmt.setStyleSheet("QTreeWidgetItem {margin: 20px}")
+
+        self.listTree.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.listTree.customContextMenuRequested.connect(self.Show_lists_context_menu)
+
         self.listTree.itemChanged.connect(self.listTree_changed)
         # self.listTree.itemClicked.connect(self.listTree_itemClicked)
         self.listTree.itemPressed.connect(self.listTree_itemClicked)
@@ -454,32 +498,6 @@ class MainWindow(QMainWindow):
         # self.listTreeHeader.setSectionResizeMode(2, QHeaderView.ResizeToContents)
         self.listTreeHeader.setSectionsClickable(True)
         self.listTreeHeader.sectionClicked.connect(self.customSortByColumn)
-
-        # addDeleteLayout = QHBoxLayout()
-        #
-        # addTaskBtn = QPushButton("Ajouter", self)
-        # addTaskBtn.setFixedHeight(30)
-        # addTaskBtn.setFixedWidth(150)
-        # addTaskBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        # addTaskBtn.clicked.connect(self.AddTaskBtnClicked)
-        # addDeleteLayout.addWidget(addTaskBtn, 0)
-        #
-        # manageProjectsBtn = QPushButton("Gestion projets", self)
-        # manageProjectsBtn.setFixedHeight(30)
-        # manageProjectsBtn.setFixedWidth(150)
-        # manageProjectsBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        # manageProjectsBtn.clicked.connect(self.ManageProjectsBtnClicked)
-        # addDeleteLayout.addWidget(manageProjectsBtn, 1)
-        #
-        # delTaskBtn = QPushButton("Supprimer", self)
-        # delTaskBtn.setStyleSheet("QPushButton {background-color: red}")
-        # delTaskBtn.setFixedHeight(30)
-        # delTaskBtn.setFixedWidth(150)
-        # delTaskBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        # delTaskBtn.clicked.connect(self.DeleteTaskBtnClicked)
-        # addDeleteLayout.addWidget(delTaskBtn, 2)
-        #
-        # runningLayout.addLayout(addDeleteLayout, 3, 0, 1, 4)
 
         self.runningWidget.setLayout(runningLayout)
 
@@ -501,6 +519,9 @@ class MainWindow(QMainWindow):
         self.finishedTasksTree.itemPressed.connect(self.finishedTasksTree_itemClicked)
         self.finishedTasksTree.itemDoubleClicked.connect(self.ModifyTaskBtnClicked)
         finishedLayout.addWidget(self.finishedTasksTree, 2, 0, 1, 4)
+
+        self.finishedTasksTree.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.finishedTasksTree.customContextMenuRequested.connect(self.Show_lists_context_menu)
 
         self.finishedTasksTreeHeader = self.finishedTasksTree.header()
         self.finishedTasksTreeHeader.setDefaultAlignment(Qt.AlignCenter | Qt.AlignVCenter)
@@ -534,13 +555,15 @@ class MainWindow(QMainWindow):
         self.get_new_project.connect(self.projectsDialog.GetNewProject)
         self.new_project.connect(self.New_project)
         self.delete_project.connect(self.DeleteProject)
+        self.modified_project.connect(self.ModifiedProject)
 
         self.show()
         self.NotifyUser()
 
     def keyPressEvent(self, e):
-        if e.key() == 16777223:
-            self.DeleteTaskBtnClicked()
+        pass
+        # if e.key() == 16777223:
+        #     self.DeleteTaskBtnClicked()
 
     def Save(self):
         with open('tasks.yaml', 'w') as f:
@@ -844,7 +867,6 @@ class MainWindow(QMainWindow):
         tasks = []
 
         for task in self.tasksList:
-            print("project: ", projectName, "project task: ", task["Project"])
             if projectName == task["Project"]:
                 tasks.append(task)
 
@@ -891,6 +913,29 @@ class MainWindow(QMainWindow):
             return self.listTree
         elif self.tabs.currentWidget() == self.finishedWidget:
             return self.finishedTasksTree
+
+    def Show_lists_context_menu(self, position):
+        display_action1 = QAction("Modifier la tâche")
+        display_action1.triggered.connect(self.ModifyTaskBtnClicked)
+        display_action2 = QAction("Supprimer la tâche")
+        display_action2.triggered.connect(self.DeleteTaskBtnClicked)
+
+        menu = QMenu(self.listTree)
+        menu.addAction(display_action1)
+        menu.addAction(display_action2)
+
+        menu.exec_(self.listTree.mapToGlobal(position))
+
+    def ModifiedProject(self, data):
+        initial_project_name = data[0]
+        new_project_name = data[1]
+
+        for task in self.tasksList:
+            if task["Project"] == initial_project_name:
+                task["Project"] = new_project_name
+
+        self.Save()
+        self.Update_changes()
 
     def NotifyUser(self):
 
@@ -961,44 +1006,10 @@ class MainWindow(QMainWindow):
         msg.exec_()
         self.notifyTimer.start(self.waitForNotifications)
 
-
 if __name__ == "__main__":
     app = QApplication([])
 
-    app.setStyle("Fusion")
-
-    # app.setStyleSheet("QTreeWidgetItem {margin: 20px}")
-    # app.setStyleSheet("QTreeWidget {margin: 5px}")
-
-    # Palette to switch to dark colors:
-    palette = QPalette()
-    palette.setColor(QPalette.Window, QColor(53, 53, 53))
-    palette.setColor(QPalette.WindowText, Qt.white)
-    palette.setColor(QPalette.Base, QColor(25, 25, 25))
-    palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
-    palette.setColor(QPalette.ToolTipBase, Qt.black)
-    palette.setColor(QPalette.ToolTipText, Qt.white)
-    palette.setColor(QPalette.Text, Qt.white)
-    palette.setColor(QPalette.Button, QColor(53, 53, 53))
-    palette.setColor(QPalette.ButtonText, Qt.white)
-    palette.setColor(QPalette.BrightText, Qt.red)
-    palette.setColor(QPalette.Link, QColor(42, 130, 218))
-    palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
-    palette.setColor(QPalette.HighlightedText, Qt.black)
-    palette.setColor(QPalette.Disabled, QPalette.Window, palette.window().color().lighter())
-    palette.setColor(QPalette.Disabled, QPalette.WindowText, palette.windowText().color().lighter())
-    palette.setColor(QPalette.Disabled, QPalette.Base, palette.base().color().lighter())
-    palette.setColor(QPalette.Disabled, QPalette.AlternateBase, palette.alternateBase().color().lighter())
-    palette.setColor(QPalette.Disabled, QPalette.ToolTipBase, palette.toolTipBase().color().lighter())
-    palette.setColor(QPalette.Disabled, QPalette.ToolTipText, palette.toolTipText().color().lighter())
-    palette.setColor(QPalette.Disabled, QPalette.Text, palette.text().color().lighter())
-    palette.setColor(QPalette.Disabled, QPalette.Button, palette.button().color().lighter())
-    palette.setColor(QPalette.Disabled, QPalette.ButtonText, palette.buttonText().color().lighter())
-    palette.setColor(QPalette.Disabled, QPalette.BrightText, palette.brightText().color().lighter())
-    palette.setColor(QPalette.Disabled, QPalette.Link, palette.link().color().lighter())
-    palette.setColor(QPalette.Disabled, QPalette.Highlight, palette.highlight().color().lighter())
-    palette.setColor(QPalette.Disabled, QPalette.HighlightedText, palette.highlightedText().color().lighter())
-    app.setPalette(palette)
+    style(app)
 
     mainWindow = MainWindow()
     sys.exit(app.exec_())
