@@ -5,383 +5,17 @@ import time
 from style import style
 
 from pathlib import Path
+from add_window import AddTaskDialog
+from project_window import ProjectsDialog
 
 import yaml
-from PySide2.QtCore import Qt, Signal, QSize, QDateTime, QDate, QTimer
-from PySide2.QtGui import QFont, QPalette, QColor, QTextOption, QKeySequence
+from PySide2.QtCore import Qt, Signal, QDateTime, QDate, QTimer
+from PySide2.QtGui import QFont, QTextOption, QKeySequence
 from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QApplication, QLabel, QPushButton, \
-    QCheckBox, QTreeWidget, QTreeWidgetItem, QHeaderView, QDateEdit, QDialog, QVBoxLayout, QPlainTextEdit, \
-    QMessageBox, QInputDialog, QComboBox, QDesktopWidget, QTabWidget, QAction, QMainWindow, QMenu
+    QCheckBox, QTreeWidget, QTreeWidgetItem, QDateEdit, QDialog, QVBoxLayout, QPlainTextEdit, QMessageBox, \
+    QInputDialog, QComboBox, QTabWidget, QAction, QMainWindow, QMenu
 
 
-class AddTaskDialog(QDialog):
-
-    def __init__(self, mainWin):
-        super(AddTaskDialog, self).__init__()
-
-        self.mainWin = mainWin
-
-        self.modifying = False
-        self.task = None
-
-        self.setWindowModality(Qt.ApplicationModal)
-
-        self.setWindowTitle("Ajouter une tâche")
-        self.setWindowFlags(Qt.WindowCloseButtonHint)
-
-        self.titleFontSize = 14
-        self.subtitleFontSize = 11
-        self.itemFontSize = 9.5
-
-        grid = QGridLayout()
-
-        lbl = QLabel("Nom")
-        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        lbl.setAlignment(Qt.AlignCenter)
-        grid.addWidget(lbl, 0, 0)
-
-        self.nameTextEdit = QLineEdit()
-        self.nameTextEdit.setFixedWidth(240)
-        self.nameTextEdit.setFixedHeight(30)
-        self.nameTextEdit.setFont(QFont('AnyStyle', self.itemFontSize))
-        grid.addWidget(self.nameTextEdit, 0, 1)
-
-        lbl = QLabel("Description")
-        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        lbl.setAlignment(Qt.AlignCenter)
-        grid.addWidget(lbl, 1, 0)
-
-        self.descTextEdit = QPlainTextEdit()
-        self.descTextEdit.setFixedWidth(240)
-        self.descTextEdit.setFixedHeight(110)
-        self.descTextEdit.setWordWrapMode(QTextOption.WordWrap.WrapAtWordBoundaryOrAnywhere)
-        self.descTextEdit.setFont(QFont('AnyStyle', self.itemFontSize))
-        grid.addWidget(self.descTextEdit, 1, 1)
-
-        lbl = QLabel("Projet")
-        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        lbl.setAlignment(Qt.AlignCenter)
-        grid.addWidget(lbl, 2, 0)
-
-        self.projectComboBox = QComboBox()
-        self.projectComboBox.setFixedWidth(240)
-        self.projectComboBox.setFixedHeight(30)
-        self.projectComboBox.setFont(QFont('AnyStyle', self.itemFontSize))
-        self.projectComboBox.currentIndexChanged.connect(self.ProjectComboBoxIndexChanged)
-        grid.addWidget(self.projectComboBox, 2, 1)
-
-        lbl = QLabel("Date de début")
-        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        lbl.setAlignment(Qt.AlignCenter)
-        grid.addWidget(lbl, 3, 0)
-
-        self.startDateEdit = QDateEdit(calendarPopup=True)
-        self.startDateEdit.setDateTime(QDateTime.currentDateTime())
-        self.startDateEdit.setFixedWidth(210)
-        self.startDateEdit.setFixedHeight(30)
-        self.startDateEdit.setFont(QFont('AnyStyle', self.itemFontSize))
-        grid.addWidget(self.startDateEdit, 3, 1, Qt.AlignRight)
-
-        lbl = QLabel("Date de fin")
-        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        lbl.setAlignment(Qt.AlignCenter)
-        grid.addWidget(lbl, 4, 0)
-
-        endDateLayout = QHBoxLayout()
-
-        self.endDateCheckBox = QCheckBox()
-        self.endDateCheckBox.stateChanged.connect(self.EndDateCheckBoxStateChanged)
-
-        self.endDateEdit = QDateEdit(calendarPopup=True)
-        self.endDateEdit.setEnabled(False)
-        self.endDateEdit.setDateTime(QDateTime.currentDateTime())
-        self.endDateEdit.setFixedWidth(210)
-        self.endDateEdit.setFixedHeight(30)
-        self.endDateEdit.setFont(QFont('AnyStyle', self.itemFontSize))
-
-        endDateLayout.addWidget(self.endDateCheckBox, 0)
-        endDateLayout.addWidget(self.endDateEdit, 1)
-
-        grid.addLayout(endDateLayout, 4, 1)
-
-        enterTaskBtn = QPushButton("Entrer")
-        enterTaskBtn.setFixedHeight(30)
-        # enterTaskBtn.setFixedWidth(90)
-        enterTaskBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        enterTaskBtn.clicked.connect(self.EnterTaskBtnClicked)
-        grid.addWidget(enterTaskBtn, 5, 0, 1, 2)
-
-        self.setLayout(grid)
-
-        # self.hide.connect(self.HideActions)
-
-    """def HideActions(self):
-        print("hide")"""
-
-    def hideEvent(self, event):
-        if self.modifying:
-            msg = QMessageBox()
-            msg.setWindowTitle("Modification de tâche")
-            msg.setText("Les modifications ne seront pas prises en compte")
-            msg.setIcon(QMessageBox.Warning)
-            msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
-            msg.setDefaultButton(QMessageBox.Ok)
-            msg.buttonClicked.connect(self.onHideMsgBoxBtnClicked)
-
-            msg.setButtonText(QMessageBox.Cancel, "Annuler")
-            msg.setButtonText(QMessageBox.Ok, "OK")
-            msg.exec_()
-
-        else:
-            self.nameTextEdit.setText("")
-            self.descTextEdit.setPlainText("")
-            self.startDateEdit.setDateTime(QDateTime.currentDateTime())
-            self.endDateCheckBox.setChecked(False)
-            self.endDateEdit.setDateTime(QDateTime.currentDateTime())
-            self.setWindowTitle("Ajouter une tâche")
-
-    def onHideMsgBoxBtnClicked(self, button):
-        if button.text() == "OK":
-            self.nameTextEdit.setText("")
-            self.descTextEdit.setPlainText("")
-            self.startDateEdit.setDateTime(QDateTime.currentDateTime())
-            self.endDateCheckBox.setChecked(False)
-            self.endDateEdit.setDateTime(QDateTime.currentDateTime())
-            self.setWindowTitle("Ajouter une tâche")
-            self.modifying = False
-        elif button.text() == "Annuler":
-            self.show()
-
-    def EndDateCheckBoxStateChanged(self):
-        if self.endDateCheckBox.isChecked():
-            self.endDateEdit.setEnabled(True)
-        else:
-            self.endDateEdit.setEnabled(False)
-
-    def EnterTaskBtnClicked(self):
-        taskName = self.nameTextEdit.text()
-        taskProject = self.projectComboBox.currentText()
-        taskDescription = self.descTextEdit.toPlainText()
-        taskStartDate = self.startDateEdit.date().toString(Qt.ISODate)
-        if not self.endDateCheckBox.isChecked():
-            taskEndDate = "-"
-        else:
-            taskEndDate = self.endDateEdit.date().toString(Qt.ISODate)
-        self.task = {"Check": 0, "Name": taskName, "Description": taskDescription, "Project": taskProject, "StartDate": taskStartDate, "EndDate": taskEndDate}
-
-
-        if self.modifying:
-            msg = QMessageBox()
-            msg.setWindowTitle("Modification de tâche")
-            msg.setText("La tâche va être modifiée")
-            msg.setIcon(QMessageBox.Warning)
-            msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
-            msg.setDefaultButton(QMessageBox.Ok)
-            msg.buttonClicked.connect(self.onEnterMsgBoxBtnClicked)
-
-            msg.setButtonText(QMessageBox.Cancel, "Annuler")
-            msg.setButtonText(QMessageBox.Ok, "OK")
-            msg.exec_()
-
-        else:
-            self.mainWin.new_task.emit(self.task)
-            self.hide()
-
-    def onEnterMsgBoxBtnClicked(self, button):
-        if button.text() == "OK":
-            self.mainWin.modified_task.emit(self.task)
-            self.modifying = False
-            self.hide()
-
-    def ModifyTask(self, task):
-        self.nameTextEdit.setText(task["Name"])
-        self.descTextEdit.setPlainText(task["Description"])
-        self.projectComboBox.setCurrentText(task["Project"])
-        self.startDateEdit.setDate(QDate.fromString(task["StartDate"], Qt.ISODate))
-        if task["EndDate"] == "-":
-            self.endDateEdit.setDate(QDate.currentDate())
-            self.endDateCheckBox.setChecked(False)
-        else:
-            self.endDateEdit.setDate(QDate.fromString(task["EndDate"], Qt.ISODate))
-            self.endDateCheckBox.setChecked(True)
-
-        self.setWindowTitle("Modifier une tâche")
-
-        self.modifying = True
-
-        self.show()
-
-    def ProjectComboBoxIndexChanged(self, index):
-        if index == len(self.mainWin.projectList):
-            self.mainWin.get_new_project.emit()
-
-
-class ProjectsDialog(QDialog):
-
-    def __init__(self, mainWin):
-        super(ProjectsDialog, self).__init__()
-
-        self.mainWin = mainWin
-
-        self.setWindowTitle("Gestion des projets")
-        self.setWindowFlags(Qt.WindowCloseButtonHint)
-
-        self.setWindowModality(Qt.ApplicationModal)
-
-        self.selectedProject = None
-        self.getNewProject = False
-
-        self.titleFontSize = 14
-        self.subtitleFontSize = 11
-        self.itemFontSize = 10
-
-        # grid = QGridLayout()
-
-        # buttonLayout = QVBoxLayout()
-
-        layout = QVBoxLayout()
-
-        self.projectTree = QTreeWidget()
-        self.projectTree.setHeaderHidden(True)
-        self.projectTree.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        self.projectTree.setFixedWidth(300)
-        self.projectTree.setFixedHeight(300)
-        self.projectTree.itemChanged.connect(self.projectTree_changed)
-        self.projectTree.itemPressed.connect(self.projectTree_itemClicked)
-        self.projectTree.itemClicked.connect(self.projectTree_itemClicked)
-        self.projectTree.itemDoubleClicked.connect(self.ModifyProjectBtnClicked)
-        # grid.addWidget(self.projectTree, 0, 1)
-        layout.addWidget(self.projectTree, 0)
-
-        self.projectTree.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.projectTree.customContextMenuRequested.connect(self.Show_context_menu)
-
-        AddProjectBtn = QPushButton("Ajouter")
-        AddProjectBtn.setFixedHeight(30)
-        AddProjectBtn.setFixedWidth(100)
-        AddProjectBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        AddProjectBtn.clicked.connect(self.AddProjectBtnClicked)
-        # buttonLayout.addWidget(AddProjectBtn, 0)
-        layout.addWidget(AddProjectBtn, 1, Qt.AlignCenter)
-
-        # DelProjectBtn = QPushButton("Supprimer")
-        # DelProjectBtn.setFixedHeight(30)
-        # DelProjectBtn.setFixedWidth(100)
-        # DelProjectBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        # DelProjectBtn.clicked.connect(self.DeleteProjectBtnClicked)
-        # buttonLayout.addWidget(DelProjectBtn, 1)
-        #
-        # grid.addLayout(buttonLayout, 0, 0)
-
-
-
-        self.Update_project_tree()
-
-        # self.setLayout(grid)
-        self.setLayout(layout)
-
-    def keyPressEvent(self, e):
-        if e.key() == 16777223:
-            self.DeleteProjectBtnClicked()
-
-
-    def Save(self):
-        with open('projects.yaml', 'w') as f:
-            yaml.dump(self.mainWin.projectList, f, sort_keys=False)
-
-    def Update_project_tree(self):
-        self.projectTree.clear()
-        for project in self.mainWin.projectList:
-            elmt = QTreeWidgetItem(self.projectTree)
-            elmt.setFont(0, QFont('AnyStyle', self.subtitleFontSize))
-            elmt.setText(0, project["Name"])
-
-    def projectTree_itemClicked(self, item, col):
-        if item.isSelected():
-            self.selectedProject = item
-
-    def projectTree_changed(self):
-        pass
-
-    def Show_context_menu(self, position):
-        display_action1 = QAction("Modifier le projet")
-        display_action1.triggered.connect(self.ModifyProjectBtnClicked)
-        display_action2 = QAction("Supprimer le projet")
-        display_action2.triggered.connect(self.DeleteProjectBtnClicked)
-
-        menu = QMenu(self.projectTree)
-        menu.addAction(display_action1)
-        menu.addAction(display_action2)
-
-        menu.exec_(self.projectTree.mapToGlobal(position))
-
-    def ModifyProjectBtnClicked(self):
-        initialProjectName = self.selectedProject.text(0)
-        modifyInputDialog = QInputDialog(self)
-        modifyInputDialog.setInputMode(QInputDialog.TextInput)
-        modifyInputDialog.setWindowTitle('Modifier un projet')
-        modifyInputDialog.setLabelText('Nom du projet :')
-        modifyInputDialog.setTextValue(initialProjectName)
-        modifyInputDialog.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        ok = modifyInputDialog.exec_()
-        text = modifyInputDialog.textValue()
-        if ok:
-            for project in self.mainWin.projectList:
-                if project["Name"] == initialProjectName:
-                    project["Name"] = text
-                    self.mainWin.modified_project.emit([initialProjectName, text])
-                    break
-
-        self.Save()
-        self.Update_project_tree()
-
-    def AddProjectBtnClicked(self):
-
-        addInputDialog = QInputDialog(self)
-        addInputDialog.setInputMode(QInputDialog.TextInput)
-        addInputDialog.setWindowTitle('Entrer un projet')
-        addInputDialog.setLabelText('Nom du projet :')
-        addInputDialog.setFont(QFont('AnyStyle', 9))
-        ok = addInputDialog.exec_()
-        text = addInputDialog.textValue()
-        # text, ok = QInputDialog.getText(self, 'Entrer un projet', 'Nom du projet :')
-        if ok:
-            self.mainWin.projectList.append({"Name": text})
-
-        self.Save()
-        self.Update_project_tree()
-
-        if self.getNewProject and ok:
-            self.getNewProject = False
-            self.hide()
-            self.mainWin.new_project.emit(text)
-
-    def DeleteProjectBtnClicked(self):
-        projectName = self.selectedProject.text(0)
-        msg = QMessageBox()
-        msg.setWindowTitle("Suppression d'un projet")
-        msg.setText(f'Le projet "{projectName}" va être supprimé, ainsi que toutes les tâches associées')
-        msg.setIcon(QMessageBox.Critical)
-        msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
-        msg.setDefaultButton(QMessageBox.Ok)
-        msg.buttonClicked.connect(self.onDeleteMsgBoxBtnClicked)
-
-        msg.setButtonText(QMessageBox.Cancel, "Annuler")
-        msg.setButtonText(QMessageBox.Ok, "OK")
-        msg.exec_()
-
-    def onDeleteMsgBoxBtnClicked(self, button):
-        if button.text() == 'OK':
-            projectToDelete = {"Name": self.selectedProject.text(0)}
-
-            self.mainWin.delete_project.emit(self.selectedProject.text(0))
-
-    def GetNewProject(self):
-        self.getNewProject = True
-        self.AddProjectBtnClicked()
-
-
-# class MainWindow(QWidget):
 class MainWindow(QMainWindow):
 
     new_task = Signal(object)
@@ -402,18 +36,27 @@ class MainWindow(QMainWindow):
         path2 = os.fspath(Path(__file__).resolve().parent / "main.pyw")
         shutil.copyfile(path1, path2)
 
+        # change working directory to this script directory
+        os.chdir(os.path.dirname(os.path.abspath(__file__)))
+        d = os.getcwd()
+
         # linux shortcut
         if self.os == 'linux':
-            path = os.fspath(Path(__file__).resolve().parent / "TaskManager.desktop")
+            self.slash = "/"
+
+            path = os.fspath(Path(__file__).resolve().parent / "taskmanager.desktop")
             if not os.path.exists(path):
                 f = open(path, 'w')
                 f.write('[Desktop Entry]\n')
-                f.write('Name = Task Manager\n')
-                d = os.getcwd()
-                f.write(f'Exec=/usr/bin/python3 {d}/main.py\n')
+                f.write('Name=Task Manager\n')
+                f.write(f'Name={d}/task_manager_logo1.png\n')
+                f.write(f'Exec=/usr/bin/python3 --working-directory={d}/ {d}/main.py\n')
                 f.write('Terminal=false\n')
                 f.write('Type=Application\n')
                 f.close()
+
+        elif self.os == 'windows':
+            self.slash = "\\"
 
         self.setWindowTitle("Task Manager")
         # self.setFixedWidth(1118)
@@ -433,17 +76,17 @@ class MainWindow(QMainWindow):
         self.setWindowModality(Qt.ApplicationModal)
 
         try:
-            with open('tasks.yaml', 'r') as f:
+            with open(f'{d}{self.slash}tasks.yaml', 'r') as f:
                 self.tasksList = yaml.load(f, Loader=yaml.FullLoader)
         except FileNotFoundError:
-            with open('tasks.yaml', 'w') as f:
+            with open(f'{d}/tasks.yaml', 'w') as f:
                 yaml.dump(None, f, sort_keys=False)
 
         try:
-            with open('projects.yaml', 'r') as f:
+            with open(f'{d}{self.slash}projects.yaml', 'r') as f:
                 self.projectList = yaml.load(f, Loader=yaml.FullLoader)
         except FileNotFoundError:
-            with open('projects.yaml', 'w') as f:
+            with open(f'{d}{self.slash}projects.yaml', 'w') as f:
                 yaml.dump(None, f, sort_keys=False)
 
         self.addTaskDialog = AddTaskDialog(self)

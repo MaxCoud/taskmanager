@@ -1,5 +1,0 @@
-[Desktop Entry]
-Name = Task Manager
-Exec=/usr/bin/python3 /home/mc1/Git/taskmanager/main.py
-Terminal=false
-Type=Application
