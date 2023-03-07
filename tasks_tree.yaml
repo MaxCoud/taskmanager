@@ -1,0 +1,23 @@
+name: Liste des taches
+children:
+  - name: Ligne Berges
+    children:
+      - name: Programmation
+        children:
+          - name: Ladder
+            children:
+              - name: Commenter les variables
+              - name: ajouter les Mcodes manquants
+          - name: Supervision
+            children:
+              - name: Documenter les scripts
+              - name: Implementer Exhaust
+      - name: Usinage
+  - name: Ligne Piquets Echalas
+    children:
+      - name: Conception
+        children:
+          - name: beaucoup de travail
+          - name: encore et encore
+      - name: Usinage
+      - name: Soudure

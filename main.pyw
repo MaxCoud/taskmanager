@@ -9,11 +9,11 @@ from add_window import AddTaskDialog
 from project_window import ProjectsDialog
 
 import yaml
-from PySide2.QtCore import Qt, Signal, QDateTime, QDate, QTimer
-from PySide2.QtGui import QFont, QTextOption, QKeySequence
+from PySide2.QtCore import Qt, Signal, QDateTime, QDate, QTimer, QModelIndex
+from PySide2.QtGui import QFont, QTextOption, QKeySequence, QStandardItem, QStandardItemModel
 from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QApplication, QLabel, QPushButton, \
     QCheckBox, QTreeWidget, QTreeWidgetItem, QDateEdit, QDialog, QVBoxLayout, QPlainTextEdit, QMessageBox, \
-    QInputDialog, QComboBox, QTabWidget, QAction, QMainWindow, QMenu
+    QInputDialog, QComboBox, QTabWidget, QAction, QMainWindow, QMenu, QTreeView, QHeaderView
 
 
 class MainWindow(QMainWindow):
@@ -75,11 +75,25 @@ class MainWindow(QMainWindow):
 
         self.setWindowModality(Qt.ApplicationModal)
 
+
+
+
+
+
+        self.task_tree = []
+
+        try:
+            with open(f'{d}{self.slash}tasks_tree.yaml', 'r') as f:
+                self.task_tree = yaml.load(f, Loader=yaml.FullLoader)
+        except FileNotFoundError:
+            with open(f'{d}{self.slash}tasks_tree.yaml', 'w') as f:
+                yaml.dump(None, f, sort_keys=False)
+
         try:
             with open(f'{d}{self.slash}tasks.yaml', 'r') as f:
                 self.tasksList = yaml.load(f, Loader=yaml.FullLoader)
         except FileNotFoundError:
-            with open(f'{d}/tasks.yaml', 'w') as f:
+            with open(f'{d}{self.slash}tasks.yaml', 'w') as f:
                 yaml.dump(None, f, sort_keys=False)
 
         try:
@@ -106,10 +120,17 @@ class MainWindow(QMainWindow):
         projectMenu = menu.addMenu("Projets")
         projectMenu.addAction("Gérer les projets ...", lambda: self.ManageProjectsBtnClicked())
 
-        layout = QVBoxLayout()
+        layout = QHBoxLayout()
 
         self.runningWidget = QWidget(self)
         runningLayout = QGridLayout()
+
+        self.tree_view = QTreeView(self)
+        self.tree_view.setMinimumWidth(300)
+        layout.addWidget(self.tree_view, 0)
+
+        self.tree_view_header = self.tree_view.header()
+        # self.tree_view_header.setSectionResizeMode(QHeaderView.Interactive)
 
         self.listTree = QTreeWidget(self)
         self.listTree.setHeaderLabels(["", "Nom", "Description", "Projets", "Début", "Fin"])
@@ -179,7 +200,7 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.runningWidget, "En cours")
         self.tabs.addTab(self.finishedWidget, "Terminées")
 
-        layout.addWidget(self.tabs)
+        layout.addWidget(self.tabs, 1)
 
         main_window = QWidget()
         main_window.setLayout(layout)  # runningLayout
@@ -187,6 +208,7 @@ class MainWindow(QMainWindow):
         # self.setLayout(runningLayout)
 
         self.Update_changes()
+        self.Update_tree()
 
         self.notifyTimer = QTimer(self)
         self.notifyTimer.timeout.connect(self.NotifyUser)
@@ -207,6 +229,49 @@ class MainWindow(QMainWindow):
         pass
         # if e.key() == 16777223:
         #     self.DeleteTaskBtnClicked()
+
+    def Update_tree(self):
+        def add_item(parent, data):
+            item = QStandardItem(data['name'])
+            item.setData(data)
+            parent.appendRow(item)
+            if 'children' in data:
+                for child in data['children']:
+                    add_item(item, child)
+
+        # create a QStandardItemModel
+        model = QStandardItemModel()
+
+        # create the root item and add it to the model
+        root_item = QStandardItem(self.task_tree['name'])
+        root_item.setData(self.task_tree)
+        model.appendRow(root_item)
+        model.setHorizontalHeaderLabels([self.task_tree['name']])
+        # model.invisibleRootItem().child(0,0).index()
+        # self.tree_view.setRootIndex(model.invisibleRootItem().child(0).index())
+
+        # add child items recursively
+        if 'children' in self.task_tree:
+            for child in self.task_tree['children']:
+                add_item(root_item, child)
+
+        self.tree_view.setModel(model)
+        self.tree_view.expandAll()
+
+        # hide root element
+        self.tree_view.setRootIndex(model.index(0, 0))
+
+        # self.tree_view_header.setStretchLastSection(False)
+        # self.tree_view_header.setSectionResizeMode(0, QHeaderView.Interactive)
+        # self.tree_view_header.setSectionResizeMode(0, QHeaderView.Stretch)
+        self.tree_view_header.resizeSection(0, self.tree_view.sizeHintForColumn(0))
+        # self.tree_view_header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+
+        # self.tree_view.setHeaderHidden(True)
+
+        # hide triangle
+        # self.tree_view.setRootIsDecorated(False)
+
 
     def Save(self):
         with open('tasks.yaml', 'w') as f:
