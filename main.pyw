@@ -61,11 +61,13 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Task Manager")
         # self.setFixedWidth(1118)
         # self.setFixedHeight(550)
-        self.setMinimumHeight(550)
+        self.setMinimumHeight(650)
 
         self.tasksList = []
         self.projectList = []
         self.selectedItem = None
+        self.selectedProject = None
+        self.selected_project_tasks_list = []
         self.updating = False
 
         self.projectAscending = None
@@ -74,11 +76,6 @@ class MainWindow(QMainWindow):
         self.waitForNotifications = 1800000  # msec  30min = 30*60*1000 = 1.800.000
 
         self.setWindowModality(Qt.ApplicationModal)
-
-
-
-
-
 
         self.task_tree = []
 
@@ -89,12 +86,12 @@ class MainWindow(QMainWindow):
             with open(f'{d}{self.slash}tasks_tree.yaml', 'w') as f:
                 yaml.dump(None, f, sort_keys=False)
 
-        try:
-            with open(f'{d}{self.slash}tasks.yaml', 'r') as f:
-                self.tasksList = yaml.load(f, Loader=yaml.FullLoader)
-        except FileNotFoundError:
-            with open(f'{d}{self.slash}tasks.yaml', 'w') as f:
-                yaml.dump(None, f, sort_keys=False)
+        # try:
+        #     with open(f'{d}{self.slash}tasks.yaml', 'r') as f:
+        #         self.tasksList = yaml.load(f, Loader=yaml.FullLoader)
+        # except FileNotFoundError:
+        #     with open(f'{d}{self.slash}tasks.yaml', 'w') as f:
+        #         yaml.dump(None, f, sort_keys=False)
 
         try:
             with open(f'{d}{self.slash}projects.yaml', 'r') as f:
@@ -127,8 +124,17 @@ class MainWindow(QMainWindow):
 
         self.tree_view = QTreeView(self)
         self.tree_view.setMinimumWidth(300)
+        # self.tree_view.clicked.connect(self.OnProjectTreeClicked)
+        self.tree_view.pressed.connect(self.OnProjectTreeClicked)
         layout.addWidget(self.tree_view, 0)
 
+        # create a model for tree view
+        self.model = QStandardItemModel()
+
+        self.tree_view.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.tree_view.customContextMenuRequested.connect(self.Show_tree_context_menu)
+
+        # get header of tree view
         self.tree_view_header = self.tree_view.header()
         # self.tree_view_header.setSectionResizeMode(QHeaderView.Interactive)
 
@@ -237,29 +243,32 @@ class MainWindow(QMainWindow):
             parent.appendRow(item)
             if 'children' in data:
                 for child in data['children']:
-                    add_item(item, child)
+                    if not 'Description' in child:
+                        add_item(item, child)
 
-        # create a QStandardItemModel
-        model = QStandardItemModel()
 
         # create the root item and add it to the model
         root_item = QStandardItem(self.task_tree['name'])
         root_item.setData(self.task_tree)
-        model.appendRow(root_item)
-        model.setHorizontalHeaderLabels([self.task_tree['name']])
-        # model.invisibleRootItem().child(0,0).index()
-        # self.tree_view.setRootIndex(model.invisibleRootItem().child(0).index())
+        self.model.appendRow(root_item)
+
+        # set label of tree header with root name
+        self.model.setHorizontalHeaderLabels([self.task_tree['name']])
+
+        # self.model.invisibleRootItem().child(0,0).index()
+        # self.tree_view.setRootIndex(self.model.invisibleRootItem().child(0).index())
 
         # add child items recursively
         if 'children' in self.task_tree:
-            for child in self.task_tree['children']:
-                add_item(root_item, child)
+                for child in self.task_tree['children']:
+                    if not 'Description' in child:
+                        add_item(root_item, child)
 
-        self.tree_view.setModel(model)
+        self.tree_view.setModel(self.model)
         self.tree_view.expandAll()
 
         # hide root element
-        self.tree_view.setRootIndex(model.index(0, 0))
+        self.tree_view.setRootIndex(self.model.index(0, 0))
 
         # self.tree_view_header.setStretchLastSection(False)
         # self.tree_view_header.setSectionResizeMode(0, QHeaderView.Interactive)
@@ -272,6 +281,71 @@ class MainWindow(QMainWindow):
         # hide triangle
         # self.tree_view.setRootIsDecorated(False)
 
+    def OnProjectTreeClicked(self, index):
+        item = self.model.itemFromIndex(index)
+        print(item.text())
+
+        hasParent = True
+        parent_list = [item.text()]
+        child = item
+
+        while hasParent:
+
+            try:
+                parent = child.parent()
+                parent_list.append(parent.text())
+                child = parent
+            except:
+                hasParent = False
+
+        print("parent_list", parent_list)
+
+        parent_name = self.task_tree['name']
+        # parent_ = self.task_tree['children'][0]
+        parent_ = self.task_tree
+        tasks_list = None
+
+        if parent_name == parent_list[len(parent_list)-1]:
+            for i in range(len(parent_list), 0, -1):
+                # for parent_ in self.task_tree['children']:
+                #     print("parent_", parent_)
+                    for child in parent_["children"]:
+                        # print("child", child)
+                        # print("child['name']=", child['name'], "== parent_list[i-1]=", parent_list[i-1], "?")
+                        if child['name'] == parent_list[i-1]:
+                            # print("oui")
+                            parent_ = child
+                            # print(i)
+                            if (i-1) == 0:
+                                try:
+                                    # if first element of child['children'] (= task list) has no description, it can be
+                                    # a task list, there is at least one level below
+                                    desc = child['children'][0]['Description']
+                                    tasks_list = child
+                                except:
+                                    pass
+                                break
+
+        if tasks_list is not None:
+            self.selected_project_tasks_list = tasks_list['children']
+            self.tasksList = self.selected_project_tasks_list
+            self.Update_changes()
+            # print(self.selected_project_tasks_list)
+
+        self.selectedProject = item
+
+
+    def Show_tree_context_menu(self, position):
+        display_action1 = QAction("Ajouter un sous-niveau")
+        # display_action1.triggered.connect(self.ModifyTaskBtnClicked)
+        display_action2 = QAction("Supprimer")
+        # display_action2.triggered.connect(self.DeleteTaskBtnClicked)
+
+        menu = QMenu(self.tree_view)
+        menu.addAction(display_action1)
+        menu.addAction(display_action2)
+
+        menu.exec_(self.tree_view.mapToGlobal(position))
 
     def Save(self):
         with open('tasks.yaml', 'w') as f:
@@ -324,22 +398,22 @@ class MainWindow(QMainWindow):
                 elmt = QTreeWidgetItem(tree_to_build)
                 elmt.setFlags(elmt.flags() | Qt.ItemIsUserCheckable)
 
-                lbl = QLabel(f'\n{task["Name"]}\n')
-                # lbl = QLabel(task["Name"])
+                # lbl = QLabel(f'\n{task["Name"]}\n')
+                lbl = QLabel(f'\n{task["name"]}\n')
                 lbl.setWordWrap(True)
                 lbl.setFont(QFont('AnyStyle', self.itemFontSize))
                 lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
                 tree_to_build.setItemWidget(elmt, 1, lbl)
 
                 lbl = QLabel(f'\n{task["Description"]}\n')
-                # lbl = QLabel(task["Description"])
                 lbl.setWordWrap(True)
                 lbl.setFont(QFont('AnyStyle', self.itemFontSize))
                 lbl.setMaximumWidth(500)
                 lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
                 tree_to_build.setItemWidget(elmt, 2, lbl)
 
-                lbl = QLabel(task["Project"])
+                # lbl = QLabel(task["Project"])
+                lbl = QLabel("")
                 lbl.setWordWrap(True)
                 lbl.setFont(QFont('AnyStyle', self.itemFontSize))
                 lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
@@ -623,14 +697,14 @@ class MainWindow(QMainWindow):
             return self.finishedTasksTree
 
     def Show_lists_context_menu(self, position):
-        display_action1 = QAction("Modifier la tâche")
-        display_action1.triggered.connect(self.ModifyTaskBtnClicked)
-        display_action2 = QAction("Supprimer la tâche")
-        display_action2.triggered.connect(self.DeleteTaskBtnClicked)
+        modify_action = QAction("Modifier la tâche")
+        modify_action.triggered.connect(self.ModifyTaskBtnClicked)
+        delete_action = QAction("Supprimer la tâche")
+        delete_action.triggered.connect(self.DeleteTaskBtnClicked)
 
         menu = QMenu(self.listTree)
-        menu.addAction(display_action1)
-        menu.addAction(display_action2)
+        menu.addAction(modify_action)
+        menu.addAction(delete_action)
 
         menu.exec_(self.listTree.mapToGlobal(position))
 

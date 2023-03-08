@@ -8,11 +8,33 @@ children:
             children:
               - name: Commenter les variables
               - name: ajouter les Mcodes manquants
+                children:
+                  - name: M101 evacuer piece standard
+                    Check: 1
+                    Description: prevoir front montant, maintien et fin
+                    StartDate: '2023-02-28'
+                    EndDate: '2023-03-10'
+                  - name: M102 evacuer chute ou petite piece
+                    Check: 0
+                    Description: prevoir front montant, maintien et fin
+                    StartDate: '2023-02-28'
+                    EndDate: '2023-03-10'
           - name: Supervision
             children:
               - name: Documenter les scripts
               - name: Implementer Exhaust
       - name: Usinage
+        children:
+          - name: Decoupe Etau central
+            Check: 0
+            Description: Pour eviter collision avec verin
+            StartDate: '2023-02-28'
+            EndDate: '2023-03-10'
+          - name: Rallonge etau central
+            Check: 0
+            Description: Pour avoir un bon support d'usinage
+            StartDate: '2023-02-28'
+            EndDate: '2023-03-10'
   - name: Ligne Piquets Echalas
     children:
       - name: Conception
@@ -20,4 +42,15 @@ children:
           - name: beaucoup de travail
           - name: encore et encore
       - name: Usinage
+        children:
+          - name: Va savoir quoi
+            Check: 1
+            Description: ????
+            StartDate: '2023-02-28'
+            EndDate: '2023-03-10'
+          - name: encore une operation
+            Check: 0
+            Description: Mais bien sur
+            StartDate: '2023-02-28'
+            EndDate: '2023-03-10'
       - name: Soudure

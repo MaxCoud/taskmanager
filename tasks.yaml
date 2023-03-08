@@ -4,19 +4,6 @@
   Project: offres d'emploi
   StartDate: '2023-02-28'
   EndDate: '2023-03-10'
-  Sous-taches:
-  - Check: 0
-    Name: S'occuper des stages/emploi
-    Description: Voir avec sylvain
-    Project: offres d'emploi
-    StartDate: '2023-02-28'
-    EndDate: '2023-03-10'
-  - Check: 0
-    Name: S'occuper des stages/emploi
-    Description: Voir avec sylvain
-    Project: offres d'emploi
-    StartDate: '2023-02-28'
-    EndDate: '2023-03-10'
 - Check: 0
   Name: "Compl\xE9ter liste variables avec ladder"
   Description: "Referencer les registres utilis\xE9s"
