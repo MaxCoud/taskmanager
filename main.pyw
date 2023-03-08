@@ -63,11 +63,11 @@ class MainWindow(QMainWindow):
         # self.setFixedHeight(550)
         self.setMinimumHeight(650)
 
-        self.tasksList = []
+        self.tasksList = None
         self.projectList = []
         self.selectedItem = None
         self.selectedProject = None
-        self.selected_project_tasks_list = []
+        self.selected_project_tasks_list = None
         self.updating = False
 
         self.projectAscending = None
@@ -243,8 +243,9 @@ class MainWindow(QMainWindow):
             parent.appendRow(item)
             if 'children' in data:
                 for child in data['children']:
-                    if not 'Description' in child:
-                        add_item(item, child)
+                    add_item(item, child)
+                    # if not 'Description' in child:
+                    #     add_item(item, child)
 
 
         # create the root item and add it to the model
@@ -261,8 +262,9 @@ class MainWindow(QMainWindow):
         # add child items recursively
         if 'children' in self.task_tree:
                 for child in self.task_tree['children']:
-                    if not 'Description' in child:
-                        add_item(root_item, child)
+                    add_item(root_item, child)
+                    # if not 'Description' in child:
+                    #     add_item(root_item, child)
 
         self.tree_view.setModel(self.model)
         self.tree_view.expandAll()
@@ -328,9 +330,12 @@ class MainWindow(QMainWindow):
 
         if tasks_list is not None:
             self.selected_project_tasks_list = tasks_list['children']
-            self.tasksList = self.selected_project_tasks_list
-            self.Update_changes()
             # print(self.selected_project_tasks_list)
+        else:
+            self.selected_project_tasks_list = None
+
+        self.tasksList = self.selected_project_tasks_list
+        self.Update_changes()
 
         self.selectedProject = item
 
@@ -373,13 +378,23 @@ class MainWindow(QMainWindow):
         tree_to_build = None
         tree_len = 0
 
-        for task in self.tasksList:
-            if task["Check"] == 0:
-                runningTasksNb += 1
-            elif task["Check"] == 1:
-                finishedTasksNb += 1
-
         self.updating = True
+
+        print(self.tasksList)
+
+        if self.tasksList is not None:
+            newTasksList = []
+            for task in self.tasksList:
+                if "children" not in task:
+                    newTasksList.append(task)
+            self.tasksList = newTasksList
+
+        if self.tasksList is not None:
+            for task in self.tasksList:
+                if task["Check"] == 0:
+                    runningTasksNb += 1
+                elif task["Check"] == 1:
+                    finishedTasksNb += 1
 
         if self.tasksList is not None:
             for task in self.tasksList:
@@ -743,20 +758,21 @@ class MainWindow(QMainWindow):
         endOfWeekList = []
         endOfWeekList.append("Voici les tâches à accomplir cette semaine :")
 
-        for task in self.tasksList:
-            if task["Check"] == 0:
-                try:
-                    taskEndDateDay, taskEndDateMonth, taskEndDateYear = task["EndDate"].split("-")
-                    taskEndDate = taskEndDateDay + taskEndDateMonth + taskEndDateYear
+        if self.tasksList is not None:
+            for task in self.tasksList:
+                if task["Check"] == 0:
+                    try:
+                        taskEndDateDay, taskEndDateMonth, taskEndDateYear = task["EndDate"].split("-")
+                        taskEndDate = taskEndDateDay + taskEndDateMonth + taskEndDateYear
 
-                    if taskEndDate < todayStr:
-                        passedList.append(f' - {task["Name"]}')
-                    elif taskEndDate == todayStr:
-                        todayList.append(f' - {task["Name"]}')
-                    elif taskEndDate <= endOfWeekStr:
-                        endOfWeekList.append(f' - {task["Name"]}')
-                except:
-                    pass  # no end date
+                        if taskEndDate < todayStr:
+                            passedList.append(f' - {task["Name"]}')
+                        elif taskEndDate == todayStr:
+                            todayList.append(f' - {task["Name"]}')
+                        elif taskEndDate <= endOfWeekStr:
+                            endOfWeekList.append(f' - {task["Name"]}')
+                    except:
+                        pass  # no end date
 
         notificationText = ""
 
