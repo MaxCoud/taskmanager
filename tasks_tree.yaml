@@ -1,67 +1,135 @@
-name: Liste des taches
-children:
-  - name: Ligne Berges
-    children:
-      - name: Programmation
-        children:
-          - name: Ladder
-            children:
-              - name: Test
-                Check: 0
-                Description: test
-                StartDate: '2023-02-28'
-                EndDate: '2023-03-10'
-              - name: Commenter les variables
-                children:
-                  - name: Documenter
-                    Check: 0
-                    Description: documenter
-                    StartDate: '2023-02-28'
-                    EndDate: '2023-03-10'
-              - name: ajouter les Mcodes manquants
-                children:
-                  - name: M101 evacuer piece standard
-                    Check: 1
-                    Description: prevoir front montant, maintien et fin
-                    StartDate: '2023-02-28'
-                    EndDate: '2023-03-10'
-                  - name: M102 evacuer chute ou petite piece
-                    Check: 0
-                    Description: prevoir front montant, maintien et fin
-                    StartDate: '2023-02-28'
-                    EndDate: '2023-03-10'
-          - name: Supervision
-            children:
-              - name: Documenter les scripts
-              - name: Implementer Exhaust
-      - name: Usinage
-        children:
-          - name: Decoupe Etau central
-            Check: 0
-            Description: Pour eviter collision avec verin
-            StartDate: '2023-02-28'
-            EndDate: '2023-03-10'
-          - name: Rallonge etau central
-            Check: 0
-            Description: Pour avoir un bon support d'usinage
-            StartDate: '2023-02-28'
-            EndDate: '2023-03-10'
-  - name: Ligne Piquets Echalas
-    children:
-      - name: Conception
-        children:
-          - name: beaucoup de travail
-          - name: encore et encore
-      - name: Usinage
-        children:
-          - name: Va savoir quoi
-            Check: 1
-            Description: ????
-            StartDate: '2023-02-28'
-            EndDate: '2023-03-10'
-          - name: encore une operation
-            Check: 0
-            Description: Mais bien sur
-            StartDate: '2023-02-28'
-            EndDate: '2023-03-10'
-      - name: Soudure
+Name: Projets et sous-projets
+Children:
+- Name: Ligne Berges
+  Children:
+  - Name: Programmation
+    Children:
+    - Name: Ladder
+      Children:
+      - Name: Test
+        Check: 0
+        Description: test
+        Priority: Normal
+        StartDate: '2023-02-28'
+        EndDate: '2023-03-10'
+      - Name: Commenter les variables
+        Children:
+        - Name: Documenter
+          Check: 0
+          Description: documenter
+          Priority: Urgent
+          StartDate: '2023-02-28'
+          EndDate: '2023-03-10'
+      - Name: ajouter les Mcodes manquants
+        Children:
+        - Name: M101 evacuer piece standard
+          Check: 1
+          Description: prevoir front montant, maintien et fin
+          Priority: Pressant
+          StartDate: '2023-02-28'
+          EndDate: '2023-03-10'
+        - Name: M102 evacuer chute ou petite piece
+          Check: 0
+          Description: prevoir front montant, maintien et fin
+          Priority: Normal
+          StartDate: '2023-02-28'
+          EndDate: '2023-03-10'
+    - Name: Supervision
+      Children:
+      - Name: Documenter les scripts
+      - Name: Implementer Exhaust
+  - Name: Usinage
+    Children:
+    - Name: Decoupe Etau central
+      Check: 0
+      Description: Pour eviter collision avec verin
+      Priority: Normal
+      StartDate: '2023-02-28'
+      EndDate: '2023-03-10'
+    - Name: Rallonge etau central
+      Check: 0
+      Description: Pour avoir un bon support d'usinage
+      Priority: Pressant
+      StartDate: '2023-02-28'
+      EndDate: '2023-03-10'
+- Name: Ligne Piquets Echalas
+  Children:
+  - Name: Conception
+    Children:
+    - Name: beaucoup de travail
+    - Name: encore et encore
+  - Name: Usinage
+    Children:
+    - Name: Va savoir quoi
+      Check: 1
+      Description: ????
+      Priority: Urgent
+      StartDate: '2023-02-28'
+      EndDate: '2023-03-10'
+    - Name: encore une operation
+      Check: 0
+      Description: Mais bien sur
+      Priority: Normal
+      StartDate: '2023-02-28'
+      EndDate: '2023-03-10'
+  - Name: Soudure
+- Name: test
+  Children:
+  - Name: test10
+    Children:
+    - Name: test100
+      Children:
+      - Name: test101
+        Children:
+        - Check: 0
+          Name: test1010
+          Description: wow
+          Priority: Normal
+          StartDate: '2023-03-09'
+          EndDate: '-'
+        - Check: 0
+          Name: test1011
+          Description: wow
+          Priority: Urgent
+          StartDate: '2023-03-09'
+          EndDate: '-'
+        - Check: 0
+          Name: test1012
+          Description: wow
+          Priority: Urgent
+          StartDate: '2023-03-09'
+          EndDate: '-'
+        - Check: 0
+          Name: test1013
+          Description: WOW
+          Priority: Normal
+          StartDate: '2023-03-09'
+          EndDate: '-'
+  - Name: test20
+    Children:
+    - Name: test200
+      Children:
+      - Check: 0
+        Name: test
+        Description: '2001'
+        Priority: Pressant
+        StartDate: '2023-03-06'
+        EndDate: '-'
+      - Check: 0
+        Name: test
+        Description: '2002'
+        Priority: Urgent
+        StartDate: '2023-03-09'
+        EndDate: '-'
+      - Check: 0
+        Name: test
+        Description: '20030'
+        Priority: Urgent
+        StartDate: '2023-02-28'
+        EndDate: '-'
+    - Name: test
+      Description: setset
+      Priority: Normal
+      StartDate: '2023-03-10'
+      EndDate: '-'
+      Check: 0

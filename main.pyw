@@ -55,22 +55,24 @@ class MainWindow(QMainWindow):
                 f.write('Type=Application\n')
                 f.close()
 
-        elif self.os == 'windows':
+        elif self.os == 'windows' or self.os == 'win32':
             self.slash = "\\"
 
         self.setWindowTitle("Task Manager")
         # self.setFixedWidth(1118)
         # self.setFixedHeight(550)
-        self.setMinimumHeight(650)
+        self.setMinimumHeight(750)
 
         self.tasksList = None
         self.projectList = []
         self.selectedItem = None
+        self.parent_list = None
         self.selectedProject = None
         self.selected_project_tasks_list = None
         self.updating = False
 
-        self.projectAscending = None
+        # self.projectAscending = None
+        self.priorityAscending = None
         self.startDateAscending = None
         self.endDateAscending = None
         self.waitForNotifications = 1800000  # msec  30min = 30*60*1000 = 1.800.000
@@ -117,7 +119,7 @@ class MainWindow(QMainWindow):
         projectMenu = menu.addMenu("Projets")
         projectMenu.addAction("Gérer les projets ...", lambda: self.ManageProjectsBtnClicked())
 
-        layout = QHBoxLayout()
+        layout = QGridLayout()
 
         self.runningWidget = QWidget(self)
         runningLayout = QGridLayout()
@@ -126,7 +128,7 @@ class MainWindow(QMainWindow):
         self.tree_view.setMinimumWidth(300)
         # self.tree_view.clicked.connect(self.OnProjectTreeClicked)
         self.tree_view.pressed.connect(self.OnProjectTreeClicked)
-        layout.addWidget(self.tree_view, 0)
+        layout.addWidget(self.tree_view, 0, 0)
 
         # create a model for tree view
         self.model = QStandardItemModel()
@@ -138,16 +140,23 @@ class MainWindow(QMainWindow):
         self.tree_view_header = self.tree_view.header()
         # self.tree_view_header.setSectionResizeMode(QHeaderView.Interactive)
 
+        newProjectBtn = QPushButton("Ajouter un projet", self)
+        newProjectBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        newProjectBtn.setFixedHeight(30)
+        newProjectBtn.clicked.connect(self.AddProjectButtonClicked)
+        layout.addWidget(newProjectBtn, 1, 0)
+
         self.listTree = QTreeWidget(self)
-        self.listTree.setHeaderLabels(["", "Nom", "Description", "Projets", "Début", "Fin"])
+        self.listTree.setHeaderLabels(["", "Nom", "Description", "Priorité", "Début", "Fin", "Documents"])
         self.listTree.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        self.listTree.setMinimumWidth(1090)
+        self.listTree.setMinimumWidth(1256)
         self.listTree.setColumnWidth(0, 50)
         self.listTree.setColumnWidth(1, 200)
         self.listTree.setColumnWidth(2, 480)
-        self.listTree.setColumnWidth(3, 120)
+        self.listTree.setColumnWidth(3, 200)
         self.listTree.setColumnWidth(4, 112)
         self.listTree.setColumnWidth(5, 112)
+        self.listTree.setColumnWidth(6, 100)
         # self.listTree.setStyleSheet("QTreeWidget::Item{border-bottom: 10px solid red}")
         # self.listTree.setStyleSheet("QTreeWidget::Item{padding: 5px}")
         # elmt.setStyleSheet("QTreeWidgetItem {margin: 20px}")
@@ -175,15 +184,16 @@ class MainWindow(QMainWindow):
         finishedLayout = QGridLayout()
 
         self.finishedTasksTree = QTreeWidget(self)
-        self.finishedTasksTree.setHeaderLabels(["", "Nom", "Description", "Projets", "Début", "Fin"])
+        self.finishedTasksTree.setHeaderLabels(["", "Nom", "Description", "Priorité", "Début", "Fin", "Documents"])
         self.finishedTasksTree.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        self.finishedTasksTree.setMinimumWidth(1090)
+        self.finishedTasksTree.setMinimumWidth(1256)
         self.finishedTasksTree.setColumnWidth(0, 50)
         self.finishedTasksTree.setColumnWidth(1, 200)
         self.finishedTasksTree.setColumnWidth(2, 480)
-        self.finishedTasksTree.setColumnWidth(3, 120)
+        self.finishedTasksTree.setColumnWidth(3, 200)
         self.finishedTasksTree.setColumnWidth(4, 112)
         self.finishedTasksTree.setColumnWidth(5, 112)
+        self.finishedTasksTree.setColumnWidth(6, 100)
         self.finishedTasksTree.itemChanged.connect(self.finishedTasksTree_changed)
         # self.finishedTasksTree.itemClicked.connect(self.finishedTasksTree_itemClicked)
         self.finishedTasksTree.itemPressed.connect(self.finishedTasksTree_itemClicked)
@@ -206,12 +216,22 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.runningWidget, "En cours")
         self.tabs.addTab(self.finishedWidget, "Terminées")
 
-        layout.addWidget(self.tabs, 1)
+        layout.addWidget(self.tabs, 0, 1, 2, 1)
 
         main_window = QWidget()
         main_window.setLayout(layout)  # runningLayout
         self.setCentralWidget(main_window)
         # self.setLayout(runningLayout)
+
+        # --- Message box management ---
+        self.no_task_msg = QMessageBox(self)
+        self.no_task_msg.setWindowTitle("Information")
+        self.no_task_msg.setText("Pas de tâches dans cette section")
+        self.no_task_msg.setFont(QFont("Arial", 12))
+        self.no_task_msg.setIcon(QMessageBox.Information)
+        self.no_task_msg_timer = QTimer(self)
+        self.no_task_msg_timeout = 1000  # msec
+        self.no_task_msg_timer.timeout.connect(self.no_task_msg_timer_timeout)
 
         self.Update_changes()
         self.Update_tree()
@@ -237,34 +257,40 @@ class MainWindow(QMainWindow):
         #     self.DeleteTaskBtnClicked()
 
     def Update_tree(self):
+
+        self.model.clear()
+
         def add_item(parent, data):
-            item = QStandardItem(data['name'])
+            item = QStandardItem(data['Name'])
             item.setData(data)
+            item.setEditable(False)
             parent.appendRow(item)
-            if 'children' in data:
-                for child in data['children']:
-                    add_item(item, child)
+            if 'Children' in data:
+                for child in data['Children']:
+                    # add_item(item, child)
                     # if not 'Description' in child:
-                    #     add_item(item, child)
+                    if 'Children' in child or not 'Description' in child:
+                        add_item(item, child)
 
 
         # create the root item and add it to the model
-        root_item = QStandardItem(self.task_tree['name'])
+        root_item = QStandardItem(self.task_tree['Name'])
         root_item.setData(self.task_tree)
         self.model.appendRow(root_item)
 
         # set label of tree header with root name
-        self.model.setHorizontalHeaderLabels([self.task_tree['name']])
+        self.model.setHorizontalHeaderLabels([self.task_tree['Name']])
 
         # self.model.invisibleRootItem().child(0,0).index()
         # self.tree_view.setRootIndex(self.model.invisibleRootItem().child(0).index())
 
         # add child items recursively
-        if 'children' in self.task_tree:
-                for child in self.task_tree['children']:
+        if 'Children' in self.task_tree:
+            for child in self.task_tree['Children']:
+                # add_item(root_item, child)
+                # if not 'Description' in child:
+                if 'Name' in child and not 'Description' in child:
                     add_item(root_item, child)
-                    # if not 'Description' in child:
-                    #     add_item(root_item, child)
 
         self.tree_view.setModel(self.model)
         self.tree_view.expandAll()
@@ -288,49 +314,44 @@ class MainWindow(QMainWindow):
         print(item.text())
 
         hasParent = True
-        parent_list = [item.text()]
+        self.parent_list = [item.text()]
         child = item
 
         while hasParent:
-
             try:
                 parent = child.parent()
-                parent_list.append(parent.text())
+                self.parent_list.append(parent.text())
                 child = parent
             except:
                 hasParent = False
 
-        print("parent_list", parent_list)
+        print("parent_list", self.parent_list)
 
-        parent_name = self.task_tree['name']
-        # parent_ = self.task_tree['children'][0]
+        parent_name = self.task_tree['Name']
+        # parent_ = self.task_tree['Children'][0]
         parent_ = self.task_tree
         tasks_list = None
 
-        if parent_name == parent_list[len(parent_list)-1]:
-            for i in range(len(parent_list), 0, -1):
-                # for parent_ in self.task_tree['children']:
-                #     print("parent_", parent_)
-                    for child in parent_["children"]:
-                        # print("child", child)
-                        # print("child['name']=", child['name'], "== parent_list[i-1]=", parent_list[i-1], "?")
-                        if child['name'] == parent_list[i-1]:
-                            # print("oui")
-                            parent_ = child
-                            # print(i)
-                            if (i-1) == 0:
-                                try:
-                                    # if first element of child['children'] (= task list) has no description, it can be
-                                    # a task list, there is at least one level below
-                                    desc = child['children'][0]['Description']
-                                    tasks_list = child
-                                except:
-                                    pass
-                                break
+        if parent_name == self.parent_list[len(self.parent_list)-1]:
+            for i in range(len(self.parent_list), 0, -1):
+                for child in parent_["Children"]:
+                    if child['Name'] == self.parent_list[i-1]:
+                        parent_ = child
+                        if (i-1) == 0:  # last element
+                            # try:
+                            #     # if first element of child['Children'] (= task list) has no description, it can be
+                            #     # a task list, there is at least one level below
+                            #     desc = child['Children'][0]['Description']
+                            #     tasks_list = child
+                            # except:
+                            #     pass
+
+                            tasks_list = child
+
+                            break
 
         if tasks_list is not None:
-            self.selected_project_tasks_list = tasks_list['children']
-            # print(self.selected_project_tasks_list)
+            self.selected_project_tasks_list = tasks_list['Children']
         else:
             self.selected_project_tasks_list = None
 
@@ -339,28 +360,197 @@ class MainWindow(QMainWindow):
 
         self.selectedProject = item
 
-
     def Show_tree_context_menu(self, position):
-        display_action1 = QAction("Ajouter un sous-niveau")
-        # display_action1.triggered.connect(self.ModifyTaskBtnClicked)
-        display_action2 = QAction("Supprimer")
-        # display_action2.triggered.connect(self.DeleteTaskBtnClicked)
+        add_section = QAction("Ajouter une section")
+        add_section.triggered.connect(self.AddProjectSectionButtonClicked)
+        modify_section = QAction("Modifier")
+        modify_section.triggered.connect(self.ModifySectionButtonClicked)
+        delete_section = QAction("Supprimer")
+        delete_section.triggered.connect(self.RemoveSectionButtonClicked)
 
         menu = QMenu(self.tree_view)
-        menu.addAction(display_action1)
-        menu.addAction(display_action2)
+        menu.addAction(add_section)
+        menu.addAction(modify_section)
+        menu.addAction(delete_section)
 
         menu.exec_(self.tree_view.mapToGlobal(position))
+
+    def AddProjectButtonClicked(self):
+        addProjectDialog = QInputDialog(self)
+        addProjectDialog.setInputMode(QInputDialog.TextInput)
+        addProjectDialog.setWindowTitle('Entrer un projet global')
+        addProjectDialog.setLabelText('Nom du projet :')
+        addProjectDialog.setFont(QFont('AnyStyle', 9))
+        ok = addProjectDialog.exec_()
+        text = addProjectDialog.textValue()
+
+        if ok:
+            self.task_tree["Children"].append({"Name": text})
+
+        self.Save_tree()
+        self.Update_tree()
+
+    def AddProjectSectionButtonClicked(self):
+
+        if self.parent_list is not None:
+            parent_name = self.task_tree['Name']
+            parent_ = self.task_tree
+
+            if parent_name == self.parent_list[len(self.parent_list) - 1]:
+                for i in range(len(self.parent_list), 0, -1):
+                    for child in parent_["Children"]:
+                        if child['Name'] == self.parent_list[i - 1]:
+                            parent_ = child
+                            if (i - 1) == 0:  # last element
+                                addSectionDialog = QInputDialog(self)
+                                addSectionDialog.setInputMode(QInputDialog.TextInput)
+                                addSectionDialog.setWindowTitle('Entrer une section')
+                                addSectionDialog.setLabelText('Nom de la section :')
+                                addSectionDialog.setFont(QFont('AnyStyle', 9))
+                                ok = addSectionDialog.exec_()
+                                text = addSectionDialog.textValue()
+
+                                if ok:
+                                    if 'Children' in child:
+                                        child['Children'].append({"Name": text})
+                                    else:
+                                        child['Children'] = []
+                                        child['Children'].append({"Name": text})
+
+                                self.Save_tree()
+                                self.Update_tree()
+                                self.Update_changes()
+
+    def ModifySectionButtonClicked(self):
+        if self.parent_list is not None:
+            parent_name = self.task_tree['Name']
+            parent_ = self.task_tree
+
+            if parent_name == self.parent_list[len(self.parent_list) - 1]:
+                for i in range(len(self.parent_list), 0, -1):
+                    for child in parent_["Children"]:
+                        if child['Name'] == self.parent_list[i - 1]:
+                            parent_ = child
+                            if (i - 1) == 0:  # last element
+                                modifySectionDialog = QInputDialog(self)
+                                modifySectionDialog.setInputMode(QInputDialog.TextInput)
+                                modifySectionDialog.setWindowTitle('Modifier une section')
+                                modifySectionDialog.setLabelText('Nouveau nom de la section :')
+                                lineEdit = modifySectionDialog.findChild(QLineEdit)
+                                lineEdit.setPlaceholderText(f'{child["Name"]}')
+                                modifySectionDialog.setFont(QFont('AnyStyle', 9))
+                                ok = modifySectionDialog.exec_()
+                                text = modifySectionDialog.textValue()
+
+                                if ok:
+                                    child['Name'] = text
+
+                                self.Save_tree()
+                                self.Update_tree()
+                                self.Update_changes()
+
+    def RemoveSectionButtonClicked(self):
+
+        msg = QMessageBox()
+        msg.setWindowTitle("Suppression d'une section")
+        msg.setText(f'La section "{self.selectedProject.text()}" va être supprimée,\n'
+                    f'ainsi que toutes les potentielles sous sections\n'
+                    f'et tâches lui appartenant.')
+        msg.setIcon(QMessageBox.Warning)
+        msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
+        msg.setDefaultButton(QMessageBox.Ok)
+        msg.buttonClicked.connect(self.onDeleteSectionMsgBoxBtnClicked)
+
+        msg.setButtonText(QMessageBox.Cancel, "Annuler")
+        msg.setButtonText(QMessageBox.Ok, "OK")
+        msg.exec_()
+
+    def onDeleteSectionMsgBoxBtnClicked(self, button):
+        if button.text() == 'OK':
+
+            if self.parent_list is not None:
+                parent_name = self.task_tree['Name']
+                parent_ = self.task_tree
+
+                if parent_name == self.parent_list[len(self.parent_list) - 1]:
+                    for i in range(len(self.parent_list), 0, -1):
+                        for child in parent_["Children"]:
+                            if child['Name'] == self.parent_list[i - 1]:
+
+                                if (i - 1) == 0:  # last element
+
+                                    parent_["Children"].remove(child)
+
+                                    self.Save_tree()
+                                    self.Update_tree()
+                                    self.Update_changes()
+
+                                parent_ = child
+
+    def Remove_task(self, taskToDelete):
+
+        if self.parent_list is not None:
+            parent_name = self.task_tree['Name']
+            parent_ = self.task_tree
+
+            if parent_name == self.parent_list[len(self.parent_list) - 1]:
+                for i in range(len(self.parent_list), 0, -1):
+                    for child in parent_["Children"]:
+                        if child['Name'] == self.parent_list[i - 1]:
+                            parent_ = child
+                            if (i - 1) == 0:  # last element
+
+                                if 'Children' in child:
+                                    child['Children'].remove(taskToDelete)
+
+                                    self.Save_tree()
+                                    self.Update_tree()
+                                    self.Update_changes()
+
+
+    def Save_tree(self):
+        with open('tasks_tree.yaml', 'w') as f:
+            yaml.dump(self.task_tree, f, sort_keys=False)
 
     def Save(self):
         with open('tasks.yaml', 'w') as f:
             yaml.dump(self.tasksList, f, sort_keys=False)
 
     def New_task(self, task):
-        self.tasksList.append(task)
+        # self.tasksList.append(task)
 
-        self.Save()
-        self.Update_changes()
+        print(self.tasksList)
+        # if 'Children' in self.task_tree:
+        #     self.task_tree['Children'].append(task)
+        # else:
+        #     self.task_tree['Children'] = []
+        #     self.task_tree['Children'].append(task)
+
+        # self.Save()
+
+
+        if self.parent_list is not None:
+            parent_name = self.task_tree['Name']
+            parent_ = self.task_tree
+
+            if parent_name == self.parent_list[len(self.parent_list) - 1]:
+                for i in range(len(self.parent_list), 0, -1):
+                    for child in parent_["Children"]:
+                        if child['Name'] == self.parent_list[i - 1]:
+                            parent_ = child
+                            if (i - 1) == 0:  # last element
+
+                                if 'Children' in child:
+                                    child['Children'].append(task)
+                                else:
+                                    child['Children'] = []
+                                    child['Children'].append(task)
+
+                                self.tasksList = child['Children']
+
+                                self.Save_tree()
+                                self.Update_tree()
+                                self.Update_changes()
 
     def Update_changes(self):
         time.sleep(0.1)
@@ -380,21 +570,22 @@ class MainWindow(QMainWindow):
 
         self.updating = True
 
-        print(self.tasksList)
-
         if self.tasksList is not None:
             newTasksList = []
             for task in self.tasksList:
-                if "children" not in task:
+                if "Children" not in task:
                     newTasksList.append(task)
             self.tasksList = newTasksList
 
-        if self.tasksList is not None:
             for task in self.tasksList:
                 if task["Check"] == 0:
                     runningTasksNb += 1
                 elif task["Check"] == 1:
                     finishedTasksNb += 1
+        else:
+            self.no_task_msg.show()
+            self.no_task_msg_timer.start(self.no_task_msg_timeout)
+            self.no_task_msg_timer.timeout.connect(self.no_task_msg_timer_timeout)
 
         if self.tasksList is not None:
             for task in self.tasksList:
@@ -414,7 +605,7 @@ class MainWindow(QMainWindow):
                 elmt.setFlags(elmt.flags() | Qt.ItemIsUserCheckable)
 
                 # lbl = QLabel(f'\n{task["Name"]}\n')
-                lbl = QLabel(f'\n{task["name"]}\n')
+                lbl = QLabel(f'\n{task["Name"]}\n')
                 lbl.setWordWrap(True)
                 lbl.setFont(QFont('AnyStyle', self.itemFontSize))
                 lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
@@ -428,7 +619,7 @@ class MainWindow(QMainWindow):
                 tree_to_build.setItemWidget(elmt, 2, lbl)
 
                 # lbl = QLabel(task["Project"])
-                lbl = QLabel("")
+                lbl = QLabel(task["Priority"])
                 lbl.setWordWrap(True)
                 lbl.setFont(QFont('AnyStyle', self.itemFontSize))
                 lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
@@ -474,6 +665,10 @@ class MainWindow(QMainWindow):
 
         self.updating = False
 
+    def no_task_msg_timer_timeout(self):
+        self.no_task_msg_timer.stop()
+        self.no_task_msg.close()
+
     def finishedTasksTree_changed(self, item, col):
         try:
             if not self.updating:
@@ -488,12 +683,14 @@ class MainWindow(QMainWindow):
                     for task in self.tasksList:
                         if f'\n{task["Name"]}\n' == self.finishedTasksTree.itemWidget(item, 1).text() and \
                                 f'\n{task["Description"]}\n' == self.finishedTasksTree.itemWidget(item, 2).text():
-                        # if task["Name"] == self.finishedTasksTree.itemWidget(item, 1).text() and \
-                        #         task["Description"] == self.finishedTasksTree.itemWidget(item, 2).text():
+                            # if task["Name"] == self.finishedTasksTree.itemWidget(item, 1).text() and \
+                            #         task["Description"] == self.finishedTasksTree.itemWidget(item, 2).text():
                             task["Check"] = 0
                             break
 
-                self.Save()
+                # self.Save()
+                self.Save_tree()
+                self.Update_tree()
                 self.Update_changes()
         except Exception as e:
             print("finishedTasksTree_changed:", e)
@@ -504,9 +701,9 @@ class MainWindow(QMainWindow):
                 if item.checkState(0) == Qt.Checked:
                     for task in self.tasksList:
                         if f'\n{task["Name"]}\n' == self.listTree.itemWidget(item, 1).text() and \
-                                 f'\n{task["Description"]}\n' == self.listTree.itemWidget(item, 2).text():
-                        # if task["Name"] == self.listTree.itemWidget(item, 1).text() and \
-                        #         task["Description"] == self.listTree.itemWidget(item, 2).text():
+                                f'\n{task["Description"]}\n' == self.listTree.itemWidget(item, 2).text():
+                            # if task["Name"] == self.listTree.itemWidget(item, 1).text() and \
+                            #         task["Description"] == self.listTree.itemWidget(item, 2).text():
                             task["Check"] = 1
                             break
 
@@ -517,7 +714,9 @@ class MainWindow(QMainWindow):
                 #             task["Check"] = 0
                 #             break
 
-                self.Save()
+                # self.Save()
+                self.Save_tree()
+                self.Update_tree()
                 self.Update_changes()
         except Exception as e:
             print("listTree_changed:", e)
@@ -543,11 +742,11 @@ class MainWindow(QMainWindow):
         self.addTaskDialog.projectComboBox.insertItem(len(self.projectList), "--Nouveau--")
 
     def AddTaskBtnClicked(self):
-        self.Update_project_combo_box()
+        # self.Update_project_combo_box()
         self.addTaskDialog.show()
 
     def ModifyTaskBtnClicked(self):
-        self.Update_project_combo_box()
+        # self.Update_project_combo_box()
 
         current_tree = self.SelectedTree()
 
@@ -571,7 +770,8 @@ class MainWindow(QMainWindow):
 
         task["Name"] = modifiedTask["Name"]
         task["Description"] = modifiedTask["Description"]
-        task["Project"] = modifiedTask["Project"]
+        # task["Project"] = modifiedTask["Project"]
+        task["Priority"] = modifiedTask["Priority"]
         task["StartDate"] = modifiedTask["StartDate"]
         task["EndDate"] = modifiedTask["EndDate"]
 
@@ -587,7 +787,9 @@ class MainWindow(QMainWindow):
         #         task["EndDate"] = modifiedTask["EndDate"]
         #         break
 
-        self.Save()
+        # self.Save()
+        self.Save_tree()
+        self.Update_tree()
         self.Update_changes()
 
     def DeleteTaskBtnClicked(self):
@@ -639,15 +841,19 @@ class MainWindow(QMainWindow):
 
             self.tasksList.remove(taskToDelete)
 
-            self.Save()
-            self.Update_changes()
+            self.Remove_task(taskToDelete)
+
+            # # self.Save()
+            # self.Save_tree()
+            # self.Update_tree()
+            # self.Update_changes()
 
     def getTask(self, tree):
         for task in self.tasksList:
             if f'\n{task["Name"]}\n' == tree.itemWidget(self.selectedItem, 1).text() and \
                     f'\n{task["Description"]}\n' == tree.itemWidget(self.selectedItem, 2).text():
-            # if task["Name"] == tree.itemWidget(self.selectedItem, 1).text() and \
-            #         task["Description"] == tree.itemWidget(self.selectedItem, 2).text():
+                # if task["Name"] == tree.itemWidget(self.selectedItem, 1).text() and \
+                #         task["Description"] == tree.itemWidget(self.selectedItem, 2).text():
                 return task
 
 
@@ -655,7 +861,7 @@ class MainWindow(QMainWindow):
         self.projectsDialog.show()
 
     def New_project(self, received_object):
-        self.Update_project_combo_box()
+        # self.Update_project_combo_box()
 
         self.addTaskDialog.projectComboBox.setCurrentText(received_object)
 
@@ -680,12 +886,18 @@ class MainWindow(QMainWindow):
 
     def customSortByColumn(self, column):
         if column == 3:
-            if self.projectAscending is None or not self.projectAscending:
-                self.tasksList.sort(key=lambda x: x.get("Project"))
-                self.projectAscending = True
+            # if self.projectAscending is None or not self.projectAscending:
+            #     self.tasksList.sort(key=lambda x: x.get("Project"))
+            #     self.projectAscending = True
+            # else:
+            #     self.tasksList.sort(key=lambda x: x.get("Project"), reverse=True)
+            #     self.projectAscending = False
+            if self.priorityAscending is None or not self.priorityAscending:
+                self.tasksList.sort(key=lambda x: x.get("Priority"))
+                self.priorityAscending = True
             else:
-                self.tasksList.sort(key=lambda x: x.get("Project"), reverse=True)
-                self.projectAscending = False
+                self.tasksList.sort(key=lambda x: x.get("Priority"), reverse=True)
+                self.priorityAscending = False
 
         elif column == 4:
             if self.startDateAscending is None or not self.startDateAscending:
@@ -702,7 +914,7 @@ class MainWindow(QMainWindow):
                 self.tasksList.sort(key=lambda x: x.get("EndDate"), reverse=True)
                 self.endDateAscending = False
 
-        self.Save()
+        # self.Save()
         self.Update_changes()
 
     def SelectedTree(self):
