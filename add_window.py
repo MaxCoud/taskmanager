@@ -48,17 +48,32 @@ class AddTaskDialog(QDialog):
         self.descTextEdit.setFont(QFont('AnyStyle', self.itemFontSize))
         grid.addWidget(self.descTextEdit, 1, 1)
 
-        lbl = QLabel("Projet")
+        # lbl = QLabel("Projet")
+        # lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        # lbl.setAlignment(Qt.AlignCenter)
+        # grid.addWidget(lbl, 2, 0)
+        #
+        # self.projectComboBox = QComboBox()
+        # self.projectComboBox.setFixedWidth(240)
+        # self.projectComboBox.setFixedHeight(30)
+        # self.projectComboBox.setFont(QFont('AnyStyle', self.itemFontSize))
+        # self.projectComboBox.currentIndexChanged.connect(self.ProjectComboBoxIndexChanged)
+        # grid.addWidget(self.projectComboBox, 2, 1)
+
+        lbl = QLabel("Priorité")
         lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
         lbl.setAlignment(Qt.AlignCenter)
         grid.addWidget(lbl, 2, 0)
 
-        self.projectComboBox = QComboBox()
-        self.projectComboBox.setFixedWidth(240)
-        self.projectComboBox.setFixedHeight(30)
-        self.projectComboBox.setFont(QFont('AnyStyle', self.itemFontSize))
-        self.projectComboBox.currentIndexChanged.connect(self.ProjectComboBoxIndexChanged)
-        grid.addWidget(self.projectComboBox, 2, 1)
+        self.priorityComboBox = QComboBox()
+        self.priorityComboBox.setFixedWidth(240)
+        self.priorityComboBox.setFixedHeight(30)
+        self.priorityComboBox.setFont(QFont('AnyStyle', self.itemFontSize))
+        grid.addWidget(self.priorityComboBox, 2, 1)
+
+        priorityDegrees = ["Normal", "Pressant", "Urgent"]
+        for i in range(0, len(priorityDegrees)):
+            self.priorityComboBox.insertItem(i, str(priorityDegrees[i]))
 
         lbl = QLabel("Date de début")
         lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
@@ -150,14 +165,16 @@ class AddTaskDialog(QDialog):
 
     def EnterTaskBtnClicked(self):
         taskName = self.nameTextEdit.text()
-        taskProject = self.projectComboBox.currentText()
+        # taskProject = self.projectComboBox.currentText()
+        taskPriority = self.priorityComboBox.currentText()
         taskDescription = self.descTextEdit.toPlainText()
         taskStartDate = self.startDateEdit.date().toString(Qt.ISODate)
         if not self.endDateCheckBox.isChecked():
             taskEndDate = "-"
         else:
             taskEndDate = self.endDateEdit.date().toString(Qt.ISODate)
-        self.task = {"Check": 0, "Name": taskName, "Description": taskDescription, "Project": taskProject, "StartDate": taskStartDate, "EndDate": taskEndDate}
+        # self.task = {"Check": 0, "Name": taskName, "Description": taskDescription, "Project": taskProject, "StartDate": taskStartDate, "EndDate": taskEndDate}
+        self.task = {"Name": taskName, "Description": taskDescription, "Priority": taskPriority, "StartDate": taskStartDate, "EndDate": taskEndDate, "Check": 0}
 
 
         if self.modifying:
@@ -186,7 +203,8 @@ class AddTaskDialog(QDialog):
     def ModifyTask(self, task):
         self.nameTextEdit.setText(task["Name"])
         self.descTextEdit.setPlainText(task["Description"])
-        self.projectComboBox.setCurrentText(task["Project"])
+        # self.projectComboBox.setCurrentText(task["Project"])
+        self.priorityComboBox.setCurrentText(task["Priority"])
         self.startDateEdit.setDate(QDate.fromString(task["StartDate"], Qt.ISODate))
         if task["EndDate"] == "-":
             self.endDateEdit.setDate(QDate.currentDate())
