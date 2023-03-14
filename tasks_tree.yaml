@@ -105,6 +105,13 @@ Children:
           Priority: Normal
           StartDate: '2023-03-09'
           EndDate: '-'
+          Documents:
+            - /home/mc1/Git/taskmanager/task_manager_logo.png
+            - /home/mc1/Git/taskmanager/task_manager_logo1.png
+            - /home/mc1/Git/taskmanager/main.py
+            - /home/mc1/Git/taskmanager/tasks.yaml
+            - /home/mc1/Git/taskmanager/.gitignore
+            - /home/mc1/Git/berges/sv/axus/job.csv
   - Name: test20
     Children:
     - Name: test200
