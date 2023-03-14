@@ -3,6 +3,7 @@ import sys
 import shutil
 import time
 from style import style
+import subprocess
 
 from pathlib import Path
 from add_window import AddTaskDialog
@@ -38,7 +39,7 @@ class MainWindow(QMainWindow):
 
         # change working directory to this script directory
         os.chdir(os.path.dirname(os.path.abspath(__file__)))
-        d = os.getcwd()
+        self.d = os.getcwd()
 
         # linux shortcut
         if self.os == 'linux':
@@ -49,8 +50,8 @@ class MainWindow(QMainWindow):
                 f = open(path, 'w')
                 f.write('[Desktop Entry]\n')
                 f.write('Name=Task Manager\n')
-                f.write(f'Name={d}/task_manager_logo1.png\n')
-                f.write(f'Exec=/usr/bin/python3 --working-directory={d}/ {d}/main.py\n')
+                f.write(f'Name={self.d}/task_manager_logo1.png\n')
+                f.write(f'Exec=/usr/bin/python3 --working-directory={self.d}/ {self.d}/main.py\n')
                 f.write('Terminal=false\n')
                 f.write('Type=Application\n')
                 f.close()
@@ -82,10 +83,10 @@ class MainWindow(QMainWindow):
         self.task_tree = []
 
         try:
-            with open(f'{d}{self.slash}tasks_tree.yaml', 'r') as f:
+            with open(f'{self.d}{self.slash}tasks_tree.yaml', 'r') as f:
                 self.task_tree = yaml.load(f, Loader=yaml.FullLoader)
         except FileNotFoundError:
-            with open(f'{d}{self.slash}tasks_tree.yaml', 'w') as f:
+            with open(f'{self.d}{self.slash}tasks_tree.yaml', 'w') as f:
                 yaml.dump(None, f, sort_keys=False)
 
         # try:
@@ -96,10 +97,10 @@ class MainWindow(QMainWindow):
         #         yaml.dump(None, f, sort_keys=False)
 
         try:
-            with open(f'{d}{self.slash}projects.yaml', 'r') as f:
+            with open(f'{self.d}{self.slash}projects.yaml', 'r') as f:
                 self.projectList = yaml.load(f, Loader=yaml.FullLoader)
         except FileNotFoundError:
-            with open(f'{d}{self.slash}projects.yaml', 'w') as f:
+            with open(f'{self.d}{self.slash}projects.yaml', 'w') as f:
                 yaml.dump(None, f, sort_keys=False)
 
         self.addTaskDialog = AddTaskDialog(self)
@@ -311,7 +312,7 @@ class MainWindow(QMainWindow):
 
     def OnProjectTreeClicked(self, index):
         item = self.model.itemFromIndex(index)
-        print(item.text())
+        # print(item.text())
 
         hasParent = True
         self.parent_list = [item.text()]
@@ -325,7 +326,7 @@ class MainWindow(QMainWindow):
             except:
                 hasParent = False
 
-        print("parent_list", self.parent_list)
+        # print("parent_list", self.parent_list)
 
         parent_name = self.task_tree['Name']
         # parent_ = self.task_tree['Children'][0]
@@ -519,7 +520,7 @@ class MainWindow(QMainWindow):
     def New_task(self, task):
         # self.tasksList.append(task)
 
-        print(self.tasksList)
+        # print(self.tasksList)
         # if 'Children' in self.task_tree:
         #     self.task_tree['Children'].append(task)
         # else:
@@ -553,7 +554,10 @@ class MainWindow(QMainWindow):
                                 self.Update_changes()
 
     def Update_changes(self):
+        self.updating = True
+
         time.sleep(0.1)
+
         self.listTree.clearFocus()
         self.finishedTasksTree.clearFocus()
         self.listTree.clearSelection()
@@ -568,7 +572,6 @@ class MainWindow(QMainWindow):
         tree_to_build = None
         tree_len = 0
 
-        self.updating = True
 
         if self.tasksList is not None:
             newTasksList = []
@@ -589,7 +592,7 @@ class MainWindow(QMainWindow):
 
         if self.tasksList is not None:
             for task in self.tasksList:
-
+                # breakpoint()
                 if task["Check"] == 0:
                     tree_to_build = self.listTree
                     iRunning += 1
@@ -649,6 +652,60 @@ class MainWindow(QMainWindow):
                 lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
                 tree_to_build.setItemWidget(elmt, 5, lbl)
 
+                if "Documents" in task:
+
+                    widget = QWidget()
+                    layout = QGridLayout()
+                    widget.setLayout(layout)
+
+                    doc_list = task['Documents']
+
+                    col = 0
+                    row = 0
+                    max_col = 4
+
+                    # for document in range(len(doc_list)):
+                    for document in doc_list:
+                        splited_document_path = document.split(".")
+                        extension = splited_document_path[len(splited_document_path)-1]
+
+                        if extension in ["png", "jpeg", "jpg", "bmp"] :
+                            icon = self.d + self.slash + "icon" + self.slash + "image.png"
+                        elif extension in ["docx", "odt"]:
+                            icon = self.d + self.slash + "icon" + self.slash + "document-word.png"
+                        elif extension in ["pdf"]:
+                            icon = self.d + self.slash + "icon" + self.slash + "document-pdf.png"
+                        elif extension in ["xlsx", "ods", "csv"]:
+                            icon = self.d + self.slash + "icon" + self.slash + "document-excel.png"
+                        elif extension in ["ino", "py", "pyw", "cpp", "h", "o", "c", "js",
+                                           "class", "html", "htm", "xml", "yaml", "yml", "json", "conf"]:
+                            icon = self.d + self.slash + "icon" + self.slash + "document-code.png"
+                        else:
+                            icon = self.d + self.slash + "icon" + self.slash + "document--arrow.png"
+
+                        if not os.path.exists(document):
+                            icon = self.d + self.slash + "icon" + self.slash + "document-broken.png"
+
+                        path = f"<a href={document}><img src={icon}></a>"
+
+                        lbl = QLabel(path)
+                        lbl.setWordWrap(True)
+                        lbl.setFont(QFont('AnyStyle', self.itemFontSize))
+                        lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+                        lbl.linkActivated.connect(self.LinkActivated)
+                        lbl.setToolTip(document)
+
+                        if col < max_col:
+                            layout.addWidget(lbl, row, col)
+                        else:
+                            row += 1
+                            col = 0
+                            layout.addWidget(lbl, row, col)
+
+                        col += 1
+
+                    tree_to_build.setItemWidget(elmt, 6, widget)
+
                 # if i < tree_len:
                 #     spacer = QTreeWidgetItem(tree_to_build)
                 #     spacer.setFlags(Qt.NoItemFlags)
@@ -665,6 +722,24 @@ class MainWindow(QMainWindow):
 
         self.updating = False
 
+    def LinkActivated(self, path):
+
+        if os.path.exists(path):
+            folder_path = os.path.dirname(path)
+
+            # on linux only (maybe it works on windows?). If not, use os.startfile(folder_path):
+            subprocess.call(["xdg-open", folder_path])
+            # subprocess.call(["xdg-open", path])  # to directly open file
+        else:
+            msg = QMessageBox()
+            msg.setWindowTitle("Fichier absent")
+            msg.setText("Le fichier que vous demandez n'existe pas")
+            msg.setIcon(QMessageBox.Critical)
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.setButtonText(QMessageBox.Ok, "OK")
+            msg.setDefaultButton(QMessageBox.Ok)
+            msg.exec_()
+
     def no_task_msg_timer_timeout(self):
         self.no_task_msg_timer.stop()
         self.no_task_msg.close()
@@ -672,6 +747,7 @@ class MainWindow(QMainWindow):
     def finishedTasksTree_changed(self, item, col):
         try:
             if not self.updating:
+
                 # if item.checkState(0) == Qt.Checked:
                 #     for task in self.tasksList:
                 #         if task["Name"] == self.finishedTasksTree.itemWidget(item, 1).text() and \
@@ -680,6 +756,7 @@ class MainWindow(QMainWindow):
                 #             break
 
                 if item.checkState(0) == Qt.Unchecked:
+                    # breakpoint()
                     for task in self.tasksList:
                         if f'\n{task["Name"]}\n' == self.finishedTasksTree.itemWidget(item, 1).text() and \
                                 f'\n{task["Description"]}\n' == self.finishedTasksTree.itemWidget(item, 2).text():
@@ -688,10 +765,10 @@ class MainWindow(QMainWindow):
                             task["Check"] = 0
                             break
 
-                # self.Save()
-                self.Save_tree()
-                self.Update_tree()
-                self.Update_changes()
+                    # self.Save()
+                    self.Save_tree()
+                    self.Update_tree()
+                    self.Update_changes()
         except Exception as e:
             print("finishedTasksTree_changed:", e)
 
@@ -699,6 +776,7 @@ class MainWindow(QMainWindow):
         try:
             if not self.updating:
                 if item.checkState(0) == Qt.Checked:
+                    # breakpoint()
                     for task in self.tasksList:
                         if f'\n{task["Name"]}\n' == self.listTree.itemWidget(item, 1).text() and \
                                 f'\n{task["Description"]}\n' == self.listTree.itemWidget(item, 2).text():
@@ -714,10 +792,10 @@ class MainWindow(QMainWindow):
                 #             task["Check"] = 0
                 #             break
 
-                # self.Save()
-                self.Save_tree()
-                self.Update_tree()
-                self.Update_changes()
+                    # self.Save()
+                    self.Save_tree()
+                    self.Update_tree()
+                    self.Update_changes()
         except Exception as e:
             print("listTree_changed:", e)
 
