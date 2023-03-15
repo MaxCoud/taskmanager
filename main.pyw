@@ -2,7 +2,7 @@ import os
 import sys
 import shutil
 import time
-from style import style
+from style import style, select_icon
 import subprocess
 
 from pathlib import Path
@@ -118,6 +118,7 @@ class MainWindow(QMainWindow):
         taskMenu.addAction("Ajouter une tâche ...", lambda: self.AddTaskBtnClicked(), QKeySequence("a"))
         taskMenu.addAction("Supprimer une tâche", lambda: self.DeleteTaskBtnClicked(), QKeySequence.Delete)
         projectMenu = menu.addMenu("Projets")
+        projectMenu.addAction("Ajouter un projet", lambda: self.AddProjectButtonClicked(), QKeySequence("p"))
         projectMenu.addAction("Gérer les projets ...", lambda: self.ManageProjectsBtnClicked())
 
         layout = QGridLayout()
@@ -140,12 +141,6 @@ class MainWindow(QMainWindow):
         # get header of tree view
         self.tree_view_header = self.tree_view.header()
         # self.tree_view_header.setSectionResizeMode(QHeaderView.Interactive)
-
-        newProjectBtn = QPushButton("Ajouter un projet", self)
-        newProjectBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        newProjectBtn.setFixedHeight(30)
-        newProjectBtn.clicked.connect(self.AddProjectButtonClicked)
-        layout.addWidget(newProjectBtn, 1, 0)
 
         self.listTree = QTreeWidget(self)
         self.listTree.setHeaderLabels(["", "Nom", "Description", "Priorité", "Début", "Fin", "Documents"])
@@ -352,7 +347,10 @@ class MainWindow(QMainWindow):
                             break
 
         if tasks_list is not None:
-            self.selected_project_tasks_list = tasks_list['Children']
+            try:
+                self.selected_project_tasks_list = tasks_list['Children']
+            except:
+                self.selected_project_tasks_list = None
         else:
             self.selected_project_tasks_list = None
 
@@ -572,7 +570,6 @@ class MainWindow(QMainWindow):
         tree_to_build = None
         tree_len = 0
 
-
         if self.tasksList is not None:
             newTasksList = []
             for task in self.tasksList:
@@ -581,10 +578,17 @@ class MainWindow(QMainWindow):
             self.tasksList = newTasksList
 
             for task in self.tasksList:
-                if task["Check"] == 0:
-                    runningTasksNb += 1
-                elif task["Check"] == 1:
-                    finishedTasksNb += 1
+                if "Check" in task:
+                    if task["Check"] == 0:
+                        runningTasksNb += 1
+                    elif task["Check"] == 1:
+                        finishedTasksNb += 1
+                else:
+                    self.no_task_msg.show()
+                    self.no_task_msg_timer.start(self.no_task_msg_timeout)
+                    self.no_task_msg_timer.timeout.connect(self.no_task_msg_timer_timeout)
+                    self.tasksList = None
+                    break
         else:
             self.no_task_msg.show()
             self.no_task_msg_timer.start(self.no_task_msg_timeout)
@@ -669,19 +673,21 @@ class MainWindow(QMainWindow):
                         splited_document_path = document.split(".")
                         extension = splited_document_path[len(splited_document_path)-1]
 
-                        if extension in ["png", "jpeg", "jpg", "bmp"] :
-                            icon = self.d + self.slash + "icon" + self.slash + "image.png"
-                        elif extension in ["docx", "odt"]:
-                            icon = self.d + self.slash + "icon" + self.slash + "document-word.png"
-                        elif extension in ["pdf"]:
-                            icon = self.d + self.slash + "icon" + self.slash + "document-pdf.png"
-                        elif extension in ["xlsx", "ods", "csv"]:
-                            icon = self.d + self.slash + "icon" + self.slash + "document-excel.png"
-                        elif extension in ["ino", "py", "pyw", "cpp", "h", "o", "c", "js",
-                                           "class", "html", "htm", "xml", "yaml", "yml", "json", "conf"]:
-                            icon = self.d + self.slash + "icon" + self.slash + "document-code.png"
-                        else:
-                            icon = self.d + self.slash + "icon" + self.slash + "document--arrow.png"
+                        # if extension in ["png", "jpeg", "jpg", "bmp"] :
+                        #     icon = self.d + self.slash + "icon" + self.slash + "image.png"
+                        # elif extension in ["docx", "odt"]:
+                        #     icon = self.d + self.slash + "icon" + self.slash + "document-word.png"
+                        # elif extension in ["pdf"]:
+                        #     icon = self.d + self.slash + "icon" + self.slash + "document-pdf.png"
+                        # elif extension in ["xlsx", "ods", "csv"]:
+                        #     icon = self.d + self.slash + "icon" + self.slash + "document-excel.png"
+                        # elif extension in ["ino", "py", "pyw", "cpp", "h", "o", "c", "js",
+                        #                    "class", "html", "htm", "xml", "yaml", "yml", "json", "conf"]:
+                        #     icon = self.d + self.slash + "icon" + self.slash + "document-code.png"
+                        # else:
+                        #     icon = self.d + self.slash + "icon" + self.slash + "document--arrow.png"
+
+                        icon = select_icon(self.d, self.slash, extension)
 
                         if not os.path.exists(document):
                             icon = self.d + self.slash + "icon" + self.slash + "document-broken.png"

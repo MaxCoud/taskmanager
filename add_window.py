@@ -1,8 +1,9 @@
 from PySide2.QtCore import Qt, QDateTime, QDate
 from PySide2.QtGui import QFont, QTextOption
 from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QLabel, QPushButton, QCheckBox, QDateEdit, \
-    QDialog, QPlainTextEdit, QMessageBox, QComboBox
+    QDialog, QPlainTextEdit, QMessageBox, QComboBox, QFileDialog, QAction, QMenu
 
+from style import select_icon
 
 class AddTaskDialog(QDialog):
 
@@ -13,6 +14,7 @@ class AddTaskDialog(QDialog):
 
         self.modifying = False
         self.task = None
+        self.documentsList = []
 
         self.setWindowModality(Qt.ApplicationModal)
 
@@ -109,12 +111,40 @@ class AddTaskDialog(QDialog):
 
         grid.addLayout(endDateLayout, 4, 1)
 
+        lbl = QLabel("Documents")
+        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        lbl.setAlignment(Qt.AlignCenter)
+        grid.addWidget(lbl, 5, 0)
+
+        browseLayout = QHBoxLayout()
+
+        browseBtn = QPushButton("Parcourir")
+        browseBtn.setFixedHeight(30)
+        # browseBtn.setFixedWidth(90)
+        browseBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        browseBtn.clicked.connect(self.BrowseBtnClicked)
+        browseLayout.addWidget(browseBtn, 0)
+
+        self.filesLayout = QGridLayout()
+        self.filesLayoutRow = 0
+        self.filesLayoutColumn = 0
+        self.filesLabels = []
+
+        # self.browseLbl = QLabel("oui")
+        # self.browseLbl.setFont(QFont('AnyStyle', self.itemFontSize))
+        # self.browseLbl.setAlignment(Qt.AlignLeft)
+        # self.filesLayout.addWidget(self.browseLbl, 0, 0)
+
+        browseLayout.addLayout(self.filesLayout)
+
+        grid.addLayout(browseLayout, 5, 1)
+
         enterTaskBtn = QPushButton("Entrer")
         enterTaskBtn.setFixedHeight(30)
         # enterTaskBtn.setFixedWidth(90)
         enterTaskBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
         enterTaskBtn.clicked.connect(self.EnterTaskBtnClicked)
-        grid.addWidget(enterTaskBtn, 5, 0, 1, 2)
+        grid.addWidget(enterTaskBtn, 6, 0, 1, 2)
 
         self.setLayout(grid)
 
@@ -145,6 +175,13 @@ class AddTaskDialog(QDialog):
             self.endDateEdit.setDateTime(QDateTime.currentDateTime())
             self.setWindowTitle("Ajouter une tâche")
 
+            for lbl in self.filesLabels:
+                lbl.setParent(None)
+
+            self.filesLabels = []
+            self.filesLayoutColumn = 0
+            self.filesLayoutRow = 0
+
     def onHideMsgBoxBtnClicked(self, button):
         if button.text() == "OK":
             self.nameTextEdit.setText("")
@@ -174,7 +211,10 @@ class AddTaskDialog(QDialog):
         else:
             taskEndDate = self.endDateEdit.date().toString(Qt.ISODate)
         # self.task = {"Check": 0, "Name": taskName, "Description": taskDescription, "Project": taskProject, "StartDate": taskStartDate, "EndDate": taskEndDate}
-        self.task = {"Name": taskName, "Description": taskDescription, "Priority": taskPriority, "StartDate": taskStartDate, "EndDate": taskEndDate, "Check": 0}
+        # self.task = {"Name": taskName, "Description": taskDescription, "Priority": taskPriority, "StartDate": taskStartDate, "EndDate": taskEndDate, "Check": 0}
+        self.task = {"Name": taskName, "Description": taskDescription, "Priority": taskPriority,
+                     "StartDate": taskStartDate, "EndDate": taskEndDate, "Check": 0,
+                     "Documents": self.documentsList}
 
 
         if self.modifying:
@@ -213,6 +253,15 @@ class AddTaskDialog(QDialog):
             self.endDateEdit.setDate(QDate.fromString(task["EndDate"], Qt.ISODate))
             self.endDateCheckBox.setChecked(True)
 
+        filesPaths = task["Documents"]
+
+        # line_nb = len(filesPaths) // 6
+        # row_nb = len(filesPaths) % 6
+        # print("line_nb", line_nb)
+        # print("row_nb", row_nb)
+
+        self.display_selected_documents(filesPaths)
+
         self.setWindowTitle("Modifier une tâche")
 
         self.modifying = True
@@ -222,3 +271,101 @@ class AddTaskDialog(QDialog):
     def ProjectComboBoxIndexChanged(self, index):
         if index == len(self.mainWin.projectList):
             self.mainWin.get_new_project.emit()
+
+    def BrowseBtnClicked(self):
+        # file = QFileDialog.getOpenFileNames(self, "Sélectionner un fichier", "/home/mc1")
+        file = QFileDialog.getOpenFileNames(self, "Sélectionner un fichier")
+        filesPaths = file[0]
+
+        self.display_selected_documents(filesPaths)
+
+        # if len(filesPaths) > 0:
+        #
+        #     for document in filesPaths:
+        #
+        #         splited_document_path = document.split(".")
+        #         extension = splited_document_path[len(splited_document_path) - 1]
+        #
+        #         icon = select_icon(self.mainWin.d, self.mainWin.slash, extension)
+        #
+        #         path = f"<a href={document}><img src={icon}></a>"
+        #
+        #         lbl = QLabel(path)
+        #         lbl.setWordWrap(True)
+        #         lbl.setFont(QFont('AnyStyle', self.itemFontSize))
+        #         lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+        #         lbl.setToolTip(document)
+        #         self.filesLabels.append(lbl)
+        #
+        #         context_menu_fn = self.make_context_menu_fn(lbl)  # create a separate context menu for each label
+        #
+        #         lbl.setContextMenuPolicy(Qt.CustomContextMenu)
+        #         lbl.customContextMenuRequested.connect(context_menu_fn)
+        #
+        #         if self.filesLayoutColumn < 6:
+        #             self.filesLayout.addWidget(lbl, self.filesLayoutRow, self.filesLayoutColumn)
+        #         else:
+        #             self.filesLayoutRow += 1
+        #             self.filesLayoutColumn = 0
+        #             self.filesLayout.addWidget(lbl, self.filesLayoutRow, self.filesLayoutColumn)
+        #
+        #         self.filesLayoutColumn += 1
+        #
+        #         self.documentsList.append(document)
+
+    def display_selected_documents(self, filesPaths):
+        if len(filesPaths) > 0:
+
+            for document in filesPaths:
+
+                splited_document_path = document.split(".")
+                extension = splited_document_path[len(splited_document_path) - 1]
+
+                icon = select_icon(self.mainWin.d, self.mainWin.slash, extension)
+
+                path = f"<a href={document}><img src={icon}></a>"
+
+                lbl = QLabel(path)
+                lbl.setWordWrap(True)
+                lbl.setFont(QFont('AnyStyle', self.itemFontSize))
+                lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+                lbl.setToolTip(document)
+                self.filesLabels.append(lbl)
+
+                context_menu_fn = self.make_context_menu_fn(lbl)  # create a separate context menu for each label
+
+                lbl.setContextMenuPolicy(Qt.CustomContextMenu)
+                lbl.customContextMenuRequested.connect(context_menu_fn)
+
+                if self.filesLayoutColumn < 6:
+                    self.filesLayout.addWidget(lbl, self.filesLayoutRow, self.filesLayoutColumn)
+                else:
+                    self.filesLayoutRow += 1
+                    self.filesLayoutColumn = 0
+                    self.filesLayout.addWidget(lbl, self.filesLayoutRow, self.filesLayoutColumn)
+
+                self.filesLayoutColumn += 1
+
+                self.documentsList.append(document)
+
+    def create_document_context_menu(self, lbl):  # Define a function to create the context menu for a QLabel
+
+        context_menu = QMenu()
+        delete_selection = QAction("Enlever de la sélection", context_menu)
+        context_menu.addAction(delete_selection)
+
+        def remove_label():  # remove the label from its parent
+            lbl.setParent(None)
+            self.filesLabels.remove(lbl)
+            self.documentsList.remove(lbl.toolTip())
+
+        delete_selection.triggered.connect(remove_label)
+        return context_menu
+
+    def make_context_menu_fn(self, lbl):  # Define a function to create a closure for a label
+        context_menu = self.create_document_context_menu(lbl)
+
+        def show_context_menu(pos):
+            context_menu.exec_(lbl.mapToGlobal(pos))
+
+        return show_context_menu
