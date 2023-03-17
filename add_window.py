@@ -1,3 +1,5 @@
+import os
+
 from PySide2.QtCore import Qt, QDateTime, QDate
 from PySide2.QtGui import QFont, QTextOption
 from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QLabel, QPushButton, QCheckBox, QDateEdit, \
@@ -175,12 +177,13 @@ class AddTaskDialog(QDialog):
             self.endDateEdit.setDateTime(QDateTime.currentDateTime())
             self.setWindowTitle("Ajouter une tâche")
 
-            for lbl in self.filesLabels:
-                lbl.setParent(None)
+        for lbl in self.filesLabels:
+            lbl.setParent(None)
 
-            self.filesLabels = []
-            self.filesLayoutColumn = 0
-            self.filesLayoutRow = 0
+        self.filesLabels = []
+        self.filesLayoutColumn = 0
+        self.filesLayoutRow = 0
+        self.documentsList = []
 
     def onHideMsgBoxBtnClicked(self, button):
         if button.text() == "OK":
@@ -253,6 +256,9 @@ class AddTaskDialog(QDialog):
             self.endDateEdit.setDate(QDate.fromString(task["EndDate"], Qt.ISODate))
             self.endDateCheckBox.setChecked(True)
 
+        if not "Documents" in task:
+            task["Documents"] = []
+
         filesPaths = task["Documents"]
 
         # line_nb = len(filesPaths) // 6
@@ -273,45 +279,13 @@ class AddTaskDialog(QDialog):
             self.mainWin.get_new_project.emit()
 
     def BrowseBtnClicked(self):
-        # file = QFileDialog.getOpenFileNames(self, "Sélectionner un fichier", "/home/mc1")
-        file = QFileDialog.getOpenFileNames(self, "Sélectionner un fichier")
+        file = QFileDialog.getOpenFileNames(parent=self, caption="Sélectionner un fichier")
         filesPaths = file[0]
 
         self.display_selected_documents(filesPaths)
 
-        # if len(filesPaths) > 0:
-        #
-        #     for document in filesPaths:
-        #
-        #         splited_document_path = document.split(".")
-        #         extension = splited_document_path[len(splited_document_path) - 1]
-        #
-        #         icon = select_icon(self.mainWin.d, self.mainWin.slash, extension)
-        #
-        #         path = f"<a href={document}><img src={icon}></a>"
-        #
-        #         lbl = QLabel(path)
-        #         lbl.setWordWrap(True)
-        #         lbl.setFont(QFont('AnyStyle', self.itemFontSize))
-        #         lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-        #         lbl.setToolTip(document)
-        #         self.filesLabels.append(lbl)
-        #
-        #         context_menu_fn = self.make_context_menu_fn(lbl)  # create a separate context menu for each label
-        #
-        #         lbl.setContextMenuPolicy(Qt.CustomContextMenu)
-        #         lbl.customContextMenuRequested.connect(context_menu_fn)
-        #
-        #         if self.filesLayoutColumn < 6:
-        #             self.filesLayout.addWidget(lbl, self.filesLayoutRow, self.filesLayoutColumn)
-        #         else:
-        #             self.filesLayoutRow += 1
-        #             self.filesLayoutColumn = 0
-        #             self.filesLayout.addWidget(lbl, self.filesLayoutRow, self.filesLayoutColumn)
-        #
-        #         self.filesLayoutColumn += 1
-        #
-        #         self.documentsList.append(document)
+        # get a folder :
+        # folder = QFileDialog.getExistingDirectory(parent=self, caption="Sélectionner un dossier")
 
     def display_selected_documents(self, filesPaths):
         if len(filesPaths) > 0:

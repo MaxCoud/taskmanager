@@ -71,12 +71,14 @@ class MainWindow(QMainWindow):
         self.selectedProject = None
         self.selected_project_tasks_list = None
         self.updating = False
+        self.task_to_copy = None
 
         # self.projectAscending = None
         self.priorityAscending = None
         self.startDateAscending = None
         self.endDateAscending = None
         self.waitForNotifications = 1800000  # msec  30min = 30*60*1000 = 1.800.000
+        self.ts = time.time()  # store timestamp
 
         self.setWindowModality(Qt.ApplicationModal)
 
@@ -119,6 +121,8 @@ class MainWindow(QMainWindow):
         taskMenu.addAction("Supprimer une tâche", lambda: self.DeleteTaskBtnClicked(), QKeySequence.Delete)
         projectMenu = menu.addMenu("Projets")
         projectMenu.addAction("Ajouter un projet", lambda: self.AddProjectButtonClicked(), QKeySequence("p"))
+        projectMenu.addAction("Dérouler tous les projets", lambda: self.ExpandProjectTree(), QKeySequence(Qt.CTRL + Qt.ALT + Qt.Key_Plus))
+        projectMenu.addAction("Réduire tous les projets", lambda: self.CollapseProjectTree(), QKeySequence(Qt.CTRL + Qt.ALT + Qt.Key_Minus))
         projectMenu.addAction("Gérer les projets ...", lambda: self.ManageProjectsBtnClicked())
 
         layout = QGridLayout()
@@ -305,9 +309,17 @@ class MainWindow(QMainWindow):
         # hide triangle
         # self.tree_view.setRootIsDecorated(False)
 
+    def ExpandProjectTree(self):
+        self.tree_view.expandAll()
+
+    def CollapseProjectTree(self):
+        self.tree_view.collapseAll()
+
     def OnProjectTreeClicked(self, index):
         item = self.model.itemFromIndex(index)
         # print(item.text())
+
+        self.ts = time.time()
 
         hasParent = True
         self.parent_list = [item.text()]
@@ -360,17 +372,27 @@ class MainWindow(QMainWindow):
         self.selectedProject = item
 
     def Show_tree_context_menu(self, position):
-        add_section = QAction("Ajouter une section")
-        add_section.triggered.connect(self.AddProjectSectionButtonClicked)
-        modify_section = QAction("Modifier")
-        modify_section.triggered.connect(self.ModifySectionButtonClicked)
-        delete_section = QAction("Supprimer")
-        delete_section.triggered.connect(self.RemoveSectionButtonClicked)
 
-        menu = QMenu(self.tree_view)
-        menu.addAction(add_section)
-        menu.addAction(modify_section)
-        menu.addAction(delete_section)
+        if time.time() - self.ts < 0.3:
+
+            add_section = QAction("Ajouter une section")
+            add_section.triggered.connect(self.AddProjectSectionButtonClicked)
+            modify_section = QAction("Modifier")
+            modify_section.triggered.connect(self.ModifySectionButtonClicked)
+            delete_section = QAction("Supprimer")
+            delete_section.triggered.connect(self.RemoveSectionButtonClicked)
+
+            menu = QMenu(self.tree_view)
+            menu.addAction(add_section)
+            menu.addAction(modify_section)
+            menu.addAction(delete_section)
+
+        else:
+            add_project = QAction("Ajouter un projet")
+            add_project.triggered.connect(self.AddProjectButtonClicked)
+
+            menu = QMenu(self.tree_view)
+            menu.addAction(add_project)
 
         menu.exec_(self.tree_view.mapToGlobal(position))
 
@@ -809,6 +831,7 @@ class MainWindow(QMainWindow):
         try:
             if item.isSelected():
                 self.selectedItem = item
+                self.ts = time.time()
         except Exception as e:
             print("listTree_itemClicked", e)
 
@@ -816,6 +839,7 @@ class MainWindow(QMainWindow):
         try:
             if item.isSelected():
                 self.selectedItem = item
+                self.ts = time.time()
         except Exception as e:
             print("finishedTasksTree_itemClicked", e)
 
@@ -858,6 +882,8 @@ class MainWindow(QMainWindow):
         task["Priority"] = modifiedTask["Priority"]
         task["StartDate"] = modifiedTask["StartDate"]
         task["EndDate"] = modifiedTask["EndDate"]
+
+        task["Documents"] = modifiedTask["Documents"]
 
         # for task in self.tasksList:
         #     if f'\n{task["Name"]}\n' == current_tree.itemWidget(self.selectedItem, 1).text() and \
@@ -1008,16 +1034,37 @@ class MainWindow(QMainWindow):
             return self.finishedTasksTree
 
     def Show_lists_context_menu(self, position):
-        modify_action = QAction("Modifier la tâche")
-        modify_action.triggered.connect(self.ModifyTaskBtnClicked)
-        delete_action = QAction("Supprimer la tâche")
-        delete_action.triggered.connect(self.DeleteTaskBtnClicked)
 
-        menu = QMenu(self.listTree)
-        menu.addAction(modify_action)
-        menu.addAction(delete_action)
+        if time.time() - self.ts < 0.1:
+            copy_action = QAction("Copier la tâche")
+            copy_action.triggered.connect(self.CopyTaskBtnClicked)
+            modify_action = QAction("Modifier la tâche")
+            modify_action.triggered.connect(self.ModifyTaskBtnClicked)
+            delete_action = QAction("Supprimer la tâche")
+            delete_action.triggered.connect(self.DeleteTaskBtnClicked)
+            paste_action = QAction("Coller la tache ici")
+            paste_action.triggered.connect(self.PasteTaskBtnClicked)
+
+            menu = QMenu(self.listTree)
+            menu.addAction(copy_action)
+            menu.addAction(modify_action)
+            menu.addAction(delete_action)
+            menu.addAction(paste_action)
+        else:
+            paste_action = QAction("Coller la tache ici")
+            paste_action.triggered.connect(self.PasteTaskBtnClicked)
+
+            menu = QMenu(self.listTree)
+            menu.addAction(paste_action)
 
         menu.exec_(self.listTree.mapToGlobal(position))
+
+    def CopyTaskBtnClicked(self):
+        current_tree = self.SelectedTree()
+        self.task_to_copy = self.getTask(current_tree)
+
+    def PasteTaskBtnClicked(self):
+        self.New_task(self.task_to_copy)
 
     def ModifiedProject(self, data):
         initial_project_name = data[0]

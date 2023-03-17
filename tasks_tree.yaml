@@ -12,6 +12,7 @@ Children:
         Priority: Normal
         StartDate: '2023-02-28'
         EndDate: '2023-03-10'
+        Documents: []
       - Name: Commenter les variables
         Children:
         - Name: Documenter
@@ -20,6 +21,7 @@ Children:
           Priority: Urgent
           StartDate: '2023-02-28'
           EndDate: '2023-03-10'
+          Documents: []
       - Name: ajouter les Mcodes manquants
         Children:
         - Name: M101 evacuer piece standard
@@ -28,16 +30,111 @@ Children:
           Priority: Pressant
           StartDate: '2023-02-28'
           EndDate: '2023-03-10'
+          Documents: []
         - Name: M102 evacuer chute ou petite piece
           Check: 0
           Description: prevoir front montant, maintien et fin
           Priority: Normal
           StartDate: '2023-02-28'
           EndDate: '2023-03-10'
+          Documents: []
     - Name: Supervision
       Children:
       - Name: Documenter les scripts
-      - Name: Implementer Exhaust
+        Children:
+        - Name: Documenter chaque script conformement aux docs sphyinx
+          Description: S'aider de ServerAxis.py
+          Priority: Normal
+          StartDate: '2023-03-17'
+          EndDate: '2023-03-20'
+          Check: 0
+          Documents:
+          - /home/mc1/Git/berges/sv/home/axus/ServerAxis.py
+      - Name: Interaction PLC
+        Children:
+        - Name: Permettre de bouger l'etau de sortie depuis CN
+          Description: "Connecter MFSaw _Mouve_out_clamp \xE0 CNCServer, servira en\
+            \ cas de nettoyage de la scie par exemple"
+          Priority: Normal
+          StartDate: '2023-03-17'
+          EndDate: '-'
+          Check: 0
+          Documents: []
+      - Name: IHM banc de sortie
+        Children:
+        - Name: "Impl\xE9menter print action"
+          Description: "tu sais ce que t'as \xE0 faire maxou"
+          Priority: Normal
+          StartDate: '2023-03-17'
+          EndDate: '-'
+          Check: 0
+          Documents: []
+        - Name: "Envoyer un je t'aime \xE0 Aliz\xE9e"
+          Description: ''
+          Priority: Urgent
+          StartDate: '2023-03-17'
+          EndDate: '2023-08-10'
+          Check: 0
+          Documents: []
+    - Name: Cartes d'axe
+      Children:
+      - Name: Documenter plc_axis Master_v2
+        Description: Faire des docs html pour Master_v2
+        Priority: Normal
+        StartDate: '2023-03-17'
+        EndDate: '2023-03-20'
+        Check: 0
+        Documents:
+        - /home/mc1/Git/berges/plc_axis/src/Master_v2/Master_v2.cpp
+      - Name: Documenter plc_axis Master_v1
+        Description: Faire des docs html pour Master_v1
+        Priority: Normal
+        StartDate: '2023-03-17'
+        EndDate: '2023-03-20'
+        Check: 0
+        Documents:
+        - /home/mc1/Git/berges/plc_axis/src/Master_v1/Master_v1.cpp
+      - Name: Documenter plc_axis Slave_v1
+        Description: Faire des docs html pour Slave_v1
+        Priority: Normal
+        StartDate: '2023-03-17'
+        EndDate: '2023-03-20'
+        Check: 0
+        Documents:
+        - /home/mc1/Git/berges/plc_axis/src/Slave_v1/Slave_v1.cpp
+      - Name: Documenter slave .ino
+        Description: Commenter davantage, inutile de sortir une doc html
+        Priority: Normal
+        StartDate: '2023-03-17'
+        EndDate: '2023-03-20'
+        Check: 0
+        Documents:
+        - /home/mc1/Git/berges/plc_axis/slaves/slave_universal_v2/slave_universal_v2.ino
+      - Name: Documenter master .ino
+        Description: Commenter davantage, inutile de sortir une doc html
+        Priority: Normal
+        StartDate: '2023-03-17'
+        EndDate: '2023-03-20'
+        Check: 0
+        Documents:
+        - /home/mc1/Git/berges/plc_axis/masters/master_universal_v2/master_universal_v2.ino
+      - Name: Tester arret consigne si VFD stop
+        Description: "Normalement c'est programm\xE9, si le VFD ne bouge pas, la carte\
+          \ d'axe doit annuler la consigne.\nCela permet d'\xE9viter que l'axe reparte\
+          \ apres un arret d'urgence"
+        Priority: Normal
+        StartDate: '2023-02-27'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: Gerer butee depassee au demarrage axe
+        Description: "Si une but\xE9e est d\xE9pass\xE9e au d\xE9marrage, avertir\
+          \ au moins la supervision pour qu'une action soit faite (code d'erreur ?)"
+        Priority: Normal
+        StartDate: '2023-02-15'
+        EndDate: '-'
+        Check: 0
+        Documents: []
   - Name: Usinage
     Children:
     - Name: Decoupe Etau central
@@ -46,32 +143,33 @@ Children:
       Priority: Normal
       StartDate: '2023-02-28'
       EndDate: '2023-03-10'
+      Documents: []
     - Name: Rallonge etau central
       Check: 0
       Description: Pour avoir un bon support d'usinage
       Priority: Pressant
       StartDate: '2023-02-28'
       EndDate: '2023-03-10'
+      Documents: []
+  - Name: Cablage
+    Children:
+    - Name: Capteur verin Z etau pre usinage
+      Description: "Il est d\xE9ja cabl\xE9, mais semblerait que la tige du v\xE9\
+        rin ne soit pas magn\xE9tique, donc a voir ce que l'on fait.\nEn fonction,\
+        \ mettre a jour le sch\xE9ma\nD\xE9tails : Cable C11\ndans boite deriv avec\
+        \ 2 lasers\nbornier a droite GND : 0V fil n\xB08\nbornier a droite GND puis\
+        \ droite pr\xE9c\xE9dent: 2704 fil n\xB09"
+      Priority: Normal
+      StartDate: '2023-03-09'
+      EndDate: '-'
+      Check: 0
+      Documents: []
 - Name: Ligne Piquets Echalas
   Children:
   - Name: Conception
     Children:
     - Name: beaucoup de travail
     - Name: encore et encore
-  - Name: Usinage
-    Children:
-    - Name: Va savoir quoi
-      Check: 1
-      Description: ????
-      Priority: Urgent
-      StartDate: '2023-02-28'
-      EndDate: '2023-03-10'
-    - Name: encore une operation
-      Check: 0
-      Description: Mais bien sur
-      Priority: Normal
-      StartDate: '2023-02-28'
-      EndDate: '2023-03-10'
   - Name: Soudure
 - Name: test
   Children:
@@ -82,23 +180,19 @@ Children:
       - Name: test101
         Children:
         - Check: 0
-          Name: test1010
-          Description: wow
-          Priority: Normal
-          StartDate: '2023-03-09'
-          EndDate: '-'
-        - Check: 0
           Name: test1011
           Description: wow
           Priority: Urgent
           StartDate: '2023-03-09'
           EndDate: '-'
+          Documents: []
         - Check: 0
           Name: test1012
           Description: wow
           Priority: Urgent
           StartDate: '2023-03-09'
           EndDate: '-'
+          Documents: []
         - Check: 0
           Name: test1013
           Description: WOW
@@ -130,6 +224,13 @@ Children:
           - /home/mc1/Git/taskmanager/task_manager_logo1.png
           - /home/mc1/Git/taskmanager/tasks.yaml
           - /home/mc1/Git/taskmanager/tasks_tree.yaml
+        - Check: 0
+          Name: test1010
+          Description: wow
+          Priority: Normal
+          StartDate: '2023-03-09'
+          EndDate: '-'
+          Documents: []
   - Name: test20
     Children:
     - Name: test200
@@ -140,21 +241,168 @@ Children:
         Priority: Pressant
         StartDate: '2023-03-06'
         EndDate: '-'
+        Documents: []
       - Check: 0
         Name: test
         Description: '2002'
         Priority: Urgent
         StartDate: '2023-03-09'
         EndDate: '-'
+        Documents: []
       - Check: 0
         Name: test
         Description: '20030'
         Priority: Urgent
         StartDate: '2023-02-28'
         EndDate: '-'
+        Documents: []
     - Name: test
       Description: setset
       Priority: Normal
       StartDate: '2023-03-10'
       EndDate: '-'
       Check: 0
+      Documents: []
+- Name: Task Manager
+  Children:
+  - Name: Copier coller des taches
+    Description: 'Faire en sorte de pouvoir copier coller des taches, avec un clic
+      droit sur la tache a copier (context menu).
+
+      Ensuite, on n''aura qu''a la modifier pour avoir une nouvelle tache'
+    Priority: Normal
+    StartDate: '2023-03-17'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: Gerer la suppression de document
+    Description: "Actuellement, \xE0 la modification d'une tache, si on supprime un\
+      \ document, il n'est pas supprim\xE9 r\xE9ellement dans l'interface"
+    Priority: Normal
+    StartDate: '2023-03-17'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: Gerer clic droit dans liste des taches
+    Description: "On peut detecter le temps depuis lequel la derniere tache a \xE9\
+      t\xE9 s\xE9lectionn\xE9e (avec timestamp?) pour pouvoir afficher ou non le bon\
+      \ context menu. Si aucune tache n'a \xE9t\xE9 s\xE9lectionn\xE9e dans la seconde\
+      \ qui pr\xE9cede le clic droit, c'est que le clic droit n'a pas vocation a agir\
+      \ sur une tache en particulier.\nOn peut utiliser la fonction \"Coller une tache\"\
+      \ par exemple"
+    Priority: Normal
+    StartDate: '2023-03-17'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: Gerer copier coller taches
+    Description: "Regler le probleme qu'il y a quand 2 taches sont identiques : le\
+      \ fichier yaml semble d\xE9poser un identifiant sur l'original, et appelle l'identifiant\
+      \ si une copie existe. Cela permet de gagner en volume, mais lors de la modification\
+      \ de la copie, l'original est modifi\xE9 aussi!"
+    Priority: Urgent
+    StartDate: '2023-03-17'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Amelioration browse files
+    Description: Acceder au dernier dossier ouvert permettrait un gain de temps important
+    Priority: Pressant
+    StartDate: '2023-03-17'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Amelioration browse files
+    Description: "Selectionner un dossier et/ou un fichier serait int\xE9ressant"
+    Priority: Normal
+    StartDate: '2023-03-17'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Ajouter menus de recherche de projet/section
+    Description: Pour faciliter navigation si bcp de projets
+    Priority: Normal
+    StartDate: '2023-03-17'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: "Raccourcis pour 'enrouler' et 'd\xE9rouler' les projets"
+    Description: '''Ctrl Alt +'' et ''Ctrl Alt -'' comme sur PyCharm ?'
+    Priority: Pressant
+    StartDate: '2023-03-17'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: Ranger les projets
+    Description: "Pouvoir les trier dans l'ordre alphab\xE9tique ? En cliquant sur\
+      \ le header?"
+    Priority: Normal
+    StartDate: '2023-03-17'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Clic droit arbre projet
+    Description: "Faire comme clic droit arbre taches, si rien n'\xE9tait s\xE9elctionn\xE9\
+      \ dans un laps de temps court, alors on ne doit pas afficher le meme menu carle\
+      \ but n'\xE9tait pas de manipuler un projet en particulier.\nOn peut avoir \"\
+      Nouveau projet\" par contre"
+    Priority: Urgent
+    StartDate: '2023-03-17'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: Ajouter fonction "couper" tache
+    Description: "Pour pouvoir d\xE9placer les taches d'une section \xE0 l'autre facilement"
+    Priority: Urgent
+    StartDate: '2023-03-17'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: "Revoir syst\xE8me notification"
+    Description: "Enonc\xE9 par projet les taches a faire avec le niveau de priorit\xE9\
+      , et la date butoir"
+    Priority: Normal
+    StartDate: '2023-03-17'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Focus widgets Fenetre add_window
+    Description: "Le focus n'est pas bien g\xE9r\xE9 dans la fenetre d'ajout de tache,\
+      \ essayer deja de faire en sorte que le comportement soit toujours le meme"
+    Priority: Normal
+    StartDate: '2023-03-17'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: "Ajouter foncionnalit\xE9 charger fichier de tahces"
+    Description: "Dans menu fichier, on pourrait charger un fichier de taches\n\xE7\
+      a permettrait d'etre un peu plus modulable?"
+    Priority: Normal
+    StartDate: '2023-03-17'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+- Name: Cartes d'axe
+  Children:
+  - Name: CAO Elec
+    Children:
+    - Name: Voir TODO dans le repo
+      Description: Les taches sont dans le TODO actuellement
+      Priority: Normal
+      StartDate: '2023-03-17'
+      EndDate: '-'
+      Check: 0
+      Documents:
+      - /home/mc1/Git/plc_axis_board/plc_axis_board/TODO
+  - Name: Fabrication
+- Name: Stagiaires
+  Children:
+  - Name: Checker code Momo
+    Description: ''
+    Priority: Pressant
+    StartDate: '2023-03-17'
+    EndDate: '2023-03-21'
+    Check: 0
+    Documents:
+    - "/home/mc1/Documents/Projets/Autre/offre_stage_5A/candidats/mohamed_hamitouche/Calcul\
+      \ de temps de fabrication et optimisation/Rapport Stage ing\xE9nieur m\xE9catronique.pdf"
