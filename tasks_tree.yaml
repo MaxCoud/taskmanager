@@ -180,13 +180,6 @@ Children:
       - Name: test101
         Children:
         - Check: 0
-          Name: test1011
-          Description: wow
-          Priority: Urgent
-          StartDate: '2023-03-09'
-          EndDate: '-'
-          Documents: []
-        - Check: 0
           Name: test1012
           Description: wow
           Priority: Urgent
@@ -224,24 +217,17 @@ Children:
           - /home/mc1/Git/taskmanager/task_manager_logo1.png
           - /home/mc1/Git/taskmanager/tasks.yaml
           - /home/mc1/Git/taskmanager/tasks_tree.yaml
-        - Check: 0
-          Name: test1010
+        - Name: test1010
           Description: wow
           Priority: Normal
           StartDate: '2023-03-09'
           EndDate: '-'
+          Check: 0
           Documents: []
   - Name: test20
     Children:
     - Name: test200
       Children:
-      - Check: 0
-        Name: test
-        Description: '2001'
-        Priority: Pressant
-        StartDate: '2023-03-06'
-        EndDate: '-'
-        Documents: []
       - Check: 0
         Name: test
         Description: '2002'
@@ -255,6 +241,27 @@ Children:
         Priority: Urgent
         StartDate: '2023-02-28'
         EndDate: '-'
+        Documents: []
+      - Name: test1010 (copie)
+        Description: oui
+        Priority: Normal
+        StartDate: '2023-03-09'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: test
+        Description: '2001'
+        Priority: Pressant
+        StartDate: '2023-03-06'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: test1011
+        Description: wow
+        Priority: Urgent
+        StartDate: '2023-03-09'
+        EndDate: '-'
+        Check: 0
         Documents: []
     - Name: test
       Description: setset
@@ -303,7 +310,7 @@ Children:
     Priority: Urgent
     StartDate: '2023-03-17'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: Amelioration browse files
     Description: Acceder au dernier dossier ouvert permettrait un gain de temps important
@@ -356,7 +363,7 @@ Children:
     Priority: Urgent
     StartDate: '2023-03-17'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: "Revoir syst\xE8me notification"
     Description: "Enonc\xE9 par projet les taches a faire avec le niveau de priorit\xE9\
@@ -379,6 +386,21 @@ Children:
       a permettrait d'etre un peu plus modulable?"
     Priority: Normal
     StartDate: '2023-03-17'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Gestion des fichiers et chemins
+    Description: problemes si accents et espaces?
+    Priority: Normal
+    StartDate: '2023-03-20'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: Mettre indications dans l'arbre des projets
+    Description: "Indiquer s'il y a des taches dans un projet, s'il y'en a des urgentes,\
+      \ ou avec d\xE9lais d\xE9pass\xE9\nEt un nombre de taches ?"
+    Priority: Normal
+    StartDate: '2023-03-20'
     EndDate: '-'
     Check: 0
     Documents: []

@@ -11,7 +11,7 @@ from project_window import ProjectsDialog
 
 import yaml
 from PySide2.QtCore import Qt, Signal, QDateTime, QDate, QTimer, QModelIndex
-from PySide2.QtGui import QFont, QTextOption, QKeySequence, QStandardItem, QStandardItemModel
+from PySide2.QtGui import QFont, QTextOption, QKeySequence, QStandardItem, QStandardItemModel, QIcon
 from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QApplication, QLabel, QPushButton, \
     QCheckBox, QTreeWidget, QTreeWidgetItem, QDateEdit, QDialog, QVBoxLayout, QPlainTextEdit, QMessageBox, \
     QInputDialog, QComboBox, QTabWidget, QAction, QMainWindow, QMenu, QTreeView, QHeaderView
@@ -71,7 +71,7 @@ class MainWindow(QMainWindow):
         self.selectedProject = None
         self.selected_project_tasks_list = None
         self.updating = False
-        self.task_to_copy = None
+        self.copied_task = {}
 
         # self.projectAscending = None
         self.priorityAscending = None
@@ -308,6 +308,35 @@ class MainWindow(QMainWindow):
 
         # hide triangle
         # self.tree_view.setRootIsDecorated(False)
+
+        file = os.fspath(Path(__file__).resolve().parent / "icon/document.png")
+
+        items = []
+        root = self.model.invisibleRootItem()
+        for item in self.iter_items(root):
+            items.append(item)
+
+        for i in items:
+            i.status_checked = False
+            i.setIcon(QIcon(file))
+
+    def iter_items(self, root):
+        if root is not None:
+            stack = [root]
+            while stack:
+                parent = stack.pop(0)
+                for row in range(parent.rowCount()):
+                    for column in range(parent.columnCount()):
+                        child = parent.child(row, column)
+                        yield child
+                        if child.hasChildren():
+                            stack.append(child)
+
+    def updateIcon(self):
+
+        file = os.fspath(Path(__file__).resolve().parent / "icon/document.png")
+
+        self.setIcon(QIcon(file))
 
     def ExpandProjectTree(self):
         self.tree_view.expandAll()
@@ -692,29 +721,24 @@ class MainWindow(QMainWindow):
 
                     # for document in range(len(doc_list)):
                     for document in doc_list:
-                        splited_document_path = document.split(".")
-                        extension = splited_document_path[len(splited_document_path)-1]
-
-                        # if extension in ["png", "jpeg", "jpg", "bmp"] :
-                        #     icon = self.d + self.slash + "icon" + self.slash + "image.png"
-                        # elif extension in ["docx", "odt"]:
-                        #     icon = self.d + self.slash + "icon" + self.slash + "document-word.png"
-                        # elif extension in ["pdf"]:
-                        #     icon = self.d + self.slash + "icon" + self.slash + "document-pdf.png"
-                        # elif extension in ["xlsx", "ods", "csv"]:
-                        #     icon = self.d + self.slash + "icon" + self.slash + "document-excel.png"
-                        # elif extension in ["ino", "py", "pyw", "cpp", "h", "o", "c", "js",
-                        #                    "class", "html", "htm", "xml", "yaml", "yml", "json", "conf"]:
-                        #     icon = self.d + self.slash + "icon" + self.slash + "document-code.png"
-                        # else:
-                        #     icon = self.d + self.slash + "icon" + self.slash + "document--arrow.png"
-
+                        split_document_path = document.split(".")
+                        extension = split_document_path[len(split_document_path)-1]
                         icon = select_icon(self.d, self.slash, extension)
+
+                        split_document_path = document.split(" ")
+                        no_space_path = ""
+
+                        for i in range(len(split_document_path)):
+                            if len(split_document_path) > i > 0:
+                                no_space_path += "\space" + split_document_path[i]
+                            else:
+                                no_space_path += split_document_path[i]
 
                         if not os.path.exists(document):
                             icon = self.d + self.slash + "icon" + self.slash + "document-broken.png"
 
-                        path = f"<a href={document}><img src={icon}></a>"
+                        # path = f"<a href={document}><img src={icon}></a>"
+                        path = f"<a href={no_space_path}><img src={icon}></a>"
 
                         lbl = QLabel(path)
                         lbl.setWordWrap(True)
@@ -751,9 +775,17 @@ class MainWindow(QMainWindow):
         self.updating = False
 
     def LinkActivated(self, path):
+        split_document_path = path.split("\space")
+        reconstructed_path = ""
 
-        if os.path.exists(path):
-            folder_path = os.path.dirname(path)
+        for i in range(len(split_document_path)):
+            if len(split_document_path) > i > 0:
+                reconstructed_path += " " + split_document_path[i]
+            else:
+                reconstructed_path += split_document_path[i]
+
+        if os.path.exists(reconstructed_path):
+            folder_path = os.path.dirname(reconstructed_path)
 
             # on linux only (maybe it works on windows?). If not, use os.startfile(folder_path):
             subprocess.call(["xdg-open", folder_path])
@@ -1038,18 +1070,21 @@ class MainWindow(QMainWindow):
         if time.time() - self.ts < 0.1:
             copy_action = QAction("Copier la tâche")
             copy_action.triggered.connect(self.CopyTaskBtnClicked)
+            cut_action = QAction("Couper la tâche")
+            cut_action.triggered.connect(self.CutTaskBtnClicked)
+            paste_action = QAction("Coller la tache ici")
+            paste_action.triggered.connect(self.PasteTaskBtnClicked)
             modify_action = QAction("Modifier la tâche")
             modify_action.triggered.connect(self.ModifyTaskBtnClicked)
             delete_action = QAction("Supprimer la tâche")
             delete_action.triggered.connect(self.DeleteTaskBtnClicked)
-            paste_action = QAction("Coller la tache ici")
-            paste_action.triggered.connect(self.PasteTaskBtnClicked)
 
             menu = QMenu(self.listTree)
             menu.addAction(copy_action)
+            menu.addAction(cut_action)
+            menu.addAction(paste_action)
             menu.addAction(modify_action)
             menu.addAction(delete_action)
-            menu.addAction(paste_action)
         else:
             paste_action = QAction("Coller la tache ici")
             paste_action.triggered.connect(self.PasteTaskBtnClicked)
@@ -1061,10 +1096,67 @@ class MainWindow(QMainWindow):
 
     def CopyTaskBtnClicked(self):
         current_tree = self.SelectedTree()
-        self.task_to_copy = self.getTask(current_tree)
+        task_to_copy = self.getTask(current_tree)
+
+        self.copied_task = {}
+
+        self.copied_task["Name"] = task_to_copy["Name"] + ' (copie)'
+        self.copied_task["Description"] = task_to_copy["Description"]
+        self.copied_task["Priority"] = task_to_copy["Priority"]
+        self.copied_task["StartDate"] = task_to_copy["StartDate"]
+        self.copied_task["EndDate"] = task_to_copy["EndDate"]
+        self.copied_task["Check"] = task_to_copy["Check"]
+        self.copied_task["Documents"] = task_to_copy["Documents"]
+
+    def CutTaskBtnClicked(self):
+        current_tree = self.SelectedTree()
+        task_to_cut = self.getTask(current_tree)
+
+        self.copied_task = {}
+
+        self.copied_task["Name"] = task_to_cut["Name"]
+        self.copied_task["Description"] = task_to_cut["Description"]
+        self.copied_task["Priority"] = task_to_cut["Priority"]
+        self.copied_task["StartDate"] = task_to_cut["StartDate"]
+        self.copied_task["EndDate"] = task_to_cut["EndDate"]
+        self.copied_task["Check"] = task_to_cut["Check"]
+        self.copied_task["Documents"] = task_to_cut["Documents"]
+
+        msg = QMessageBox()
+        msg.setWindowTitle("Suppression d'une tâche")
+        msg.setText(f'La tache "{task_to_cut["Name"]}" va être coupée')
+        msg.setIcon(QMessageBox.Warning)
+        msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
+        msg.setDefaultButton(QMessageBox.Ok)
+        # msg.buttonClicked.connect(self.onCutMsgBoxBtnClicked)
+        msg.buttonClicked.connect(self.onDeleteMsgBoxBtnClicked)
+
+        msg.setButtonText(QMessageBox.Cancel, "Annuler")
+        msg.setButtonText(QMessageBox.Ok, "OK")
+        msg.exec_()
+
+    # def onCutMsgBoxBtnClicked(self, button):
+    #     if button.text() = 'OK':
+    #         self.tasksList.remove(task_to_cut)
+    #         self.Remove_task(task_to_cut)
+
+        # if button.text() == 'OK':
+        #     self.tasksList.remove(taskToDelete)
+        #     self.Remove_task(taskToDelete)
+
 
     def PasteTaskBtnClicked(self):
-        self.New_task(self.task_to_copy)
+        if "Name" in self.copied_task:
+            self.New_task(self.copied_task)
+        else:
+            msg = QMessageBox()
+            msg.setWindowTitle("Aucune tâche copiée")
+            msg.setText(f"Pas de tâche à coller")
+            msg.setIcon(QMessageBox.Warning)
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.setDefaultButton(QMessageBox.Ok)
+            msg.setButtonText(QMessageBox.Ok, "OK")
+            msg.exec_()
 
     def ModifiedProject(self, data):
         initial_project_name = data[0]
