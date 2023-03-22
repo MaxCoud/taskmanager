@@ -80,9 +80,13 @@ class MainWindow(QMainWindow):
         self.waitForNotifications = 1800000  # msec  30min = 30*60*1000 = 1.800.000
         self.ts = time.time()  # store timestamp
 
-        self.setWindowModality(Qt.ApplicationModal)
-
         self.task_tree = []
+
+        # icons
+        self.folder_icon = os.fspath(Path(__file__).resolve().parent / "icon/folder-horizontal.png")
+        self.open_folder_icon = os.fspath(Path(__file__).resolve().parent / "icon/folder-horizontal-open.png")
+
+        self.setWindowModality(Qt.ApplicationModal)
 
         try:
             with open(f'{self.d}{self.slash}tasks_tree.yaml', 'r') as f:
@@ -134,7 +138,7 @@ class MainWindow(QMainWindow):
         self.tree_view.setMinimumWidth(300)
         # self.tree_view.clicked.connect(self.OnProjectTreeClicked)
         self.tree_view.pressed.connect(self.OnProjectTreeClicked)
-        layout.addWidget(self.tree_view, 0, 0)
+        layout.addWidget(self.tree_view, 0, 0, 3, 1)
 
         # create a model for tree view
         self.model = QStandardItemModel()
@@ -145,6 +149,13 @@ class MainWindow(QMainWindow):
         # get header of tree view
         self.tree_view_header = self.tree_view.header()
         # self.tree_view_header.setSectionResizeMode(QHeaderView.Interactive)
+
+        self.selectedProjectLbl = QLabel(self)
+        self.selectedProjectLbl.setText("Aucun projet selectionné")
+        self.selectedProjectLbl.setFont(QFont('AnyStyle', self.titleFontSize))
+        self.selectedProjectLbl.setFixedHeight(30)
+        self.selectedProjectLbl.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.selectedProjectLbl, 0, 1)
 
         self.listTree = QTreeWidget(self)
         self.listTree.setHeaderLabels(["", "Nom", "Description", "Priorité", "Début", "Fin", "Documents"])
@@ -216,7 +227,7 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.runningWidget, "En cours")
         self.tabs.addTab(self.finishedWidget, "Terminées")
 
-        layout.addWidget(self.tabs, 0, 1, 2, 1)
+        layout.addWidget(self.tabs, 1, 1, 2, 1)
 
         main_window = QWidget()
         main_window.setLayout(layout)  # runningLayout
@@ -309,16 +320,50 @@ class MainWindow(QMainWindow):
         # hide triangle
         # self.tree_view.setRootIsDecorated(False)
 
-        file = os.fspath(Path(__file__).resolve().parent / "icon/document.png")
+        self.updateIcons()
 
+    def updateIcons(self):
         items = []
         root = self.model.invisibleRootItem()
         for item in self.iter_items(root):
             items.append(item)
 
-        for i in items:
-            i.status_checked = False
-            i.setIcon(QIcon(file))
+            hasParent = True
+            parent_list = [item.text()]
+            child = item
+
+            while hasParent:
+                try:
+                    parent = child.parent()
+                    parent_list.append(parent.text())
+                    child = parent
+                except:
+                    hasParent = False
+
+            parent_name = self.task_tree['Name']
+            parent_ = self.task_tree
+            tasks_list = None
+
+            if parent_name == parent_list[len(parent_list) - 1]:
+                for i in range(len(parent_list), 0, -1):
+                    for child in parent_["Children"]:
+                        if child['Name'] == parent_list[i - 1]:
+                            parent_ = child
+                            if (i - 1) == 0:  # last element
+                                if "Children" in child:
+                                    for eventual_tasks_list in child["Children"]:
+                                        if "Check" in eventual_tasks_list:
+                                            tasks_list = child
+                                            break
+                                break
+
+            if tasks_list is not None:
+                item.setIcon(QIcon(self.folder_icon))
+
+        #
+        # for i in items:
+        #     i.status_checked = False
+        #     i.setIcon(QIcon(file))
 
     def iter_items(self, root):
         if root is not None:
@@ -329,14 +374,10 @@ class MainWindow(QMainWindow):
                     for column in range(parent.columnCount()):
                         child = parent.child(row, column)
                         yield child
+                        # print("child", child)
+                        # print("child.text()", child.text())
                         if child.hasChildren():
                             stack.append(child)
-
-    def updateIcon(self):
-
-        file = os.fspath(Path(__file__).resolve().parent / "icon/document.png")
-
-        self.setIcon(QIcon(file))
 
     def ExpandProjectTree(self):
         self.tree_view.expandAll()
@@ -346,6 +387,8 @@ class MainWindow(QMainWindow):
 
     def OnProjectTreeClicked(self, index):
         item = self.model.itemFromIndex(index)
+        self.updateIcons()
+        item.setIcon(QIcon(self.open_folder_icon))
         # print(item.text())
 
         self.ts = time.time()
@@ -363,6 +406,15 @@ class MainWindow(QMainWindow):
                 hasParent = False
 
         # print("parent_list", self.parent_list)
+
+        project_text = ""
+        for i in range(len(self.parent_list)-1, 0, -1):
+            if len(self.parent_list)-1 > i > 0:
+                project_text += " → " + self.parent_list[i-1]
+            else:
+                project_text += self.parent_list[i-1]
+
+        self.selectedProjectLbl.setText(project_text)
 
         parent_name = self.task_tree['Name']
         # parent_ = self.task_tree['Children'][0]
