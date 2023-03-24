@@ -85,6 +85,7 @@ class MainWindow(QMainWindow):
         # icons
         self.folder_icon = os.fspath(Path(__file__).resolve().parent / "icon/folder-horizontal.png")
         self.open_folder_icon = os.fspath(Path(__file__).resolve().parent / "icon/folder-horizontal-open.png")
+        self.tick_icon = os.fspath(Path(__file__).resolve().parent / "icon/tick-button.png")
 
         self.setWindowModality(Qt.ApplicationModal)
 
@@ -326,6 +327,7 @@ class MainWindow(QMainWindow):
         items = []
         root = self.model.invisibleRootItem()
         for item in self.iter_items(root):
+            item.setIcon(QIcon())
             items.append(item)
 
             hasParent = True
@@ -353,12 +355,30 @@ class MainWindow(QMainWindow):
                                 if "Children" in child:
                                     for eventual_tasks_list in child["Children"]:
                                         if "Check" in eventual_tasks_list:
-                                            tasks_list = child
-                                            break
+                                            tasks_list = child["Children"]
+                                            # break
                                 break
 
+            every_tasks_finished = True
+
             if tasks_list is not None:
-                item.setIcon(QIcon(self.folder_icon))
+                # print(tasks_list)
+                # item.setIcon(QIcon(self.folder_icon))
+                for task in tasks_list:
+                    # print(task)
+                    if "Children" in task:
+                        for subtask in task["Children"]:
+                            if subtask["Check"] == 0:
+                                every_tasks_finished = False
+                                break
+                    elif task['Check'] == 0:  # at least one task is not finished
+                        every_tasks_finished = False
+                        break
+
+                if every_tasks_finished:
+                    item.setIcon(QIcon(self.tick_icon))
+                else:
+                    item.setIcon(QIcon(self.folder_icon))
 
         #
         # for i in items:
