@@ -14,7 +14,7 @@ from PySide2.QtCore import Qt, Signal, QDateTime, QDate, QTimer, QModelIndex
 from PySide2.QtGui import QFont, QTextOption, QKeySequence, QStandardItem, QStandardItemModel, QIcon
 from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QApplication, QLabel, QPushButton, \
     QCheckBox, QTreeWidget, QTreeWidgetItem, QDateEdit, QDialog, QVBoxLayout, QPlainTextEdit, QMessageBox, \
-    QInputDialog, QComboBox, QTabWidget, QAction, QMainWindow, QMenu, QTreeView, QHeaderView
+    QInputDialog, QComboBox, QTabWidget, QAction, QMainWindow, QMenu, QTreeView, QHeaderView, QDesktopWidget
 
 
 class MainWindow(QMainWindow):
@@ -261,6 +261,13 @@ class MainWindow(QMainWindow):
         self.modified_project.connect(self.ModifiedProject)
 
         self.show()
+
+        # center window
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
+
         self.NotifyUser()
 
     def keyPressEvent(self, e):
@@ -852,8 +859,11 @@ class MainWindow(QMainWindow):
             folder_path = os.path.dirname(reconstructed_path)
 
             # on linux only (maybe it works on windows?). If not, use os.startfile(folder_path):
-            subprocess.call(["xdg-open", folder_path])
-            # subprocess.call(["xdg-open", path])  # to directly open file
+            if self.os == 'linux':
+                subprocess.call(["xdg-open", folder_path])
+                # subprocess.call(["xdg-open", path])  # to directly open file
+            else:
+                os.startfile(folder_path)
         else:
             msg = QMessageBox()
             msg.setWindowTitle("Fichier absent")

@@ -14,7 +14,7 @@ from PySide2.QtCore import Qt, Signal, QDateTime, QDate, QTimer, QModelIndex
 from PySide2.QtGui import QFont, QTextOption, QKeySequence, QStandardItem, QStandardItemModel, QIcon
 from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QApplication, QLabel, QPushButton, \
     QCheckBox, QTreeWidget, QTreeWidgetItem, QDateEdit, QDialog, QVBoxLayout, QPlainTextEdit, QMessageBox, \
-    QInputDialog, QComboBox, QTabWidget, QAction, QMainWindow, QMenu, QTreeView, QHeaderView
+    QInputDialog, QComboBox, QTabWidget, QAction, QMainWindow, QMenu, QTreeView, QHeaderView, QDesktopWidget
 
 
 class MainWindow(QMainWindow):
@@ -261,6 +261,13 @@ class MainWindow(QMainWindow):
         self.modified_project.connect(self.ModifiedProject)
 
         self.show()
+
+        # center window
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
+
         self.NotifyUser()
 
     def keyPressEvent(self, e):
@@ -362,10 +369,7 @@ class MainWindow(QMainWindow):
             every_tasks_finished = True
 
             if tasks_list is not None:
-                # print(tasks_list)
-                # item.setIcon(QIcon(self.folder_icon))
                 for task in tasks_list:
-                    # print(task)
                     if "Children" in task:
                         for subtask in task["Children"]:
                             if subtask["Check"] == 0:
@@ -379,11 +383,6 @@ class MainWindow(QMainWindow):
                     item.setIcon(QIcon(self.tick_icon))
                 else:
                     item.setIcon(QIcon(self.folder_icon))
-
-        #
-        # for i in items:
-        #     i.status_checked = False
-        #     i.setIcon(QIcon(file))
 
     def iter_items(self, root):
         if root is not None:
@@ -860,8 +859,11 @@ class MainWindow(QMainWindow):
             folder_path = os.path.dirname(reconstructed_path)
 
             # on linux only (maybe it works on windows?). If not, use os.startfile(folder_path):
-            subprocess.call(["xdg-open", folder_path])
-            # subprocess.call(["xdg-open", path])  # to directly open file
+            if self.os == 'linux':
+                subprocess.call(["xdg-open", folder_path])
+                # subprocess.call(["xdg-open", path])  # to directly open file
+            else:
+                os.startfile(folder_path)
         else:
             msg = QMessageBox()
             msg.setWindowTitle("Fichier absent")
