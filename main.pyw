@@ -11,7 +11,8 @@ from project_window import ProjectsDialog
 
 import yaml
 from PySide2.QtCore import Qt, Signal, QDateTime, QDate, QTimer, QModelIndex
-from PySide2.QtGui import QFont, QTextOption, QKeySequence, QStandardItem, QStandardItemModel, QIcon
+from PySide2.QtGui import QFont, QTextOption, QKeySequence, QStandardItem, QStandardItemModel, QIcon, QGuiApplication, \
+    QCursor
 from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QApplication, QLabel, QPushButton, \
     QCheckBox, QTreeWidget, QTreeWidgetItem, QDateEdit, QDialog, QVBoxLayout, QPlainTextEdit, QMessageBox, \
     QInputDialog, QComboBox, QTabWidget, QAction, QMainWindow, QMenu, QTreeView, QHeaderView, QDesktopWidget
@@ -262,11 +263,14 @@ class MainWindow(QMainWindow):
 
         self.show()
 
-        # center window
-        qr = self.frameGeometry()
-        cp = QDesktopWidget().availableGeometry().center()
-        qr.moveCenter(cp)
-        self.move(qr.topLeft())
+        # --- center window ---
+        # - on primary screen -
+        # self.move(QGuiApplication.primaryScreen().availableGeometry().center() - self.frameGeometry().center())
+        # - on screen where mouse pointer is -
+        self.move(QGuiApplication.screenAt(QCursor.pos()).availableGeometry().center() - self.frameGeometry().center())
+        # ---------------------
+
+        self.setWindowIcon(QIcon(f"{self.d}/task_manager_logo1.png"))
 
         self.NotifyUser()
 
