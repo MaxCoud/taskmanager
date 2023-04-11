@@ -30,6 +30,7 @@ class MainWindow(QMainWindow):
     new_project = Signal(object)
     delete_project = Signal(object)
 
+
     def __init__(self):
         super().__init__()
 
@@ -90,6 +91,8 @@ class MainWindow(QMainWindow):
 
         self.setWindowModality(Qt.ApplicationModal)
 
+        # use os.path.exist instead
+        # implement when no task in file
         try:
             with open(f'{self.d}{self.slash}tasks_tree.yaml', 'r') as f:
                 self.task_tree = yaml.load(f, Loader=yaml.FullLoader)

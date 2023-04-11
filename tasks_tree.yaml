@@ -58,7 +58,7 @@ Children:
           Priority: Normal
           StartDate: '2023-03-17'
           EndDate: '-'
-          Check: 0
+          Check: 1
           Documents: []
       - Name: IHM banc de sortie
         Children:
@@ -436,7 +436,7 @@ Children:
     Priority: Pressant
     StartDate: '2023-03-17'
     EndDate: '2023-03-21'
-    Check: 0
+    Check: 1
     Documents:
     - "/home/mc1/Documents/Projets/Autre/offre_stage_5A/candidats/mohamed_hamitouche/Calcul\
       \ de temps de fabrication et optimisation/Rapport Stage ing\xE9nieur m\xE9catronique.pdf"
