@@ -6,17 +6,10 @@ Children:
     Children:
     - Name: Ladder
       Children:
-      - Name: Test
-        Check: 0
-        Description: test
-        Priority: Normal
-        StartDate: '2023-02-28'
-        EndDate: '2023-03-10'
-        Documents: []
       - Name: Commenter les variables
         Children:
         - Name: Documenter
-          Check: 0
+          Check: 1
           Description: documenter
           Priority: Urgent
           StartDate: '2023-02-28'
@@ -32,7 +25,7 @@ Children:
           EndDate: '2023-03-10'
           Documents: []
         - Name: M102 evacuer chute ou petite piece
-          Check: 0
+          Check: 1
           Description: prevoir front montant, maintien et fin
           Priority: Normal
           StartDate: '2023-02-28'
@@ -60,6 +53,22 @@ Children:
           EndDate: '-'
           Check: 1
           Documents: []
+        - Name: Mettre a jour les macros
+          Description: Quasiment toutes
+          Priority: Normal
+          StartDate: '2023-04-18'
+          EndDate: '-'
+          Check: 1
+          Documents: []
+        - Name: "augmenter dur\xE9e pause M73 M75"
+          Description: ladder
+          Priority: Normal
+          StartDate: '2023-04-18'
+          EndDate: '-'
+          Check: 1
+          Documents:
+          - /home/mc1/Desktop/update_M73_M75/change_TM10_M73_tempo.PNG
+          - /home/mc1/Desktop/update_M73_M75/change_TM11_M75_tempo.PNG
       - Name: IHM banc de sortie
         Children:
         - Name: "Impl\xE9menter print action"
@@ -68,6 +77,40 @@ Children:
           StartDate: '2023-03-17'
           EndDate: '-'
           Check: 1
+          Documents: []
+        - Name: Gerer images
+          Description: gerer connexion avec pc prog, voir pour IHM BE
+          Priority: Normal
+          StartDate: '2023-04-18'
+          EndDate: '-'
+          Check: 1
+          Documents: []
+      - Name: Dev
+        Children:
+        - Name: Refaire gestion mouvement dossier SFJob
+          Description: "Utiliser un timer ou thread pour checker le contenu du dossier\
+            \ r\xE9gulierement"
+          Priority: Normal
+          StartDate: '2023-04-19'
+          EndDate: '-'
+          Check: 0
+          Documents: []
+        - Name: Security commands
+          Description: "Trouver une meilleure solution pour executer des fonctions\
+            \ de securit\xE9.\nActuellement, \xE7a relance juste le programme jusqu'a\
+            \ execution de du script manage_sv, ce n'est pas vraiment ce qui est d\xE9\
+            sir\xE9"
+          Priority: Normal
+          StartDate: '2023-04-19'
+          EndDate: '-'
+          Check: 0
+          Documents: []
+        - Name: Mettre en place correction Y
+          Description: en fonction de la position X
+          Priority: Normal
+          StartDate: '2023-04-20'
+          EndDate: '-'
+          Check: 0
           Documents: []
     - Name: Cartes d'axe
       Children:
@@ -128,6 +171,74 @@ Children:
         EndDate: '-'
         Check: 0
         Documents: []
+      - Name: Changer carte 54 ?
+        Description: "Parfois perd com, un reset et \xE7a repart, slaves semblent\
+          \ ok"
+        Priority: Normal
+        StartDate: '2023-04-18'
+        EndDate: '-'
+        Check: 1
+        Documents: []
+      - Name: Imprimer boitier 6 cartes
+        Description: Il faut que mes cartes d'axe puissent y rentrer
+        Priority: Urgent
+        StartDate: '2023-04-20'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: Changer module 8IO du BE ?
+        Description: COmmunique bien mais j'arrive pas a recevoir les retours de type
+          WriteSingleRegisterResponse
+        Priority: Normal
+        StartDate: '2023-04-20'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: Carte 50 a changer?
+        Description: A eu du mal a repondre une fois
+        Priority: Normal
+        StartDate: '2023-04-20'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+    - Name: Post pro
+      Children:
+      - Name: Prevoir evacuation derniere chute
+        Description: "Quand les operations d'usinage sont termin\xE9es, il faut pouvoir\
+          \ evacuer la piece\nCe que je vois : au post pro, rajouter une ligne G102\
+          \ avec le num\xE9ro de la chute (ex. 0) et la longueur, calcul\xE9e \xE0\
+          \ partir des \xE9l\xE9ments du programme (longueur totale - dernier Cutstart\
+          \ - longueur derniere piece)"
+        Priority: Normal
+        StartDate: '2023-04-20'
+        EndDate: '-'
+        Check: 1
+        Documents: []
+    - Name: CN
+      Children:
+      - Name: Degager avant reculer scie
+        Description: "Reculer l'\xE9tau central ET la pince (en synchro). Penser a\
+          \ lever les plaqueurs Z"
+        Priority: Normal
+        StartDate: '2023-04-20'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: Remove prod bar se repete indefiniement
+        Description: peut etre parce que j'ai fait un G302 en MDI ?
+        Priority: Normal
+        StartDate: '2023-04-20'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: "V\xE9rfier G106"
+        Description: Il semblerait que ca ne fonctionne pas, et si je met X comme
+          argument, c'est le vrai X qui veut bouger
+        Priority: Normal
+        StartDate: '2023-04-20'
+        EndDate: '-'
+        Check: 0
+        Documents: []
   - Name: Usinage
     Children:
     - Name: Decoupe Etau central
@@ -157,13 +268,36 @@ Children:
       EndDate: '-'
       Check: 0
       Documents: []
-- Name: Ligne Piquets Echalas
+    - Name: Mettre a jour schema
+      Description: A propos du contact du KP2 vers une entree automate pour indiquer
+        si la machine est en puissance ou non
+      Priority: Normal
+      StartDate: '2023-04-18'
+      EndDate: '-'
+      Check: 1
+      Documents: []
+- Name: Ligne Faure
   Children:
-  - Name: Conception
+  - Name: Cablage
     Children:
-    - Name: beaucoup de travail
-    - Name: encore et encore
-  - Name: Soudure
+    - Name: Armoire
+      Children:
+      - Name: Faire implantation finale
+        Description: pour decouper les fonds d'armoire
+        Priority: Urgent
+        StartDate: '2023-04-20'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+  - Name: Programmation
+    Children:
+    - Name: Demander a charles integration joystick
+      Description: ''
+      Priority: Normal
+      StartDate: '2023-04-20'
+      EndDate: '-'
+      Check: 0
+      Documents: []
 - Name: test
   Children:
   - Name: test10
@@ -416,6 +550,13 @@ Children:
     EndDate: '-'
     Check: 0
     Documents: []
+  - Name: gerer extensions
+    Description: les rendre case insensitive
+    Priority: Normal
+    StartDate: '2023-04-18'
+    EndDate: '-'
+    Check: 0
+    Documents: []
 - Name: Cartes d'axe
   Children:
   - Name: CAO Elec
@@ -431,7 +572,7 @@ Children:
   - Name: Fabrication
 - Name: Stagiaires
   Children:
-  - Name: Checker code Momo
+  - Name: Checker code Mohamed
     Description: ''
     Priority: Pressant
     StartDate: '2023-03-17'
