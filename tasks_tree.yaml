@@ -69,6 +69,15 @@ Children:
           Documents:
           - /home/mc1/Desktop/update_M73_M75/change_TM10_M73_tempo.PNG
           - /home/mc1/Desktop/update_M73_M75/change_TM11_M75_tempo.PNG
+        - Name: Revoir execution programme
+          Description: "a besoin d'un loader ready pour lancer le programme\nEt besoin\
+            \ de reset long, or une \xE9tape semble sauter \xE0 la moindre action\
+            \ autre que en mode AUTO sur la CN"
+          Priority: Pressant
+          StartDate: '2023-04-25'
+          EndDate: '-'
+          Check: 0
+          Documents: []
       - Name: IHM banc de sortie
         Children:
         - Name: "Impl\xE9menter print action"
@@ -87,7 +96,7 @@ Children:
           Documents: []
       - Name: Dev
         Children:
-        - Name: Refaire gestion mouvement dossier SFJob
+        - Name: Refaire gestion evenement dossier SFJob
           Description: "Utiliser un timer ou thread pour checker le contenu du dossier\
             \ r\xE9gulierement"
           Priority: Normal
@@ -103,12 +112,53 @@ Children:
           Priority: Normal
           StartDate: '2023-04-19'
           EndDate: '-'
-          Check: 0
+          Check: 1
           Documents: []
-        - Name: Mettre en place correction Y
+        - Name: Mettre en place correction Z
           Description: en fonction de la position X
           Priority: Normal
           StartDate: '2023-04-20'
+          EndDate: '-'
+          Check: 0
+          Documents: []
+        - Name: Supprimer fichier de liste job
+          Description: "Quand on supprime un item du dossier manuellement, on devrait\
+            \ pouvoir supprimer les \xE9lements de la liste en meme temps"
+          Priority: Urgent
+          StartDate: '2023-04-25'
+          EndDate: '-'
+          Check: 0
+          Documents: []
+        - Name: Si pince ne trouve pas barre faire qqch
+          Description: "??? je ne sais pas si c'est n\xE9cessaire, mais actuellement,\
+            \ si la pince ne d\xE9tecte pas la barre, il faut tout d\xE9charger, vider\
+            \ et recommencer..."
+          Priority: Normal
+          StartDate: '2023-04-25'
+          EndDate: '-'
+          Check: 0
+          Documents: []
+        - Name: Developper correction Y
+          Description: en fonction de la position X
+          Priority: Normal
+          StartDate: '2023-04-20'
+          EndDate: '-'
+          Check: 0
+          Documents: []
+        - Name: Parfois besoin de redemarrer PC a cause driver 4 modbus
+          Description: "le signal semble plus faible, je ne sais pas ce qui cause\
+            \ \xE7a, mais du coup impossible de communiquer avec des cartes d'axes.\
+            \ Comment l'arranger ?\n\nredemarrer le pc tous les x jours (attention\
+            \ a etre en arret d'urgence)"
+          Priority: Normal
+          StartDate: '2023-04-26'
+          EndDate: '-'
+          Check: 0
+          Documents: []
+        - Name: outil pour gerer les log files
+          Description: ''
+          Priority: Normal
+          StartDate: '2023-04-28'
           EndDate: '-'
           Check: 0
           Documents: []
@@ -201,6 +251,13 @@ Children:
         EndDate: '-'
         Check: 0
         Documents: []
+      - Name: carte 11 a changer ?
+        Description: ''
+        Priority: Normal
+        StartDate: '2023-04-27'
+        EndDate: '-'
+        Check: 0
+        Documents: []
     - Name: Post pro
       Children:
       - Name: Prevoir evacuation derniere chute
@@ -214,6 +271,22 @@ Children:
         EndDate: '-'
         Check: 1
         Documents: []
+      - Name: "Choix outils inclin\xE9s"
+        Description: "On doit pouvoir choisir quel outil doit etre inclin\xE9 en fonction\
+          \ de la position de l'usinage par rapport \xE0 la paroi (sinon risque collision)"
+        Priority: Normal
+        StartDate: '2023-04-25'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: Faire une IHM ?
+        Description: "Pour g\xE9rer la liste des affaires et balancer les fichiers\
+          \ vers la machine"
+        Priority: Normal
+        StartDate: '2023-04-27'
+        EndDate: '-'
+        Check: 0
+        Documents: []
     - Name: CN
       Children:
       - Name: Degager avant reculer scie
@@ -222,20 +295,63 @@ Children:
         Priority: Normal
         StartDate: '2023-04-20'
         EndDate: '-'
-        Check: 0
+        Check: 1
         Documents: []
       - Name: Remove prod bar se repete indefiniement
         Description: peut etre parce que j'ai fait un G302 en MDI ?
         Priority: Normal
         StartDate: '2023-04-20'
         EndDate: '-'
-        Check: 0
+        Check: 1
         Documents: []
       - Name: "V\xE9rfier G106"
         Description: Il semblerait que ca ne fonctionne pas, et si je met X comme
           argument, c'est le vrai X qui veut bouger
         Priority: Normal
         StartDate: '2023-04-20'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: "Continuer dev operations inclin\xE9s"
+        Description: "Sur les G132, G134 et peut etre G133 sur certaines faces ? il\
+          \ faut continuer a impl\xE9menter ces fonctions"
+        Priority: Normal
+        StartDate: '2023-04-25'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: Demander a charles comment faire des IHM et parametrer affichage CN
+        Description: Pour modifier/faire de nouvelles/ comprendre pour la machine
+          de faure
+        Priority: Normal
+        StartDate: '2023-04-25'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: Attention relache etau central
+        Description: "Lors d'une d\xE9coupe avec l'\xE9tau central non plaqu\xE9,\
+          \ il ya un probleme pour reculer la barre avant de reculer la scie: on doit\
+          \ relacher le plaqueur en Z, mais comme la barre est en contact de la lame,\
+          \ la barre est envoy\xE9e vers l'exterieur : elle est de travers\nCe probleme\
+          \ sera corrig\xE9 avec les nouveaux plaqueurs"
+        Priority: Normal
+        StartDate: '2023-04-26'
+        EndDate: '-'
+        Check: 1
+        Documents: []
+      - Name: Bloquer demarrage 3 mot sur meme VFD
+        Description: "2 moteurs max sur 1 VFD, au dela il se met en s\xE9curit\xE9"
+        Priority: Normal
+        StartDate: '2023-04-26'
+        EndDate: '-'
+        Check: 1
+        Documents: []
+      - Name: "avancer l'\xE9tau de sortie apres sciage"
+        Description: "Il faut bouger l'\xE9tau de sortie pour \xE9viter d'avoir une\
+          \ passe au retour.\nUtiliser G106, mettre un wait() de suite apr\xE8s ?\
+          \ (pour tenter d'\xE9viter un autre probl\xE8me)"
+        Priority: Normal
+        StartDate: '2023-04-28'
         EndDate: '-'
         Check: 0
         Documents: []
@@ -276,6 +392,21 @@ Children:
       EndDate: '-'
       Check: 1
       Documents: []
+    - Name: Recabler broche 1 ?
+      Description: "semble peut etre causer probleme au demarrage\nJe pense que c'est\
+        \ juste que je voulais d\xE9marrer 3 broches sur 1 seul VFD"
+      Priority: Normal
+      StartDate: '2023-04-26'
+      EndDate: '-'
+      Check: 1
+      Documents: []
+    - Name: Mettrer hub supplementaire pour banc sortie
+      Description: Penser a prendre le hub, le cable, les prises DB9
+      Priority: Normal
+      StartDate: '2023-04-26'
+      EndDate: '-'
+      Check: 0
+      Documents: []
 - Name: Ligne Faure
   Children:
   - Name: Cablage
@@ -296,7 +427,7 @@ Children:
       Priority: Normal
       StartDate: '2023-04-20'
       EndDate: '-'
-      Check: 0
+      Check: 1
       Documents: []
 - Name: test
   Children:
@@ -557,6 +688,32 @@ Children:
     EndDate: '-'
     Check: 0
     Documents: []
+  - Name: tester pickle
+    Description: "Essayer de voir si en generant un fichier pickle a la place de yaml\
+      \ il yaurait un gain de place, et aussi permet d'\xE9viter modifs \xE0 la main"
+    Priority: Normal
+    StartDate: '2023-04-25'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: "G\xE9rer premier d\xE9marrage de l'appli"
+    Description: "Actuellement, il n'y a pas de gestion de cr\xE9ation du fichier.\
+      \ Donc s'il n'existe pas, \xE7a le cr\xE9e mais vide, et l'appli plante car\
+      \ elle n'arrive pas a afficher de tache"
+    Priority: Urgent
+    StartDate: '2023-04-25'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: revoir deroulement arbre
+    Description: "les raccourcis ne fonctionnement pas correctement\net a chaque ajout\
+      \ de tache ou qqch, l'arbre revient forme d\xE9roul\xE9e. Il faut garder l'\xE9\
+      tat de l'arbre en memoire"
+    Priority: Normal
+    StartDate: '2023-04-28'
+    EndDate: '-'
+    Check: 0
+    Documents: []
 - Name: Cartes d'axe
   Children:
   - Name: CAO Elec
@@ -581,3 +738,63 @@ Children:
     Documents:
     - "/home/mc1/Documents/Projets/Autre/offre_stage_5A/candidats/mohamed_hamitouche/Calcul\
       \ de temps de fabrication et optimisation/Rapport Stage ing\xE9nieur m\xE9catronique.pdf"
+- Name: Commandes
+  Children:
+  - Name: HUB RS485
+    Description: "Quantit\xE9 10 ?"
+    Priority: Normal
+    StartDate: '2023-04-25'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Cables M3 500mm
+    Description: "Quantit\xE9 10 ?"
+    Priority: Normal
+    StartDate: '2023-04-25'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Moteurs syntec
+    Description: "Quantit\xE9 2 pour Faure"
+    Priority: Normal
+    StartDate: '2023-04-25'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Alim a decoupage
+    Description: 24V 15 ou 20A ?
+    Priority: Normal
+    StartDate: '2023-04-26'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: borniers fusibles ?
+    Description: fusibles qui vont avec ?
+    Priority: Normal
+    StartDate: '2023-04-28'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: voyants de differentes couleurs aupres jennifer
+    Description: diametre 22 comme BP
+    Priority: Normal
+    StartDate: '2023-04-28'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: fusibles pour borniers
+    Description: "https://fr.rs-online.com/web/p/fusibles-cartouches/8657382\n\na\
+      \ tester voir ce que \xE7a donne sur du 24V continu.\n\nen tout cas, les fusibles\
+      \ possibles sont G 5x20, 5x25, 5x30"
+    Priority: Normal
+    StartDate: '2023-04-28'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: bouton tournant 3 positions retour au centre automatique
+    Description: ''
+    Priority: Normal
+    StartDate: '2023-04-28'
+    EndDate: '-'
+    Check: 0
+    Documents: []

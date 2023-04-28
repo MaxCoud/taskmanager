@@ -482,6 +482,8 @@ class MainWindow(QMainWindow):
 
         if time.time() - self.ts < 0.3:
 
+            add_task = QAction("Ajouter une tâche")
+            add_task.triggered.connect(self.AddTaskBtnClicked)
             add_section = QAction("Ajouter une section")
             add_section.triggered.connect(self.AddProjectSectionButtonClicked)
             modify_section = QAction("Modifier")
@@ -490,6 +492,7 @@ class MainWindow(QMainWindow):
             delete_section.triggered.connect(self.RemoveSectionButtonClicked)
 
             menu = QMenu(self.tree_view)
+            menu.addAction(add_task)
             menu.addAction(add_section)
             menu.addAction(modify_section)
             menu.addAction(delete_section)
@@ -1155,6 +1158,8 @@ class MainWindow(QMainWindow):
             cut_action.triggered.connect(self.CutTaskBtnClicked)
             paste_action = QAction("Coller la tache ici")
             paste_action.triggered.connect(self.PasteTaskBtnClicked)
+            add_task = QAction("Ajouter une tâche")
+            add_task.triggered.connect(self.AddTaskBtnClicked)
             modify_action = QAction("Modifier la tâche")
             modify_action.triggered.connect(self.ModifyTaskBtnClicked)
             delete_action = QAction("Supprimer la tâche")
@@ -1164,13 +1169,17 @@ class MainWindow(QMainWindow):
             menu.addAction(copy_action)
             menu.addAction(cut_action)
             menu.addAction(paste_action)
+            menu.addAction(add_task)
             menu.addAction(modify_action)
             menu.addAction(delete_action)
         else:
+            add_task = QAction("Ajouter une tâche")
+            add_task.triggered.connect(self.AddTaskBtnClicked)
             paste_action = QAction("Coller la tache ici")
             paste_action.triggered.connect(self.PasteTaskBtnClicked)
 
             menu = QMenu(self.listTree)
+            menu.addAction(add_task)
             menu.addAction(paste_action)
 
         menu.exec_(self.listTree.mapToGlobal(position))
