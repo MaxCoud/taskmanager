@@ -39,16 +39,17 @@ def style(app):
 
 
 def select_icon(dir, slash, extension):
-    if extension in ["png", "jpeg", "jpg", "bmp"]:
+    if extension in ["png", "PNG", "jpeg", "JPEG", "jpg", "JPG", "bmp", "BMP"]:
         icon = dir + slash + "icon" + slash + "image.png"
-    elif extension in ["docx", "odt"]:
+    elif extension in ["docx", "DOCX", "odt", "ODT"]:
         icon = dir + slash + "icon" + slash + "document-word.png"
-    elif extension in ["pdf"]:
+    elif extension in ["pdf", "PDF"]:
         icon = dir + slash + "icon" + slash + "document-pdf.png"
-    elif extension in ["xlsx", "ods", "csv"]:
+    elif extension in ["xlsx", "XSLX", "ods", "ODS", "csv", "CSV"]:
         icon = dir + slash + "icon" + slash + "document-excel.png"
-    elif extension in ["ino", "py", "pyw", "cpp", "h", "o", "c", "js",
-                       "class", "html", "htm", "xml", "yaml", "yml", "json", "conf"]:
+    elif extension in ["ino", "INO", "py", "PY", "pyw", "PYW", "cpp", "CPP", "h", "H", "o", "O", "c", "C", "js", "JS",
+                       "class", "CLASS", "html", "HTML", "htm", "HTM", "xml", "XML", "yaml", "YAML", "yml", "YML",
+                       "json", "JSON", "conf", "CONF"]:
         icon = dir + slash + "icon" + slash + "document-code.png"
     else:
         icon = dir + slash + "icon" + slash + "document--arrow.png"

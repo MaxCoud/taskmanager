@@ -149,6 +149,7 @@ class AddTaskDialog(QDialog):
         grid.addWidget(enterTaskBtn, 6, 0, 1, 2)
 
         self.setLayout(grid)
+        enterTaskBtn.setDefault(True)
 
         # self.hide.connect(self.HideActions)
 
