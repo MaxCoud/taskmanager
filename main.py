@@ -12,7 +12,7 @@ from project_window import ProjectsDialog
 import yaml
 from PySide2.QtCore import Qt, Signal, QDateTime, QDate, QTimer, QModelIndex
 from PySide2.QtGui import QFont, QTextOption, QKeySequence, QStandardItem, QStandardItemModel, QIcon, QGuiApplication, \
-    QCursor
+    QCursor, QPixmap, QPainter
 from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QApplication, QLabel, QPushButton, \
     QCheckBox, QTreeWidget, QTreeWidgetItem, QDateEdit, QDialog, QVBoxLayout, QPlainTextEdit, QMessageBox, \
     QInputDialog, QComboBox, QTabWidget, QAction, QMainWindow, QMenu, QTreeView, QHeaderView, QDesktopWidget
@@ -89,16 +89,52 @@ class MainWindow(QMainWindow):
         self.open_folder_icon = os.fspath(Path(__file__).resolve().parent / "icon/folder-horizontal-open.png")
         self.tick_icon = os.fspath(Path(__file__).resolve().parent / "icon/tick-button.png")
 
+        self.number_0 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-0.png")
+        self.number_1 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-1.png")
+        self.number_2 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-2.png")
+        self.number_3 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-3.png")
+        self.number_4 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-4.png")
+        self.number_5 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-5.png")
+        self.number_6 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-6.png")
+        self.number_7 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-7.png")
+        self.number_8 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-8.png")
+        self.number_9 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-9.png")
+        self.number_10 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-10.png")
+        self.number_11 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-11.png")
+        self.number_12 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-12.png")
+        self.number_13 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-13.png")
+        self.number_14 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-14.png")
+        self.number_15 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-15.png")
+        self.number_16 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-16.png")
+        self.number_17 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-17.png")
+        self.number_18 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-18.png")
+        self.number_19 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-19.png")
+        self.number_20 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-20.png")
+
         self.setWindowModality(Qt.ApplicationModal)
 
-        # use os.path.exist instead
-        # implement when no task in file
-        try:
+        if os.path.exists(f'{self.d}{self.slash}tasks_tree.yaml'):
             with open(f'{self.d}{self.slash}tasks_tree.yaml', 'r') as f:
                 self.task_tree = yaml.load(f, Loader=yaml.FullLoader)
-        except FileNotFoundError:
+        else:
             with open(f'{self.d}{self.slash}tasks_tree.yaml', 'w') as f:
-                yaml.dump(None, f, sort_keys=False)
+                new_task_tree = {
+                    "Name": "Projets et sous-projets",
+                    "Children": [{
+                        "Name": "Section exemple",
+                        "Children": [{
+                            "Name": "Exemple",
+                            "Check": 0,
+                            "Description": "exemple",
+                            "Priority": "Urgent",
+                            "StartDate": '2023-02-28',
+                            "EndDate": '2023-03-10',
+                            "Documents": []
+                        }]
+                    }]
+                }
+                yaml.dump(new_task_tree, f, sort_keys=False)
+                self.task_tree = new_task_tree
 
         # try:
         #     with open(f'{d}{self.slash}tasks.yaml', 'r') as f:
@@ -107,15 +143,7 @@ class MainWindow(QMainWindow):
         #     with open(f'{d}{self.slash}tasks.yaml', 'w') as f:
         #         yaml.dump(None, f, sort_keys=False)
 
-        try:
-            with open(f'{self.d}{self.slash}projects.yaml', 'r') as f:
-                self.projectList = yaml.load(f, Loader=yaml.FullLoader)
-        except FileNotFoundError:
-            with open(f'{self.d}{self.slash}projects.yaml', 'w') as f:
-                yaml.dump(None, f, sort_keys=False)
-
         self.addTaskDialog = AddTaskDialog(self)
-        self.projectsDialog = ProjectsDialog(self)
 
         self.titleFontSize = 14
         self.subtitleFontSize = 11
@@ -132,7 +160,6 @@ class MainWindow(QMainWindow):
         projectMenu.addAction("Ajouter un projet", lambda: self.AddProjectButtonClicked(), QKeySequence("p"))
         projectMenu.addAction("Dérouler tous les projets", lambda: self.ExpandProjectTree(), QKeySequence(Qt.CTRL + Qt.ALT + Qt.Key_Plus))
         projectMenu.addAction("Réduire tous les projets", lambda: self.CollapseProjectTree(), QKeySequence(Qt.CTRL + Qt.ALT + Qt.Key_Minus))
-        projectMenu.addAction("Gérer les projets ...", lambda: self.ManageProjectsBtnClicked())
 
         layout = QGridLayout()
 
@@ -259,10 +286,6 @@ class MainWindow(QMainWindow):
         self.new_task.connect(self.New_task)
         self.modify_task.connect(self.addTaskDialog.ModifyTask)
         self.modified_task.connect(self.ModifiedTask)
-        self.get_new_project.connect(self.projectsDialog.GetNewProject)
-        self.new_project.connect(self.New_project)
-        self.delete_project.connect(self.DeleteProject)
-        self.modified_project.connect(self.ModifiedProject)
 
         self.show()
 
@@ -374,22 +397,72 @@ class MainWindow(QMainWindow):
                                 break
 
             every_tasks_finished = True
+            running_tasks = 0
 
             if tasks_list is not None:
                 for task in tasks_list:
                     if "Children" in task:
                         for subtask in task["Children"]:
-                            if subtask["Check"] == 0:
-                                every_tasks_finished = False
-                                break
+                            if "Check" in subtask:
+                                if subtask["Check"] == 0:
+                                    every_tasks_finished = False
+                                    break
                     elif task['Check'] == 0:  # at least one task is not finished
                         every_tasks_finished = False
-                        break
+                        running_tasks += 1
+                        # break
 
                 if every_tasks_finished:
                     item.setIcon(QIcon(self.tick_icon))
                 else:
-                    item.setIcon(QIcon(self.folder_icon))
+                    # print(tasks_list, "\t", "running_tasks", running_tasks)
+                    # item.setIcon(QIcon(self.folder_icon))
+                    # item.setIcon(QIcon(self.number_1))
+                    # item.addIcon(QIcon(self.number_1))
+
+                    if running_tasks == 1:
+                        item.setIcon(QIcon(self.number_1))
+                    elif running_tasks == 2:
+                        item.setIcon(QIcon(self.number_2))
+                    elif running_tasks == 3:
+                        item.setIcon(QIcon(self.number_3))
+                    elif running_tasks == 4:
+                        item.setIcon(QIcon(self.number_4))
+                    elif running_tasks == 5:
+                        item.setIcon(QIcon(self.number_5))
+                    elif running_tasks == 6:
+                        item.setIcon(QIcon(self.number_6))
+                    elif running_tasks == 7:
+                        item.setIcon(QIcon(self.number_7))
+                    elif running_tasks == 8:
+                        item.setIcon(QIcon(self.number_8))
+                    elif running_tasks == 9:
+                        item.setIcon(QIcon(self.number_9))
+                    elif running_tasks == 10:
+                        item.setIcon(QIcon(self.number_10))
+                    elif running_tasks == 11:
+                        item.setIcon(QIcon(self.number_11))
+                    elif running_tasks == 12:
+                        item.setIcon(QIcon(self.number_12))
+                    elif running_tasks == 13:
+                        item.setIcon(QIcon(self.number_13))
+                    elif running_tasks == 14:
+                        item.setIcon(QIcon(self.number_14))
+                    elif running_tasks == 15:
+                        item.setIcon(QIcon(self.number_15))
+                    elif running_tasks == 16:
+                        item.setIcon(QIcon(self.number_16))
+                    elif running_tasks == 17:
+                        item.setIcon(QIcon(self.number_17))
+                    elif running_tasks == 18:
+                        item.setIcon(QIcon(self.number_18))
+                    elif running_tasks == 19:
+                        item.setIcon(QIcon(self.number_19))
+                    elif running_tasks == 20:
+                        item.setIcon(QIcon(self.number_20))
+                    else:
+
+                        item.setIcon(QIcon(self.folder_icon))
 
     def iter_items(self, root):
         if root is not None:
@@ -465,6 +538,8 @@ class MainWindow(QMainWindow):
 
                             break
 
+        # print("tasks_list:", tasks_list)
+
         if tasks_list is not None:
             try:
                 self.selected_project_tasks_list = tasks_list['Children']
@@ -472,6 +547,8 @@ class MainWindow(QMainWindow):
                 self.selected_project_tasks_list = None
         else:
             self.selected_project_tasks_list = None
+
+        # print("project_tasks_list:", self.selected_project_tasks_list)
 
         self.tasksList = self.selected_project_tasks_list
         self.Update_changes()
@@ -705,7 +782,7 @@ class MainWindow(QMainWindow):
         if self.tasksList is not None:
             newTasksList = []
             for task in self.tasksList:
-                if "Children" not in task:
+                if not "Children" in task and "Description" in task:
                     newTasksList.append(task)
             self.tasksList = newTasksList
 
@@ -1083,33 +1160,6 @@ class MainWindow(QMainWindow):
                 return task
 
 
-    def ManageProjectsBtnClicked(self):
-        self.projectsDialog.show()
-
-    def New_project(self, received_object):
-        # self.Update_project_combo_box()
-
-        self.addTaskDialog.projectComboBox.setCurrentText(received_object)
-
-    def DeleteProject(self, received_object):
-        projectName = received_object
-        tasks = []
-
-        for task in self.tasksList:
-            if projectName == task["Project"]:
-                tasks.append(task)
-
-        for task in tasks:
-            self.tasksList.remove(task)
-
-        self.Save()
-        self.Update_changes()
-
-        self.projectList.remove({"Name": projectName})
-
-        self.projectsDialog.Save()
-        self.projectsDialog.Update_project_tree()
-
     def customSortByColumn(self, column):
         if column == 3:
             # if self.projectAscending is None or not self.projectAscending:
@@ -1248,17 +1298,6 @@ class MainWindow(QMainWindow):
             msg.setButtonText(QMessageBox.Ok, "OK")
             msg.exec_()
 
-    def ModifiedProject(self, data):
-        initial_project_name = data[0]
-        new_project_name = data[1]
-
-        for task in self.tasksList:
-            if task["Project"] == initial_project_name:
-                task["Project"] = new_project_name
-
-        self.Save()
-        self.Update_changes()
-
     def NotifyUser(self):
 
         today = QDate.currentDate()
@@ -1328,6 +1367,7 @@ class MainWindow(QMainWindow):
         self.notifyTimer.stop()
         msg.exec_()
         self.notifyTimer.start(self.waitForNotifications)
+
 
 if __name__ == "__main__":
     app = QApplication([])
