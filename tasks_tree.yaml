@@ -737,6 +737,21 @@ Children:
     EndDate: '-'
     Check: 1
     Documents: []
+  - Name: Gerer probleme clic droit
+    Description: "sur les taches des fois \xE7a n'affiche pas le bon context menu"
+    Priority: Normal
+    StartDate: '2023-05-03'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: probleme creer section sur une tache
+    Description: "\xE7a plante. il faut pr\xE9voir que la tache devient une section\
+      \ mere de la section cr\xE9\xE9e en dessous"
+    Priority: Normal
+    StartDate: '2023-05-03'
+    EndDate: '-'
+    Check: 0
+    Documents: []
 - Name: Cartes d'axe
   Children:
   - Name: CAO Elec
