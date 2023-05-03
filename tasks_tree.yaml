@@ -132,7 +132,7 @@ Children:
         - Name: Si pince ne trouve pas barre faire qqch
           Description: "??? je ne sais pas si c'est n\xE9cessaire, mais actuellement,\
             \ si la pince ne d\xE9tecte pas la barre, il faut tout d\xE9charger, vider\
-            \ et recommencer..."
+            \ et recommencer...\nVoir tache dans onglet CN"
           Priority: Normal
           StartDate: '2023-04-25'
           EndDate: '-'
@@ -423,6 +423,13 @@ Children:
       EndDate: '-'
       Check: 0
       Documents: []
+  - Name: reparer fuite banc sortie
+    Description: Il y a une fuite sur le l'accu du centre du banc de sortie
+    Priority: Normal
+    StartDate: '2023-05-03'
+    EndDate: '-'
+    Check: 0
+    Documents: []
 - Name: Ligne Faure
   Children:
   - Name: Cablage
@@ -497,7 +504,8 @@ Children:
           StartDate: '2023-03-09'
           EndDate: '-'
           Check: 0
-          Documents: &id001 []
+          Documents:
+          - /home/mc1/Git/taskmanager/projects.yaml
   - Name: test20
     Children:
     - Name: test200
@@ -543,7 +551,7 @@ Children:
         StartDate: '2023-03-09'
         EndDate: '-'
         Check: 0
-        Documents: *id001
+        Documents: []
       - Name: test
         Description: 'erg
 
@@ -738,7 +746,8 @@ Children:
     Check: 1
     Documents: []
   - Name: Gerer probleme clic droit
-    Description: "sur les taches des fois \xE7a n'affiche pas le bon context menu"
+    Description: "sur les taches des fois \xE7a n'affiche pas le bon context menu\
+      \ (sur windows uniquement ?)"
     Priority: Normal
     StartDate: '2023-05-03'
     EndDate: '-'
@@ -754,6 +763,30 @@ Children:
     Documents: []
   - Name: glisser deposer taches
     Description: Ce serait un plus en ergonomie
+    Priority: Normal
+    StartDate: '2023-05-03'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: voir demarrage sur windows
+    Description: "l'appli se lance mais elle n'est pas centr\xE9e comme sur linux"
+    Priority: Normal
+    StartDate: '2023-05-03'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Proposer d'activer les notifications
+    Description: "Et aussi de regler le d\xE9lais d'avertissement"
+    Priority: Normal
+    StartDate: '2023-05-03'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Attention copie de tache
+    Description: "Il semblerait que cela cr\xE9e un lien pour le pointage des documents.\
+      \ Il faut bien les dissocier\nApres un test, il semblerait que le lien se rompt\
+      \ si on modifie les documents point\xE9s de la tache d'origine.\nA retester\
+      \ quand meme"
     Priority: Normal
     StartDate: '2023-05-03'
     EndDate: '-'
@@ -828,9 +861,10 @@ Children:
     Check: 0
     Documents: []
   - Name: fusibles pour borniers
-    Description: "https://fr.rs-online.com/web/p/fusibles-cartouches/8657382\n\na\
-      \ tester voir ce que \xE7a donne sur du 24V continu.\n\nen tout cas, les fusibles\
-      \ possibles sont G 5x20, 5x25, 5x30"
+    Description: "<a href=\"https://fr.rs-online.com/web/p/fusibles-cartouches/8657382\"\
+      >https://fr.rs-online.com/web/p/fusibles-cartouches/8657382</a>\n\na tester\
+      \ voir ce que \xE7a donne sur du 24V continu.\n\nen tout cas, les fusibles possibles\
+      \ sont G 5x20, 5x25, 5x30"
     Priority: Normal
     StartDate: '2023-04-28'
     EndDate: '-'
@@ -840,6 +874,13 @@ Children:
     Description: ''
     Priority: Normal
     StartDate: '2023-04-28'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Boite derivation technic achat
+    Description: ''
+    Priority: Normal
+    StartDate: '2023-05-03'
     EndDate: '-'
     Check: 0
     Documents: []
