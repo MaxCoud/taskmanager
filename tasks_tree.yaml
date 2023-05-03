@@ -752,6 +752,13 @@ Children:
     EndDate: '-'
     Check: 0
     Documents: []
+  - Name: glisser deposer taches
+    Description: Ce serait un plus en ergonomie
+    Priority: Normal
+    StartDate: '2023-05-03'
+    EndDate: '-'
+    Check: 0
+    Documents: []
 - Name: Cartes d'axe
   Children:
   - Name: CAO Elec
