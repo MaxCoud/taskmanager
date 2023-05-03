@@ -355,6 +355,22 @@ Children:
         EndDate: '-'
         Check: 0
         Documents: []
+      - Name: Gerer si echec probe
+        Description: "Si pendant probe n\xB01 rien n'est d\xE9tect\xE9, appeler macro\
+          \ pour g\xE9rer un chargement manuel ou une \xE9vacuation\nCette macro va\
+          \ indiquer le cas de figure \xE0 la supervision \u2192 avertir utilisateur\
+          \ sur IHM BE \u2192 d\xE9cider de charger la barre \xE0 la main ou l'\xE9\
+          vacuer\nSi chargement \xE0 la main : bouger la pince \xE0 la position th\xE9\
+          roique de pr\xE9hension, et attendre que l'op\xE9rateur dis que c'est ok.\n\
+          Ca reprendra le cycle avec un M90 dans le G100.\nSi \xE9vactuation \xE0\
+          \ la main, bouger la pince en 0, pince en hauteur. Quand l'op\xE9rateur\
+          \ indique que c'est bon, indique \xE0 SV de supprimer barre de job.csv,\
+          \ et reprendre le travail"
+        Priority: Normal
+        StartDate: '2023-05-03'
+        EndDate: '-'
+        Check: 0
+        Documents: []
   - Name: Usinage
     Children:
     - Name: Decoupe Etau central
