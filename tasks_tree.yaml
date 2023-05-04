@@ -15,6 +15,13 @@ Children:
           StartDate: '2023-02-28'
           EndDate: '2023-03-10'
           Documents: []
+        - Name: "Comprendre a quoi serve les A bits non utilis\xE9s dans le ladder"
+          Description: A priori pour les IHM
+          Priority: Normal
+          StartDate: '2023-05-04'
+          EndDate: '-'
+          Check: 0
+          Documents: []
       - Name: ajouter les Mcodes manquants
         Children:
         - Name: M101 evacuer piece standard
@@ -310,7 +317,7 @@ Children:
         Priority: Normal
         StartDate: '2023-04-20'
         EndDate: '-'
-        Check: 0
+        Check: 1
         Documents: []
       - Name: "Continuer dev operations inclin\xE9s"
         Description: "Sur les G132, G134 et peut etre G133 sur certaines faces ? il\
@@ -353,7 +360,7 @@ Children:
         Priority: Normal
         StartDate: '2023-04-28'
         EndDate: '-'
-        Check: 0
+        Check: 1
         Documents: []
       - Name: Gerer si echec probe
         Description: "Si pendant probe n\xB01 rien n'est d\xE9tect\xE9, appeler macro\
@@ -441,8 +448,20 @@ Children:
         Priority: Urgent
         StartDate: '2023-04-20'
         EndDate: '-'
-        Check: 0
+        Check: 1
         Documents: []
+      - Name: Decouper les toles
+        Description: au laser, voir avec charles
+        Priority: Normal
+        StartDate: '2023-05-04'
+        EndDate: '-'
+        Check: 1
+        Documents:
+        - /home/mc1/Git/faure/projet/Armoire/222-1-400-Elec/222-1-410-Armoire_principale/222-3-410-100-Platine_superieure.dxf
+        - /home/mc1/Git/faure/projet/Armoire/222-1-400-Elec/222-1-410-Armoire_principale/222-3-410-101-Platine_inferieure.dxf
+        - /home/mc1/Git/faure/projet/Armoire/222-1-400-Elec/222-1-410-Armoire_principale/222-3-410-102-Platine_laterale.dxf
+        - /home/mc1/Git/faure/projet/Armoire/222-1-400-Elec/222-1-420-Armoire_secondaire/222-3-420-100-Platine.dxf
+        - /home/mc1/Git/faure/projet/Armoire/222-1-400-Elec/222-1-490-Composants_communs/493-Drivers/Support_battery_box.dxf
   - Name: Programmation
     Children:
     - Name: Demander a charles integration joystick
@@ -871,7 +890,9 @@ Children:
     Check: 0
     Documents: []
   - Name: bouton tournant 3 positions retour au centre automatique
-    Description: ''
+    Description: "voir avec charles, pourquoi 3 positions ? il me semble qu'une position\
+      \ \xE9tait pour faire revenir le deck vers les diabolos post sciage, mais on\
+      \ est jamais sens\xE9 all\xE9 en arri\xE8re"
     Priority: Normal
     StartDate: '2023-04-28'
     EndDate: '-'
@@ -881,6 +902,13 @@ Children:
     Description: ''
     Priority: Normal
     StartDate: '2023-05-03'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: armoire 700x1100 technic achat
+    Description: double porte
+    Priority: Normal
+    StartDate: '2023-05-04'
     EndDate: '-'
     Check: 0
     Documents: []

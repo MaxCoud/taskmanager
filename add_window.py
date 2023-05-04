@@ -1,6 +1,6 @@
 import os
 
-from PySide2.QtCore import Qt, QDateTime, QDate
+from PySide2.QtCore import Qt, QDateTime, QDate, QSettings
 from PySide2.QtGui import QFont, QTextOption
 from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QLabel, QPushButton, QCheckBox, QDateEdit, \
     QDialog, QPlainTextEdit, QMessageBox, QComboBox, QFileDialog, QAction, QMenu
@@ -26,6 +26,8 @@ class AddTaskDialog(QDialog):
         self.titleFontSize = 14
         self.subtitleFontSize = 11
         self.itemFontSize = 9.5
+
+        self.last_dir = "/"
 
         grid = QGridLayout()
 
@@ -280,10 +282,18 @@ class AddTaskDialog(QDialog):
             self.mainWin.get_new_project.emit()
 
     def BrowseBtnClicked(self):
-        file = QFileDialog.getOpenFileNames(parent=self, caption="Sélectionner un fichier")
-        filesPaths = file[0]
+        # print("last_dir", self.last_dir)
+        file = QFileDialog.getOpenFileNames(parent=self, caption="Sélectionner un ou plusieurs fichier(s)", dir=self.last_dir, options=QFileDialog.DontUseNativeDialog)
+        # if file:
+        #     filesPaths = file[0]
+        #     self.display_selected_documents(filesPaths)
 
-        self.display_selected_documents(filesPaths)
+        if file:
+            if file[0]:
+                filesPaths = file[0]
+                self.last_dir = os.path.dirname(filesPaths[0])  # + "/"
+
+                self.display_selected_documents(filesPaths)
 
         # get a folder :
         # folder = QFileDialog.getExistingDirectory(parent=self, caption="Sélectionner un dossier")
