@@ -136,15 +136,6 @@ Children:
           EndDate: '-'
           Check: 0
           Documents: []
-        - Name: Si pince ne trouve pas barre faire qqch
-          Description: "??? je ne sais pas si c'est n\xE9cessaire, mais actuellement,\
-            \ si la pince ne d\xE9tecte pas la barre, il faut tout d\xE9charger, vider\
-            \ et recommencer...\nVoir tache dans onglet CN"
-          Priority: Normal
-          StartDate: '2023-04-25'
-          EndDate: '-'
-          Check: 0
-          Documents: []
         - Name: Developper correction Y
           Description: en fonction de la position X
           Priority: Normal
@@ -166,6 +157,42 @@ Children:
           Description: ''
           Priority: Normal
           StartDate: '2023-04-28'
+          EndDate: '-'
+          Check: 0
+          Documents: []
+        - Name: "Continuer d'impl\xE9menter M160 et M161"
+          Description: Boulot sur CNCServer, InputServr, InputClient,, mainClient,
+            HMIInput
+          Priority: Normal
+          StartDate: '2023-05-04'
+          EndDate: '-'
+          Check: 0
+          Documents: []
+        - Name: Gerer si echec probe
+          Description: "Si pendant probe n\xB01 rien n'est d\xE9tect\xE9, appeler\
+            \ macro pour g\xE9rer un chargement manuel ou une \xE9vacuation\nCette\
+            \ macro va indiquer le cas de figure \xE0 la supervision \u2192 avertir\
+            \ utilisateur sur IHM BE \u2192 d\xE9cider de charger la barre \xE0 la\
+            \ main ou l'\xE9vacuer\nSi chargement \xE0 la main : bouger la pince \xE0\
+            \ la position th\xE9orique de pr\xE9hension, et attendre que l'op\xE9\
+            rateur dise que c'est ok.\nCa reprendra le cycle avec un M90 dans le G100.\n\
+            Si \xE9vactuation \xE0 la main, bouger la pince en 0, pince en hauteur.\
+            \ Quand l'op\xE9rateur indique que c'est bon, indique \xE0 SV de supprimer\
+            \ barre de job.csv, et reprendre le travail (G302? Il faut pouvoir relancer\
+            \ le cycle pour une autre barre)"
+          Priority: Normal
+          StartDate: '2023-05-03'
+          EndDate: '-'
+          Check: 0
+          Documents: []
+        - Name: Tester gestion echec probe
+          Description: 'il y a eu bcp de modifs!!!
+
+            Mettre G105 sur machine
+
+            IHM BE pas a jour, le reste normalement c''est bon'
+          Priority: Normal
+          StartDate: '2023-05-05'
           EndDate: '-'
           Check: 0
           Documents: []
@@ -362,22 +389,6 @@ Children:
         EndDate: '-'
         Check: 1
         Documents: []
-      - Name: Gerer si echec probe
-        Description: "Si pendant probe n\xB01 rien n'est d\xE9tect\xE9, appeler macro\
-          \ pour g\xE9rer un chargement manuel ou une \xE9vacuation\nCette macro va\
-          \ indiquer le cas de figure \xE0 la supervision \u2192 avertir utilisateur\
-          \ sur IHM BE \u2192 d\xE9cider de charger la barre \xE0 la main ou l'\xE9\
-          vacuer\nSi chargement \xE0 la main : bouger la pince \xE0 la position th\xE9\
-          roique de pr\xE9hension, et attendre que l'op\xE9rateur dis que c'est ok.\n\
-          Ca reprendra le cycle avec un M90 dans le G100.\nSi \xE9vactuation \xE0\
-          \ la main, bouger la pince en 0, pince en hauteur. Quand l'op\xE9rateur\
-          \ indique que c'est bon, indique \xE0 SV de supprimer barre de job.csv,\
-          \ et reprendre le travail"
-        Priority: Normal
-        StartDate: '2023-05-03'
-        EndDate: '-'
-        Check: 0
-        Documents: []
   - Name: Usinage
     Children:
     - Name: Decoupe Etau central
@@ -427,6 +438,13 @@ Children:
       Description: Penser a prendre le hub, le cable, les prises DB9
       Priority: Normal
       StartDate: '2023-04-26'
+      EndDate: '-'
+      Check: 0
+      Documents: []
+    - Name: Allonger cable SRI ?
+      Description: Pour pouvoir avoir du mou sur la prise de la CN
+      Priority: Normal
+      StartDate: '2023-05-05'
       EndDate: '-'
       Check: 0
       Documents: []
@@ -637,7 +655,7 @@ Children:
     Priority: Pressant
     StartDate: '2023-03-17'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: Amelioration browse files
     Description: "Selectionner un dossier et/ou un fichier serait int\xE9ressant"
@@ -899,7 +917,7 @@ Children:
     Check: 0
     Documents: []
   - Name: Boite derivation technic achat
-    Description: ''
+    Description: 2x 125x125 <a href="https://www.technic-achat.com/coffret-electrique-ip66-imo-c2x33597924">https://www.technic-achat.com/coffret-electrique-ip66-imo-c2x33597924</a>
     Priority: Normal
     StartDate: '2023-05-03'
     EndDate: '-'
