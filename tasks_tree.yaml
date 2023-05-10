@@ -38,6 +38,19 @@ Children:
           StartDate: '2023-02-28'
           EndDate: '2023-03-10'
           Documents: []
+      - Name: Dev
+        Children:
+        - Name: Mettre en place laser presence BE
+          Description: "Mettre en place le laser de pr\xE9sence\nOn peut aussi l'utiliser\
+            \ pour d\xE9terminer que la barre est bien pinc\xE9e (en d\xE9tectant\
+            \ un front descendant). On va reculer la barre, si elle est bien pinc\xE9\
+            e, on doit avoir un front descendant sur la detection lorsque la barre\
+            \ n'est plus devant le laser"
+          Priority: Normal
+          StartDate: '2023-05-10'
+          EndDate: '-'
+          Check: 0
+          Documents: []
     - Name: Supervision
       Children:
       - Name: Documenter les scripts
@@ -457,12 +470,36 @@ Children:
       EndDate: '-'
       Check: 0
       Documents: []
+    - Name: mettre 2eme capteur sur out conv chute
+      Description: 'a ne pas cabler dans la boite, permettra de changer facilement
+        en cas de capteur HS
+
+        Ramener support capteur, capteur,  preparer dymo'
+      Priority: Normal
+      StartDate: '2023-05-10'
+      EndDate: '-'
+      Check: 0
+      Documents: []
+    - Name: Prendre Cable telephone
+      Description: ''
+      Priority: Normal
+      StartDate: '2023-05-10'
+      EndDate: '-'
+      Check: 0
+      Documents: []
   - Name: reparer fuite banc sortie
     Description: Il y a une fuite sur le l'accu du centre du banc de sortie
     Priority: Normal
     StartDate: '2023-05-03'
     EndDate: '-'
     Check: 0
+    Documents: []
+  - Name: ramener chute galva
+    Description: ''
+    Priority: Normal
+    StartDate: '2023-05-10'
+    EndDate: '-'
+    Check: 1
     Documents: []
 - Name: Ligne Faure
   Children:
@@ -494,7 +531,7 @@ Children:
         Priority: Normal
         StartDate: '2023-05-10'
         EndDate: '-'
-        Check: 0
+        Check: 1
         Documents: []
   - Name: Programmation
     Children:
@@ -845,6 +882,13 @@ Children:
     EndDate: '-'
     Check: 0
     Documents: []
+  - Name: Enlever notif "pas de tache dans section"
+    Description: inutile mtn que l'info est dans l'arbre directement
+    Priority: Normal
+    StartDate: '2023-05-10'
+    EndDate: '-'
+    Check: 1
+    Documents: []
 - Name: Cartes d'axe
   Children:
   - Name: CAO Elec
@@ -988,8 +1032,8 @@ Children:
     EndDate: '-'
     Check: 0
     Documents: []
-  - Name: cable 5G6
-    Description: liaison armoire principale / secondaire
+  - Name: cable 5G6 ?
+    Description: liaison armoire principale / secondaire Faure
     Priority: Normal
     StartDate: '2023-05-10'
     EndDate: '-'
@@ -997,6 +1041,34 @@ Children:
     Documents: []
   - Name: cable micro usb
     Description: amazon
+    Priority: Normal
+    StartDate: '2023-05-10'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: goulotte 25x25
+    Description: 1 ou 2 m ?
+    Priority: Normal
+    StartDate: '2023-05-10'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Battery box syntec
+    Description: "qt\xE9 3 ou 4"
+    Priority: Normal
+    StartDate: '2023-05-10'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Automate syntec
+    Description: "Qt\xE9 1 ou 2"
+    Priority: Normal
+    StartDate: '2023-05-10'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: "Relais s\xE9cu RS"
+    Description: "Qt\xE9 1 ou 2\nhttps://fr.rs-online.com/web/p/relais-de-securite/7579291"
     Priority: Normal
     StartDate: '2023-05-10'
     EndDate: '-'

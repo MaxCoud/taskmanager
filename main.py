@@ -266,16 +266,6 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(main_window)
         # self.setLayout(runningLayout)
 
-        # --- Message box management ---
-        self.no_task_msg = QMessageBox(self)
-        self.no_task_msg.setWindowTitle("Information")
-        self.no_task_msg.setText("Pas de tâches dans cette section")
-        self.no_task_msg.setFont(QFont("Arial", 12))
-        self.no_task_msg.setIcon(QMessageBox.Information)
-        self.no_task_msg_timer = QTimer(self)
-        self.no_task_msg_timeout = 1000  # msec
-        self.no_task_msg_timer.timeout.connect(self.no_task_msg_timer_timeout)
-
         self.Update_changes()
         self.Update_tree()
 
@@ -793,15 +783,8 @@ class MainWindow(QMainWindow):
                     elif task["Check"] == 1:
                         finishedTasksNb += 1
                 else:
-                    self.no_task_msg.show()
-                    self.no_task_msg_timer.start(self.no_task_msg_timeout)
-                    self.no_task_msg_timer.timeout.connect(self.no_task_msg_timer_timeout)
                     self.tasksList = None
                     break
-        else:
-            self.no_task_msg.show()
-            self.no_task_msg_timer.start(self.no_task_msg_timeout)
-            self.no_task_msg_timer.timeout.connect(self.no_task_msg_timer_timeout)
 
         if self.tasksList is not None:
             for task in self.tasksList:
@@ -960,10 +943,6 @@ class MainWindow(QMainWindow):
             msg.setButtonText(QMessageBox.Ok, "OK")
             msg.setDefaultButton(QMessageBox.Ok)
             msg.exec_()
-
-    def no_task_msg_timer_timeout(self):
-        self.no_task_msg_timer.stop()
-        self.no_task_msg.close()
 
     def finishedTasksTree_changed(self, item, col):
         try:
