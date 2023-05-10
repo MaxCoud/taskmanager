@@ -268,7 +268,7 @@ Children:
         Priority: Urgent
         StartDate: '2023-04-20'
         EndDate: '-'
-        Check: 0
+        Check: 1
         Documents: []
       - Name: Changer module 8IO du BE ?
         Description: COmmunique bien mais j'arrive pas a recevoir les retours de type
@@ -291,6 +291,15 @@ Children:
         StartDate: '2023-04-27'
         EndDate: '-'
         Check: 0
+        Documents: []
+      - Name: Tarauder boites
+        Description: '6cartes M4
+
+          4cartes M4'
+        Priority: Normal
+        StartDate: '2023-05-09'
+        EndDate: '-'
+        Check: 1
         Documents: []
     - Name: Post pro
       Children:
@@ -480,6 +489,13 @@ Children:
         - /home/mc1/Git/faure/projet/Armoire/222-1-400-Elec/222-1-410-Armoire_principale/222-3-410-102-Platine_laterale.dxf
         - /home/mc1/Git/faure/projet/Armoire/222-1-400-Elec/222-1-420-Armoire_secondaire/222-3-420-100-Platine.dxf
         - /home/mc1/Git/faure/projet/Armoire/222-1-400-Elec/222-1-490-Composants_communs/493-Drivers/Support_battery_box.dxf
+      - Name: ramener cosse fourche
+        Description: ''
+        Priority: Normal
+        StartDate: '2023-05-10'
+        EndDate: '-'
+        Check: 0
+        Documents: []
   - Name: Programmation
     Children:
     - Name: Demander a charles integration joystick
@@ -876,13 +892,6 @@ Children:
     EndDate: '-'
     Check: 0
     Documents: []
-  - Name: Alim a decoupage
-    Description: 24V 15 ou 20A ?
-    Priority: Normal
-    StartDate: '2023-04-26'
-    EndDate: '-'
-    Check: 0
-    Documents: []
   - Name: borniers fusibles ?
     Description: fusibles qui vont avec ?
     Priority: Normal
@@ -917,16 +926,79 @@ Children:
     Check: 0
     Documents: []
   - Name: Boite derivation technic achat
-    Description: 2x 125x125 <a href="https://www.technic-achat.com/coffret-electrique-ip66-imo-c2x33597924">https://www.technic-achat.com/coffret-electrique-ip66-imo-c2x33597924</a>
+    Description: 1x 125x125 <a href="https://www.technic-achat.com/coffret-electrique-ip66-imo-c2x33597924">https://www.technic-achat.com/coffret-electrique-ip66-imo-c2x33597924</a>
     Priority: Normal
     StartDate: '2023-05-03'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: armoire 700x1100 technic achat
     Description: double porte
     Priority: Normal
     StartDate: '2023-05-04'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: ventilation technic achat
+    Description: 250x250
+    Priority: Normal
+    StartDate: '2023-05-09'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: grille ventil technic achat
+    Description: 250x250
+    Priority: Normal
+    StartDate: '2023-05-09'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: Boite technic achat
+    Description: 1x 175x125 <a href="https://www.technic-achat.com/coffret-electrique-ip66-imo-c2x33597926">https://www.technic-achat.com/coffret-electrique-ip66-imo-c2x33597926</a>
+    Priority: Normal
+    StartDate: '2023-05-03'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: contacteurs
+    Description: x4
+    Priority: Normal
+    StartDate: '2023-05-09'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: goulotte 60x60
+    Description: 2 ou 3m ?
+    Priority: Normal
+    StartDate: '2023-05-09'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: disjoncteur 10A
+    Description: "qt\xE9 5"
+    Priority: Normal
+    StartDate: '2023-05-10'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: disjoncteur 2A
+    Description: "qt\xE9 2"
+    Priority: Normal
+    StartDate: '2023-05-10'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: cable 5G6
+    Description: liaison armoire principale / secondaire
+    Priority: Normal
+    StartDate: '2023-05-10'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: cable micro usb
+    Description: amazon
+    Priority: Normal
+    StartDate: '2023-05-10'
     EndDate: '-'
     Check: 0
     Documents: []
