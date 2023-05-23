@@ -20,7 +20,7 @@ Children:
           Priority: Normal
           StartDate: '2023-05-04'
           EndDate: '-'
-          Check: 0
+          Check: 1
           Documents: []
       - Name: ajouter les Mcodes manquants
         Children:
@@ -49,7 +49,7 @@ Children:
           Priority: Normal
           StartDate: '2023-05-10'
           EndDate: '-'
-          Check: 0
+          Check: 1
           Documents: []
     - Name: Supervision
       Children:
@@ -139,7 +139,7 @@ Children:
           Priority: Normal
           StartDate: '2023-04-20'
           EndDate: '-'
-          Check: 0
+          Check: 1
           Documents: []
         - Name: Supprimer fichier de liste job
           Description: "Quand on supprime un item du dossier manuellement, on devrait\
@@ -154,7 +154,7 @@ Children:
           Priority: Normal
           StartDate: '2023-04-20'
           EndDate: '-'
-          Check: 0
+          Check: 1
           Documents: []
         - Name: Parfois besoin de redemarrer PC a cause driver 4 modbus
           Description: "le signal semble plus faible, je ne sais pas ce qui cause\
@@ -167,11 +167,11 @@ Children:
           Check: 0
           Documents: []
         - Name: outil pour gerer les log files
-          Description: ''
+          Description: voir le main de ma branche, semble bien
           Priority: Normal
           StartDate: '2023-04-28'
           EndDate: '-'
-          Check: 0
+          Check: 1
           Documents: []
         - Name: "Continuer d'impl\xE9menter M160 et M161"
           Description: Boulot sur CNCServer, InputServr, InputClient,, mainClient,
@@ -179,7 +179,7 @@ Children:
           Priority: Normal
           StartDate: '2023-05-04'
           EndDate: '-'
-          Check: 0
+          Check: 1
           Documents: []
         - Name: Gerer si echec probe
           Description: "Si pendant probe n\xB01 rien n'est d\xE9tect\xE9, appeler\
@@ -196,7 +196,7 @@ Children:
           Priority: Normal
           StartDate: '2023-05-03'
           EndDate: '-'
-          Check: 0
+          Check: 1
           Documents: []
         - Name: Tester gestion echec probe
           Description: 'il y a eu bcp de modifs!!!
@@ -206,6 +206,90 @@ Children:
             IHM BE pas a jour, le reste normalement c''est bon'
           Priority: Normal
           StartDate: '2023-05-05'
+          EndDate: '-'
+          Check: 1
+          Documents: []
+        - Name: Corrections Y et Z, spec
+          Description: "A mettre en route \xE0 la mise en puissance apr\xE8s un d\xE9\
+            marrage de la CN, en demandant un G59 G90 X0 Y15 Z230 par exemple ?\n\
+            Ou simplement un mouvement ultra court comme G91 X-0.001 Y-0.001 Z-0.001"
+          Priority: Normal
+          StartDate: '2023-05-11'
+          EndDate: '-'
+          Check: 1
+          Documents: []
+        - Name: mettre ma branche au propre
+          Description: 'et merger sur master
+
+
+            mettre code machine sur branche prod ?'
+          Priority: Normal
+          StartDate: '2023-05-12'
+          EndDate: '-'
+          Check: 0
+          Documents: []
+        - Name: corrections Y et Z
+          Description: "Possibilit\xE9 de r\xE9gler le temps de mont\xE9e vers la\
+            \ correction d\xE9sir\xE9e.\n\n2 solutions :\n- revoir l'int\xE9gration\
+            \ de AxisCompensation.py sans \xE9tager la correction et r\xE9gler l'acc\xE9\
+            l\xE9ration dans le param\xE8tre\n- laisser tel quel, mais il faut une\
+            \ solution pour executer un mouvement au d\xE9marrage de la machine et\
+            \ seulement apr\xE8s, lancer le thread AxisCompensation"
+          Priority: Normal
+          StartDate: '2023-05-12'
+          EndDate: '-'
+          Check: 1
+          Documents: []
+        - Name: Reactualiser prises pince
+          Description: "Maintenant qu'il y'a une correction\nref 076115: Y 28\u2192\
+            19 | Z 18\u21924\n\nPROBLEME : FAUT IL REFAIRE L'ORIGINE DE LA PINCE ?\n\
+            si j'applique ce d\xE9calage a d'autre profil, je doit changer les but\xE9\
+            es logicielles...\n\nrefaire origines"
+          Priority: Normal
+          StartDate: '2023-05-16'
+          EndDate: '-'
+          Check: 0
+          Documents: []
+        - Name: "Refaire calibration Z quand verin Z1 sera mont\xE9"
+          Description: "actuellement 6 mm de d\xE9faut au niveau de l'\xE9tau central\
+            \ (piece qui a servi a calibrer \xE9tait tordue)"
+          Priority: Normal
+          StartDate: '2023-05-17'
+          EndDate: '-'
+          Check: 0
+          Documents: []
+        - Name: Probleme calibration y et z
+          Description: "Au d\xE9marrage de la CN il n'y a aucune bonne solution, meme\
+            \ en faisant un micro mouvement, la pince commence par rattraper son d\xE9\
+            faut avant de faire le mouvement.\nVoir avec syntec pour prendre en compte\
+            \ la valeur dans le registre 902 et 903 d\xE8s le d\xE9marrage de la machine\
+            \ dans la position des axes"
+          Priority: Normal
+          StartDate: '2023-05-17'
+          EndDate: '-'
+          Check: 0
+          Documents: []
+        - Name: Regarder pour mettre tracebacks dans le log file
+          Description: 'Je ne sais pas si c''est possible
+
+
+            voir avec journalctl
+
+
+            ou dans notre AxusLogger, venir chercherle raise de l''error et son traceback
+            (je ne sais pas si c''est possible)
+
+
+            OK, A METTRE EN PLACE SUR LA MACHINE'
+          Priority: Normal
+          StartDate: '2023-05-17'
+          EndDate: '-'
+          Check: 0
+          Documents: []
+        - Name: Mettre en place axis compensation lors de l'activation d'un M code
+          Description: ''
+          Priority: Normal
+          StartDate: '2023-05-22'
           EndDate: '-'
           Check: 0
           Documents: []
@@ -296,14 +380,14 @@ Children:
         Priority: Normal
         StartDate: '2023-04-20'
         EndDate: '-'
-        Check: 0
+        Check: 1
         Documents: []
       - Name: carte 11 a changer ?
         Description: ''
         Priority: Normal
         StartDate: '2023-04-27'
         EndDate: '-'
-        Check: 0
+        Check: 1
         Documents: []
       - Name: Tarauder boites
         Description: '6cartes M4
@@ -313,6 +397,36 @@ Children:
         StartDate: '2023-05-09'
         EndDate: '-'
         Check: 1
+        Documents: []
+      - Name: Imprimer boitier 6 cartes
+        Description: ''
+        Priority: Normal
+        StartDate: '2023-05-16'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: Imprimer boitier 7 cartes
+        Description: ''
+        Priority: Normal
+        StartDate: '2023-05-16'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: Essayer d'utiliser autre librairie que SoftwareSerial
+        Description: "AltSoftSerial par exemple ?\nPour avoir des donn\xE9es dans\
+          \ les 2 sens\nTenter de param\xE9trer en 8 bits de donn\xE9es 2 bits de\
+          \ stop\nA priori pas possible..."
+        Priority: Normal
+        StartDate: '2023-05-17'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: Imprimer boitier 4 cartes
+        Description: ''
+        Priority: Normal
+        StartDate: '2023-05-17'
+        EndDate: '-'
+        Check: 0
         Documents: []
     - Name: Post pro
       Children:
@@ -382,7 +496,7 @@ Children:
         Priority: Normal
         StartDate: '2023-04-25'
         EndDate: '-'
-        Check: 0
+        Check: 1
         Documents: []
       - Name: Attention relache etau central
         Description: "Lors d'une d\xE9coupe avec l'\xE9tau central non plaqu\xE9,\
@@ -411,15 +525,22 @@ Children:
         EndDate: '-'
         Check: 1
         Documents: []
+      - Name: recuperer OCRes sur machine pour mettre a jour
+        Description: ''
+        Priority: Normal
+        StartDate: '2023-05-15'
+        EndDate: '-'
+        Check: 1
+        Documents: []
+      - Name: developper solution initialisation machine pour compensation
+        Description: Voir mon bloc note
+        Priority: Normal
+        StartDate: '2023-05-22'
+        EndDate: '-'
+        Check: 0
+        Documents: []
   - Name: Usinage
     Children:
-    - Name: Decoupe Etau central
-      Check: 0
-      Description: Pour eviter collision avec verin
-      Priority: Normal
-      StartDate: '2023-02-28'
-      EndDate: '2023-03-10'
-      Documents: []
     - Name: Rallonge etau central
       Check: 0
       Description: Pour avoir un bon support d'usinage
@@ -461,7 +582,7 @@ Children:
       Priority: Normal
       StartDate: '2023-04-26'
       EndDate: '-'
-      Check: 0
+      Check: 1
       Documents: []
     - Name: Allonger cable SRI ?
       Description: Pour pouvoir avoir du mou sur la prise de la CN
@@ -471,10 +592,9 @@ Children:
       Check: 0
       Documents: []
     - Name: mettre 2eme capteur sur out conv chute
-      Description: 'a ne pas cabler dans la boite, permettra de changer facilement
-        en cas de capteur HS
-
-        Ramener support capteur, capteur,  preparer dymo'
+      Description: "a ne pas cabler dans la boite, permettra de changer facilement\
+        \ en cas de capteur HS\nRamener support capteur, capteur,  preparer dymo\n\
+        Ou prendre celui du v\xE9rin Z de l'\xE9tau d'entr\xE9e ?"
       Priority: Normal
       StartDate: '2023-05-10'
       EndDate: '-'
@@ -498,6 +618,13 @@ Children:
     Description: ''
     Priority: Normal
     StartDate: '2023-05-10'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: faire plier tole sylvain
+    Description: "90\xB0"
+    Priority: Normal
+    StartDate: '2023-05-11'
     EndDate: '-'
     Check: 1
     Documents: []
@@ -533,6 +660,47 @@ Children:
         EndDate: '-'
         Check: 1
         Documents: []
+      - Name: retirer copeau du VFD
+        Description: Armoire principale, platine du haut, FRECON le plus a droite
+        Priority: Normal
+        StartDate: '2023-05-12'
+        EndDate: '-'
+        Check: 1
+        Documents: []
+      - Name: Faire tarauder les plats sur plus long
+        Description: (fixation platines)
+        Priority: Normal
+        StartDate: '2023-05-12'
+        EndDate: '-'
+        Check: 1
+        Documents: []
+      - Name: "Envoyer un 0-10V vers les VFD pilot\xE9 par le joystick"
+        Description: "Regarder si on peut envoyer de -10V \xE0 +10V pour g\xE9rer\
+          \ le sens de rotation\n\nMegmeet OK\nFrecon NON, mais on peut envoyer 0-10V\
+          \ et remapper pour g\xE9rer la fr\xE9quence derriere. Voir page 86 du manuel\
+          \ joint (pourrait fonctionner, mais qu'en est il du megmeet ?)"
+        Priority: Normal
+        StartDate: '2023-05-18'
+        EndDate: '-'
+        Check: 0
+        Documents:
+        - /home/mc1/Git/documentations/docs/Drivers/FR150-Series-User-manual-EN-V1.2.pdf
+      - Name: "Mettre en place r\xE9seau modbus"
+        Description: "Sur armoire secondaire, pour tester de faire fonctionner tous\
+          \ les VFD sur le m\xEAme bus"
+        Priority: Normal
+        StartDate: '2023-05-18'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: poser question aux chinois
+        Description: pourquoi quand j'ai un 0-10V externe sur VFD Frecon, ma tension
+          se transforme en 0.6 - 3.5V ?
+        Priority: Normal
+        StartDate: '2023-05-18'
+        EndDate: '-'
+        Check: 0
+        Documents: []
   - Name: Programmation
     Children:
     - Name: Demander a charles integration joystick
@@ -541,6 +709,52 @@ Children:
       StartDate: '2023-04-20'
       EndDate: '-'
       Check: 1
+      Documents: []
+  - Name: Panneau de commande
+    Children:
+    - Name: "Faire une d\xE9finition des 2 joysticks pour pr\xE9senter \xE0 faure"
+      Description: "photos, explications, cas d'exemple\n\n2 p\xE9dales: gauche :\
+        \ plaqueur de gauche\ndroite : plaqueurs de gauche et de droite\nTant qu'il\
+        \ reste appuy\xE9, le v\xE9rin est pilot\xE9, quand il relache \xE7a garde\
+        \ la position"
+      Priority: Normal
+      StartDate: '2023-05-17'
+      EndDate: '-'
+      Check: 1
+      Documents: []
+    - Name: Gestion diabolos scie
+      Description: impulsionnel ? manuel ? les 2 ?
+      Priority: Normal
+      StartDate: '2023-05-22'
+      EndDate: '-'
+      Check: 0
+      Documents: []
+    - Name: "But\xE9e immaterielle"
+      Description: Fait tampon ?
+      Priority: Normal
+      StartDate: '2023-05-23'
+      EndDate: '-'
+      Check: 0
+      Documents: []
+    - Name: "Gestion manuelle de la but\xE9e mobile ?"
+      Description: 'Positionnement X ?
+
+        Sortie et entree plaqueurs ?'
+      Priority: Normal
+      StartDate: '2023-05-23'
+      EndDate: '-'
+      Check: 0
+      Documents: []
+    - Name: "Position op\xE9rateur"
+      Description: 'Assis ?
+
+        Debout ?
+
+        Assis-debout ?'
+      Priority: Normal
+      StartDate: '2023-05-23'
+      EndDate: '-'
+      Check: 0
       Documents: []
 - Name: test
   Children:
@@ -915,14 +1129,14 @@ Children:
       \ de temps de fabrication et optimisation/Rapport Stage ing\xE9nieur m\xE9catronique.pdf"
 - Name: Commandes
   Children:
-  - Name: HUB RS485
+  - Name: HUB RS485 AliExpress
     Description: "Quantit\xE9 10 ?"
     Priority: Normal
     StartDate: '2023-04-25'
     EndDate: '-'
     Check: 0
     Documents: []
-  - Name: Cables M3 500mm
+  - Name: Cables M3 500mm syntec
     Description: "Quantit\xE9 10 ?"
     Priority: Normal
     StartDate: '2023-04-25'
@@ -943,8 +1157,12 @@ Children:
     EndDate: '-'
     Check: 0
     Documents: []
-  - Name: voyants de differentes couleurs aupres jennifer
-    Description: diametre 22 comme BP
+  - Name: voyants de differentes couleurs aupres jennifer ou AliExpress
+    Description: '<a href="https://fr.aliexpress.com/item/1005001506142747.html?spm=a2g0o.productlist.main.15.715330958vC8CC&algo_pvid=b9423ce9-47eb-4cf7-8e31-78e87fa66d2c&algo_exp_id=b9423ce9-47eb-4cf7-8e31-78e87fa66d2c-7&pdp_npi=3%40dis%21EUR%211.35%210.49%21%21%21%21%21%402100ba4716826789126472420d074c%2112000016387348970%21sea%21FR%210&curPageLogUid=4tOXp5FMQBcl">lien
+      ali vers produit</a>
+
+
+      diametre 22 comme BP'
     Priority: Normal
     StartDate: '2023-04-28'
     EndDate: '-'
@@ -952,18 +1170,19 @@ Children:
     Documents: []
   - Name: fusibles pour borniers
     Description: "<a href=\"https://fr.rs-online.com/web/p/fusibles-cartouches/8657382\"\
-      >https://fr.rs-online.com/web/p/fusibles-cartouches/8657382</a>\n\na tester\
-      \ voir ce que \xE7a donne sur du 24V continu.\n\nen tout cas, les fusibles possibles\
-      \ sont G 5x20, 5x25, 5x30"
+      >https://fr.rs-online.com/web/p/fusibles-cartouches/8657382</a>\n<br>\na tester\
+      \ voir ce que \xE7a donne sur du 24V continu.\n<br>\nen tout cas, les fusibles\
+      \ possibles sont G 5x20, 5x25, 5x30\n<br>\n<br>\nregarder fusibles en stock"
     Priority: Normal
     StartDate: '2023-04-28'
     EndDate: '-'
     Check: 0
     Documents: []
-  - Name: bouton tournant 3 positions retour au centre automatique
-    Description: "voir avec charles, pourquoi 3 positions ? il me semble qu'une position\
-      \ \xE9tait pour faire revenir le deck vers les diabolos post sciage, mais on\
-      \ est jamais sens\xE9 all\xE9 en arri\xE8re"
+  - Name: bouton tournant 3 positions retour au centre automatique AliExpress
+    Description: "<a href=\"https://fr.aliexpress.com/item/1005004421609452.html?spm=a2g0o.productlist.main.37.6ad63c22ZJ77nL&algo_pvid=b8ad1530-653d-4e27-aa04-ac93e8cadec9&algo_exp_id=b8ad1530-653d-4e27-aa04-ac93e8cadec9-18&pdp_npi=3%40dis%21EUR%210.69%210.65%21%21%21%21%21%40214528be16836407410665959d076c%2112000029128968547%21sea%21FR%210&curPageLogUid=V8rsyteBRTdH&gatewayAdapt=glo2fra\"\
+      >lien aliexpress vers le produit</a>\n<br>\nvoir avec charles, pourquoi 3 positions\
+      \ ? il me semble qu'une position \xE9tait pour faire revenir le deck vers les\
+      \ diabolos post sciage, mais on est jamais sens\xE9 all\xE9 en arri\xE8re"
     Priority: Normal
     StartDate: '2023-04-28'
     EndDate: '-'
@@ -1011,29 +1230,25 @@ Children:
     EndDate: '-'
     Check: 1
     Documents: []
-  - Name: goulotte 60x60
+  - Name: goulotte 60x60 technic achat
     Description: 2 ou 3m ?
     Priority: Normal
     StartDate: '2023-05-09'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
-  - Name: disjoncteur 10A
+  - Name: disjoncteur 10A technic achat
     Description: "qt\xE9 5"
     Priority: Normal
     StartDate: '2023-05-10'
     EndDate: '-'
-    Check: 0
-    Documents: []
-  - Name: disjoncteur 2A
-    Description: "qt\xE9 2"
-    Priority: Normal
-    StartDate: '2023-05-10'
-    EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: cable 5G6 ?
-    Description: liaison armoire principale / secondaire Faure
+    Description: 'liaison armoire principale / secondaire Faure
+
+
+      moteur scie'
     Priority: Normal
     StartDate: '2023-05-10'
     EndDate: '-'
@@ -1044,14 +1259,14 @@ Children:
     Priority: Normal
     StartDate: '2023-05-10'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
-  - Name: goulotte 25x25
+  - Name: goulotte 25x25 technic achat
     Description: 1 ou 2 m ?
     Priority: Normal
     StartDate: '2023-05-10'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: Battery box syntec
     Description: "qt\xE9 3 ou 4"
@@ -1071,6 +1286,51 @@ Children:
     Description: "Qt\xE9 1 ou 2\nhttps://fr.rs-online.com/web/p/relais-de-securite/7579291"
     Priority: Normal
     StartDate: '2023-05-10'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: Gaine fendue technic achat
+    Description: "diam 32\nQt\xE9 5m"
+    Priority: Normal
+    StartDate: '2023-05-15'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: Capteur fin de course technic achat
+    Description: "qt\xE9 8"
+    Priority: Normal
+    StartDate: '2023-05-15'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: Arduino nano every
+    Description: "Qt\xE9 ?\nref RS: 1927586\nref Gotronic: 36478"
+    Priority: Normal
+    StartDate: '2023-05-16'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Pin header 15x1 2.54
+    Description: "<a href=\"https://www.amazon.fr/Connecteur-Femelle-Broches-en-t%C3%AAtes-Femelles/dp/B0BB6SS1D2/ref=sr_1_1?__mk_fr_FR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=1OIYDETS56I5I&keywords=connecteur+FE10+2.54mm&qid=1684258337&sprefix=connecteur+fe10+2.54mm%2Caps%2C98&sr=8-1\"\
+      >lien amazon</a>\n<br>\n\nQt\xE9 ?"
+    Priority: Normal
+    StartDate: '2023-05-16'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: petite ventilation technic achat
+    Description: 'pour armoire secondaire
+
+      et eventuelles armoires berges ?'
+    Priority: Normal
+    StartDate: '2023-05-17'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: bornes doubles ali express
+    Description: ref MBKKB2.5
+    Priority: Normal
+    StartDate: '2023-05-17'
     EndDate: '-'
     Check: 0
     Documents: []
