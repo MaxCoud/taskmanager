@@ -222,11 +222,11 @@ Children:
           Description: 'et merger sur master
 
 
-            mettre code machine sur branche prod ?'
+            mettre code machine sur branche prod'
           Priority: Normal
           StartDate: '2023-05-12'
           EndDate: '-'
-          Check: 0
+          Check: 1
           Documents: []
         - Name: corrections Y et Z
           Description: "Possibilit\xE9 de r\xE9gler le temps de mont\xE9e vers la\
@@ -267,13 +267,10 @@ Children:
           Priority: Normal
           StartDate: '2023-05-17'
           EndDate: '-'
-          Check: 0
+          Check: 1
           Documents: []
         - Name: Regarder pour mettre tracebacks dans le log file
-          Description: 'Je ne sais pas si c''est possible
-
-
-            voir avec journalctl
+          Description: 'voir avec journalctl
 
 
             ou dans notre AxusLogger, venir chercherle raise de l''error et son traceback
@@ -284,14 +281,14 @@ Children:
           Priority: Normal
           StartDate: '2023-05-17'
           EndDate: '-'
-          Check: 0
+          Check: 1
           Documents: []
         - Name: Mettre en place axis compensation lors de l'activation d'un M code
-          Description: ''
+          Description: OK, A METTRE EN ROUTE
           Priority: Normal
           StartDate: '2023-05-22'
           EndDate: '-'
-          Check: 0
+          Check: 1
           Documents: []
     - Name: Cartes d'axe
       Children:
@@ -403,7 +400,7 @@ Children:
         Priority: Normal
         StartDate: '2023-05-16'
         EndDate: '-'
-        Check: 0
+        Check: 1
         Documents: []
       - Name: Imprimer boitier 7 cartes
         Description: ''
@@ -425,6 +422,13 @@ Children:
         Description: ''
         Priority: Normal
         StartDate: '2023-05-17'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: Imprimer boitier 5 cartes
+        Description: "qt\xE9 2"
+        Priority: Normal
+        StartDate: '2023-05-25'
         EndDate: '-'
         Check: 0
         Documents: []
@@ -539,15 +543,21 @@ Children:
         EndDate: '-'
         Check: 0
         Documents: []
-  - Name: Usinage
-    Children:
-    - Name: Rallonge etau central
-      Check: 0
-      Description: Pour avoir un bon support d'usinage
-      Priority: Pressant
-      StartDate: '2023-02-28'
-      EndDate: '2023-03-10'
-      Documents: []
+      - Name: Essayer de faire une IHM avec Fenu btn de navigation
+        Description: gauche haut bas droite valider
+        Priority: Normal
+        StartDate: '2023-05-24'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: Essayer de faire qqch de mieux avec les alarmes
+        Description: "avoir de vraies alarmes perso, ne pas r\xE9\xE9crire une alarme\
+          \ existante..."
+        Priority: Normal
+        StartDate: '2023-05-25'
+        EndDate: '-'
+        Check: 0
+        Documents: []
   - Name: Cablage
     Children:
     - Name: Capteur verin Z etau pre usinage
@@ -628,6 +638,13 @@ Children:
     EndDate: '-'
     Check: 1
     Documents: []
+  - Name: "Ramener raccords pour v\xE9rin"
+    Description: "Pour installer les nouveaux \xE9taux"
+    Priority: Normal
+    StartDate: '2023-05-26'
+    EndDate: '-'
+    Check: 0
+    Documents: []
 - Name: Ligne Faure
   Children:
   - Name: Cablage
@@ -691,13 +708,27 @@ Children:
         Priority: Normal
         StartDate: '2023-05-18'
         EndDate: '-'
-        Check: 0
+        Check: 1
         Documents: []
       - Name: poser question aux chinois
-        Description: pourquoi quand j'ai un 0-10V externe sur VFD Frecon, ma tension
+        Description: 'pourquoi quand j''ai un 0-10V externe sur VFD Frecon, ma tension
           se transforme en 0.6 - 3.5V ?
+
+
+          Essayer avec alim de bureau avant de demander aux chinois'
         Priority: Normal
         StartDate: '2023-05-18'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: tester megmeet du bureau
+        Description: 'semble ne pas fonctionner normalement ?
+
+          affiche la tension sur le bus DC au lieu de la consigne
+
+          mais peut etre qu''il fonctionne quand meme'
+        Priority: Normal
+        StartDate: '2023-05-23'
         EndDate: '-'
         Check: 0
         Documents: []
@@ -746,13 +777,35 @@ Children:
       Check: 0
       Documents: []
     - Name: "Position op\xE9rateur"
-      Description: 'Assis ?
-
-        Debout ?
-
-        Assis-debout ?'
+      Description: FAURE VEUT ASSIS-DEBOUT
       Priority: Normal
       StartDate: '2023-05-23'
+      EndDate: '-'
+      Check: 0
+      Documents: []
+    - Name: "Mettre voyants destinations \xE0 droite du panneau"
+      Description: ''
+      Priority: Normal
+      StartDate: '2023-05-23'
+      EndDate: '-'
+      Check: 1
+      Documents: []
+    - Name: Joystick devis a demander
+      Description: 'Can you please do a quotation with:
+
+        1x OMH60A-485MSL2M2-24
+
+        1x OMH60A-USBSL2M2-5
+
+        1x OMH60A-485MSL4-24
+
+        1x OMH60A-USBSL4-5
+
+        1x OMH60A-485MSL5-24
+
+        1x OMH60A-USBSL5-5'
+      Priority: Normal
+      StartDate: '2023-05-24'
       EndDate: '-'
       Check: 0
       Documents: []
@@ -1103,6 +1156,14 @@ Children:
     EndDate: '-'
     Check: 1
     Documents: []
+  - Name: "R\xE9gler erreur creation section"
+    Description: "Une erreur se produit si on cr\xE9e une section dans une autre section\
+      \ qui a d\xE9j\xE0 des t\xE2ches"
+    Priority: Normal
+    StartDate: '2023-05-26'
+    EndDate: '-'
+    Check: 0
+    Documents: []
 - Name: Cartes d'axe
   Children:
   - Name: CAO Elec
@@ -1115,6 +1176,21 @@ Children:
       Check: 0
       Documents:
       - /home/mc1/Git/plc_axis_board/plc_axis_board/TODO
+    - Name: voir pour ameliorer 0-10V
+      Description: peut etre que notre AOP est pas assez performant et sa tension
+        chute devant le VFD Frecon
+      Priority: Normal
+      StartDate: '2023-05-24'
+      EndDate: '-'
+      Check: 0
+      Documents: []
+    - Name: faire manuel ?
+      Description: ''
+      Priority: Normal
+      StartDate: '2023-05-25'
+      EndDate: '-'
+      Check: 0
+      Documents: []
   - Name: Fabrication
 - Name: Stagiaires
   Children:
@@ -1134,7 +1210,7 @@ Children:
     Priority: Normal
     StartDate: '2023-04-25'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: Cables M3 500mm syntec
     Description: "Quantit\xE9 10 ?"
@@ -1157,7 +1233,7 @@ Children:
     EndDate: '-'
     Check: 0
     Documents: []
-  - Name: voyants de differentes couleurs aupres jennifer ou AliExpress
+  - Name: voyants de differentes couleurs aupres jennifer
     Description: '<a href="https://fr.aliexpress.com/item/1005001506142747.html?spm=a2g0o.productlist.main.15.715330958vC8CC&algo_pvid=b9423ce9-47eb-4cf7-8e31-78e87fa66d2c&algo_exp_id=b9423ce9-47eb-4cf7-8e31-78e87fa66d2c-7&pdp_npi=3%40dis%21EUR%211.35%210.49%21%21%21%21%21%402100ba4716826789126472420d074c%2112000016387348970%21sea%21FR%210&curPageLogUid=4tOXp5FMQBcl">lien
       ali vers produit</a>
 
@@ -1178,7 +1254,7 @@ Children:
     EndDate: '-'
     Check: 0
     Documents: []
-  - Name: bouton tournant 3 positions retour au centre automatique AliExpress
+  - Name: bouton tournant 3 positions retour au centre automatique jennifer
     Description: "<a href=\"https://fr.aliexpress.com/item/1005004421609452.html?spm=a2g0o.productlist.main.37.6ad63c22ZJ77nL&algo_pvid=b8ad1530-653d-4e27-aa04-ac93e8cadec9&algo_exp_id=b8ad1530-653d-4e27-aa04-ac93e8cadec9-18&pdp_npi=3%40dis%21EUR%210.69%210.65%21%21%21%21%21%40214528be16836407410665959d076c%2112000029128968547%21sea%21FR%210&curPageLogUid=V8rsyteBRTdH&gatewayAdapt=glo2fra\"\
       >lien aliexpress vers le produit</a>\n<br>\nvoir avec charles, pourquoi 3 positions\
       \ ? il me semble qu'une position \xE9tait pour faire revenir le deck vers les\
@@ -1331,6 +1407,27 @@ Children:
     Description: ref MBKKB2.5
     Priority: Normal
     StartDate: '2023-05-17'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: Cable 3G0.5 ?
+    Description: ''
+    Priority: Normal
+    StartDate: '2023-05-23'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: barette de jonction technic achat
+    Description: "qt\xE9 10"
+    Priority: Normal
+    StartDate: '2023-05-25'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Parler a sylvain de remise technic achat en fonction chiffre d'affaire
+    Description: <a href="https://document.technique-achat.com/TAC/INFO/Grille_de_remise_client_2019.pdf">document</a>
+    Priority: Normal
+    StartDate: '2023-05-26'
     EndDate: '-'
     Check: 0
     Documents: []
