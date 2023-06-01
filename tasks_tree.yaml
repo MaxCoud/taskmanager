@@ -730,6 +730,27 @@ Children:
         Priority: Normal
         StartDate: '2023-05-23'
         EndDate: '-'
+        Check: 1
+        Documents: []
+      - Name: prevoir fix prises plat laterale
+        Description: ''
+        Priority: Normal
+        StartDate: '2023-05-31'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: faire support switch ethernet
+        Description: ''
+        Priority: Normal
+        StartDate: '2023-06-01'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: modif dimension driver
+        Description: trous de fixation voir platine
+        Priority: Normal
+        StartDate: '2023-06-01'
+        EndDate: '-'
         Check: 0
         Documents: []
   - Name: Programmation
@@ -807,7 +828,7 @@ Children:
       Priority: Normal
       StartDate: '2023-05-24'
       EndDate: '-'
-      Check: 0
+      Check: 1
       Documents: []
 - Name: test
   Children:
@@ -1219,7 +1240,7 @@ Children:
     EndDate: '-'
     Check: 0
     Documents: []
-  - Name: Moteurs syntec
+  - Name: Moteurs syntec (voir ref mais 0.75kW)
     Description: "Quantit\xE9 2 pour Faure"
     Priority: Normal
     StartDate: '2023-04-25'
@@ -1242,7 +1263,7 @@ Children:
     Priority: Normal
     StartDate: '2023-04-28'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: fusibles pour borniers
     Description: "<a href=\"https://fr.rs-online.com/web/p/fusibles-cartouches/8657382\"\
@@ -1262,7 +1283,7 @@ Children:
     Priority: Normal
     StartDate: '2023-04-28'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: Boite derivation technic achat
     Description: 1x 125x125 <a href="https://www.technic-achat.com/coffret-electrique-ip66-imo-c2x33597924">https://www.technic-achat.com/coffret-electrique-ip66-imo-c2x33597924</a>
@@ -1345,14 +1366,14 @@ Children:
     Check: 1
     Documents: []
   - Name: Battery box syntec
-    Description: "qt\xE9 3 ou 4"
+    Description: "qt\xE9 4"
     Priority: Normal
     StartDate: '2023-05-10'
     EndDate: '-'
     Check: 0
     Documents: []
   - Name: Automate syntec
-    Description: "Qt\xE9 1 ou 2"
+    Description: "Qt\xE9 2"
     Priority: Normal
     StartDate: '2023-05-10'
     EndDate: '-'
@@ -1428,6 +1449,48 @@ Children:
     Description: <a href="https://document.technique-achat.com/TAC/INFO/Grille_de_remise_client_2019.pdf">document</a>
     Priority: Normal
     StartDate: '2023-05-26'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: gaine dymo 6mm
+    Description: "qt\xE9 10 ou 15"
+    Priority: Normal
+    StartDate: '2023-05-30'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: gaine dymo 9mm
+    Description: "qt\xE9 5 ou 10"
+    Priority: Normal
+    StartDate: '2023-05-30'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: carte Rs485 8 ports
+    Description: voir mail charles
+    Priority: Normal
+    StartDate: '2023-05-30'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: "barrettes de jonction 6\xB2"
+    Description: ''
+    Priority: Normal
+    StartDate: '2023-05-30'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Moteur brosseuse
+    Description: "Qt\xE9 2, ref S08-AM11-40-F3"
+    Priority: Normal
+    StartDate: '2023-06-01'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: syntec voir mail
+    Description: brouillon
+    Priority: Normal
+    StartDate: '2023-06-01'
     EndDate: '-'
     Check: 0
     Documents: []
