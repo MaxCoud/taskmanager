@@ -407,7 +407,7 @@ Children:
         Priority: Normal
         StartDate: '2023-05-16'
         EndDate: '-'
-        Check: 0
+        Check: 1
         Documents: []
       - Name: Essayer d'utiliser autre librairie que SoftwareSerial
         Description: "AltSoftSerial par exemple ?\nPour avoir des donn\xE9es dans\
@@ -556,7 +556,7 @@ Children:
         Priority: Normal
         StartDate: '2023-05-25'
         EndDate: '-'
-        Check: 0
+        Check: 1
         Documents: []
   - Name: Cablage
     Children:
@@ -746,13 +746,6 @@ Children:
         EndDate: '-'
         Check: 0
         Documents: []
-      - Name: modif dimension driver
-        Description: trous de fixation voir platine
-        Priority: Normal
-        StartDate: '2023-06-01'
-        EndDate: '-'
-        Check: 0
-        Documents: []
   - Name: Programmation
     Children:
     - Name: Demander a charles integration joystick
@@ -802,7 +795,7 @@ Children:
       Priority: Normal
       StartDate: '2023-05-23'
       EndDate: '-'
-      Check: 0
+      Check: 1
       Documents: []
     - Name: "Mettre voyants destinations \xE0 droite du panneau"
       Description: ''
@@ -1413,7 +1406,7 @@ Children:
     Priority: Normal
     StartDate: '2023-05-16'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: petite ventilation technic achat
     Description: 'pour armoire secondaire
@@ -1491,6 +1484,20 @@ Children:
     Description: brouillon
     Priority: Normal
     StartDate: '2023-06-01'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: joystick
+    Description: "qt\xE9 2"
+    Priority: Normal
+    StartDate: '2023-06-02'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: "p\xE9dales"
+    Description: "qt\xE9 2"
+    Priority: Normal
+    StartDate: '2023-06-02'
     EndDate: '-'
     Check: 0
     Documents: []

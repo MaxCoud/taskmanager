@@ -7,6 +7,7 @@ import subprocess
 
 from pathlib import Path
 from add_window import AddTaskDialog
+from param_window import ParamDialog
 from project_window import ProjectsDialog
 
 import yaml
@@ -25,6 +26,8 @@ class MainWindow(QMainWindow):
     modified_task = Signal(object)
 
     modified_project = Signal(object)
+
+    modified_config = Signal()
 
     get_new_project = Signal()
     new_project = Signal(object)
@@ -79,7 +82,6 @@ class MainWindow(QMainWindow):
         self.priorityAscending = None
         self.startDateAscending = None
         self.endDateAscending = None
-        self.waitForNotifications = 1800000  # msec  30min = 30*60*1000 = 1.800.000
         self.ts = time.time()  # store timestamp
 
         self.task_tree = []
@@ -136,6 +138,18 @@ class MainWindow(QMainWindow):
                 yaml.dump(new_task_tree, f, sort_keys=False)
                 self.task_tree = new_task_tree
 
+        if os.path.exists(f'{self.d}{self.slash}.config'):
+            with open(f'{self.d}{self.slash}.config', 'r') as f:
+                self.config = yaml.load(f, Loader=yaml.FullLoader)
+        else:
+            with open(f'{self.d}{self.slash}.config', 'w') as f:
+                new_param_file = {"notif": True,
+                                  "period": "30",
+                                  "unit": "minutes"
+                                  }
+                yaml.dump(new_param_file, f, sort_keys=False)
+                self.config = new_param_file
+
         # try:
         #     with open(f'{d}{self.slash}tasks.yaml', 'r') as f:
         #         self.tasksList = yaml.load(f, Loader=yaml.FullLoader)
@@ -144,6 +158,7 @@ class MainWindow(QMainWindow):
         #         yaml.dump(None, f, sort_keys=False)
 
         self.addTaskDialog = AddTaskDialog(self)
+        self.paramDialog = ParamDialog(self)
 
         self.titleFontSize = 14
         self.subtitleFontSize = 11
@@ -153,13 +168,18 @@ class MainWindow(QMainWindow):
         menu = self.menuBar()
         file = menu.addMenu("Fichier")
         file.addAction("Quitter", lambda: sys.exit(0))
+
         taskMenu = menu.addMenu("Tâches")
         taskMenu.addAction("Ajouter une tâche ...", lambda: self.AddTaskBtnClicked(), QKeySequence("a"))
         taskMenu.addAction("Supprimer une tâche", lambda: self.DeleteTaskBtnClicked(), QKeySequence.Delete)
+
         projectMenu = menu.addMenu("Projets")
         projectMenu.addAction("Ajouter un projet", lambda: self.AddProjectButtonClicked(), QKeySequence("p"))
         projectMenu.addAction("Dérouler tous les projets", lambda: self.ExpandProjectTree(), QKeySequence(Qt.CTRL + Qt.ALT + Qt.Key_Plus))
         projectMenu.addAction("Réduire tous les projets", lambda: self.CollapseProjectTree(), QKeySequence(Qt.CTRL + Qt.ALT + Qt.Key_Minus))
+
+        optionMenu = menu.addMenu("Options")
+        optionMenu.addAction("Paramètres des notifications", lambda : self.OpenParamBtnClicked())
 
         layout = QGridLayout()
 
@@ -269,13 +289,15 @@ class MainWindow(QMainWindow):
         self.Update_changes()
         self.Update_tree()
 
+        self.waitForNotifications = 1800000  # msec  30min = 30*60*1000 = 1.800.000
+
         self.notifyTimer = QTimer(self)
         self.notifyTimer.timeout.connect(self.NotifyUser)
-        self.notifyTimer.start(self.waitForNotifications)
 
         self.new_task.connect(self.New_task)
         self.modify_task.connect(self.addTaskDialog.ModifyTask)
         self.modified_task.connect(self.ModifiedTask)
+        self.modified_config.connect(self.ModifiedConfig)
 
         self.show()
 
@@ -288,7 +310,10 @@ class MainWindow(QMainWindow):
 
         self.setWindowIcon(QIcon(f"{self.d}/task_manager_logo1.png"))
 
-        self.NotifyUser()
+        if self.config["notif"]:
+            self.notifyTimer.start(self.waitForNotifications)
+            self.ComputeNotificationPeriod()
+            self.NotifyUser()
 
     def keyPressEvent(self, e):
         pass
@@ -573,6 +598,9 @@ class MainWindow(QMainWindow):
 
         menu.exec_(self.tree_view.mapToGlobal(position))
 
+    def OpenParamBtnClicked(self):
+        self.paramDialog.show()
+
     def AddProjectButtonClicked(self):
         addProjectDialog = QInputDialog(self)
         addProjectDialog.setInputMode(QInputDialog.TextInput)
@@ -707,7 +735,7 @@ class MainWindow(QMainWindow):
 
 
     def Save_tree(self):
-        with open('tasks_tree.yaml', 'w') as f:
+        with open(f'{self.d}{self.slash}tasks_tree.yaml', 'w') as f:
             yaml.dump(self.task_tree, f, sort_keys=False)
 
     def Save(self):
@@ -1276,6 +1304,28 @@ class MainWindow(QMainWindow):
             msg.setDefaultButton(QMessageBox.Ok)
             msg.setButtonText(QMessageBox.Ok, "OK")
             msg.exec_()
+
+    def ModifiedConfig(self):
+        with open(f'{self.d}{self.slash}.config', 'w') as f:
+            yaml.dump(self.config, f, sort_keys=False)
+
+        if self.config["notif"]:
+            self.ComputeNotificationPeriod()
+
+    def ComputeNotificationPeriod(self):
+
+        self.notifyTimer.stop()
+
+        if self.config["notif"]:
+            time_factor = 24*3600*1000
+            if self.config["unit"] == "minutes":
+                time_factor = 60*1000
+            elif self.config["unit"] == "heures":
+                time_factor = 3600*1000
+
+            self.waitForNotifications = int(self.config["period"])*time_factor
+
+            self.notifyTimer.start(self.waitForNotifications)
 
     def NotifyUser(self):
 
