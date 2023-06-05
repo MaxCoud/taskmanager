@@ -1,9 +1,13 @@
 import os
 
-from PySide2.QtCore import Qt, QDateTime, QDate, QSettings
-from PySide2.QtGui import QFont, QTextOption
-from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QLabel, QPushButton, QCheckBox, QDateEdit, \
-    QDialog, QPlainTextEdit, QMessageBox, QComboBox, QFileDialog, QAction, QMenu
+# from PySide2.QtCore import Qt, QDateTime, QDate, QSettings
+from PySide6.QtCore import Qt, QDateTime, QDate, QSettings
+# from PySide2.QtGui import QFont, QTextOption
+from PySide6.QtGui import QFont, QTextOption, QAction
+# from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QLabel, QPushButton, QCheckBox, QDateEdit, \
+#     QDialog, QPlainTextEdit, QMessageBox, QComboBox, QFileDialog, QAction, QMenu
+from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QLabel, QPushButton, QCheckBox, QDateEdit, \
+    QDialog, QPlainTextEdit, QMessageBox, QComboBox, QFileDialog, QMenu
 
 from style import select_icon
 
@@ -170,7 +174,8 @@ class AddTaskDialog(QDialog):
 
             msg.setButtonText(QMessageBox.Cancel, "Annuler")
             msg.setButtonText(QMessageBox.Ok, "OK")
-            msg.exec_()
+            # msg.exec_()
+            msg.exec()
 
         else:
             self.nameTextEdit.setText("")
@@ -234,7 +239,8 @@ class AddTaskDialog(QDialog):
 
             msg.setButtonText(QMessageBox.Cancel, "Annuler")
             msg.setButtonText(QMessageBox.Ok, "OK")
-            msg.exec_()
+            # msg.exec_()
+            msg.exec()
 
         else:
             self.mainWin.new_task.emit(self.task)
@@ -351,6 +357,7 @@ class AddTaskDialog(QDialog):
         context_menu = self.create_document_context_menu(lbl)
 
         def show_context_menu(pos):
-            context_menu.exec_(lbl.mapToGlobal(pos))
+            # context_menu.exec_(lbl.mapToGlobal(pos))
+            context_menu.exec(lbl.mapToGlobal(pos))
 
         return show_context_menu

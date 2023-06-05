@@ -2,6 +2,8 @@ import os
 import sys
 import shutil
 import time
+import markdown
+
 from style import style, select_icon
 import subprocess
 
@@ -11,12 +13,19 @@ from param_window import ParamDialog
 from project_window import ProjectsDialog
 
 import yaml
-from PySide2.QtCore import Qt, Signal, QDateTime, QDate, QTimer, QModelIndex
-from PySide2.QtGui import QFont, QTextOption, QKeySequence, QStandardItem, QStandardItemModel, QIcon, QGuiApplication, \
-    QCursor, QPixmap, QPainter
-from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QApplication, QLabel, QPushButton, \
+# from PySide2.QtCore import Qt, Signal, QDateTime, QDate, QTimer, QModelIndex
+from PySide6.QtCore import Qt, Signal, QDateTime, QDate, QTimer, QModelIndex
+# from PySide2.QtGui import QFont, QTextOption, QKeySequence, QStandardItem, QStandardItemModel, QIcon, QGuiApplication, \
+#     QCursor, QPixmap, QPainter
+from PySide6.QtGui import QFont, QTextOption, QKeySequence, QStandardItem, QStandardItemModel, QIcon, QGuiApplication, \
+    QCursor, QPixmap, QPainter, QAction
+# from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QApplication, QLabel, QPushButton, \
+#     QCheckBox, QTreeWidget, QTreeWidgetItem, QDateEdit, QDialog, QVBoxLayout, QPlainTextEdit, QMessageBox, \
+#     QInputDialog, QComboBox, QTabWidget, QAction, QMainWindow, QMenu, QTreeView, QHeaderView, QDesktopWidget
+from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QApplication, QLabel, QPushButton, \
     QCheckBox, QTreeWidget, QTreeWidgetItem, QDateEdit, QDialog, QVBoxLayout, QPlainTextEdit, QMessageBox, \
-    QInputDialog, QComboBox, QTabWidget, QAction, QMainWindow, QMenu, QTreeView, QHeaderView, QDesktopWidget
+    QInputDialog, QComboBox, QTabWidget, QMainWindow, QMenu, QTreeView, QHeaderView
+from PySide6.QtWebEngineWidgets import QWebEngineView
 
 
 class MainWindow(QMainWindow):
@@ -67,7 +76,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Task Manager")
         # self.setFixedWidth(1118)
         # self.setFixedHeight(550)
-        self.setMinimumHeight(750)
+        # self.setMinimumHeight(750)
 
         self.tasksList = None
         self.projectList = []
@@ -145,7 +154,10 @@ class MainWindow(QMainWindow):
             with open(f'{self.d}{self.slash}.config', 'w') as f:
                 new_param_file = {"notif": True,
                                   "period": "30",
-                                  "unit": "minutes"
+                                  "unit": "minutes",
+                                  "gantt": True,
+                                  "no_end_date_format": "Appliquer une durée",
+                                  "no_end_date": '10'
                                   }
                 yaml.dump(new_param_file, f, sort_keys=False)
                 self.config = new_param_file
@@ -175,11 +187,11 @@ class MainWindow(QMainWindow):
 
         projectMenu = menu.addMenu("Projets")
         projectMenu.addAction("Ajouter un projet", lambda: self.AddProjectButtonClicked(), QKeySequence("p"))
-        projectMenu.addAction("Dérouler tous les projets", lambda: self.ExpandProjectTree(), QKeySequence(Qt.CTRL + Qt.ALT + Qt.Key_Plus))
-        projectMenu.addAction("Réduire tous les projets", lambda: self.CollapseProjectTree(), QKeySequence(Qt.CTRL + Qt.ALT + Qt.Key_Minus))
+        projectMenu.addAction("Dérouler tous les projets", lambda: self.ExpandProjectTree(), QKeySequence(Qt.CTRL | Qt.ALT | Qt.Key_Plus))
+        projectMenu.addAction("Réduire tous les projets", lambda: self.CollapseProjectTree(), QKeySequence(Qt.CTRL | Qt.ALT | Qt.Key_Minus))
 
         optionMenu = menu.addMenu("Options")
-        optionMenu.addAction("Paramètres des notifications", lambda : self.OpenParamBtnClicked())
+        optionMenu.addAction("Paramètres...", lambda : self.OpenParamBtnClicked())
 
         layout = QGridLayout()
 
@@ -190,7 +202,7 @@ class MainWindow(QMainWindow):
         self.tree_view.setMinimumWidth(300)
         # self.tree_view.clicked.connect(self.OnProjectTreeClicked)
         self.tree_view.pressed.connect(self.OnProjectTreeClicked)
-        layout.addWidget(self.tree_view, 0, 0, 3, 1)
+        layout.addWidget(self.tree_view, 0, 0, 4, 1)
 
         # create a model for tree view
         self.model = QStandardItemModel()
@@ -213,6 +225,7 @@ class MainWindow(QMainWindow):
         self.listTree.setHeaderLabels(["", "Nom", "Description", "Priorité", "Début", "Fin", "Documents"])
         self.listTree.setFont(QFont('AnyStyle', self.subtitleFontSize))
         self.listTree.setMinimumWidth(1256)
+        self.listTree.setMinimumHeight(550)
         self.listTree.setColumnWidth(0, 50)
         self.listTree.setColumnWidth(1, 200)
         self.listTree.setColumnWidth(2, 480)
@@ -250,6 +263,7 @@ class MainWindow(QMainWindow):
         self.finishedTasksTree.setHeaderLabels(["", "Nom", "Description", "Priorité", "Début", "Fin", "Documents"])
         self.finishedTasksTree.setFont(QFont('AnyStyle', self.subtitleFontSize))
         self.finishedTasksTree.setMinimumWidth(1256)
+        self.finishedTasksTree.setMinimumHeight(550)
         self.finishedTasksTree.setColumnWidth(0, 50)
         self.finishedTasksTree.setColumnWidth(1, 200)
         self.finishedTasksTree.setColumnWidth(2, 480)
@@ -280,6 +294,15 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.finishedWidget, "Terminées")
 
         layout.addWidget(self.tabs, 1, 1, 2, 1)
+
+        self.web_view = QWebEngineView(self)
+        self.web_view.setFixedHeight(0)
+        self.web_view.setVisible(False)
+        layout.addWidget(self.web_view, 3, 1)
+
+        if self.config["gantt"]:
+            self.web_view.setFixedHeight(250)
+            self.web_view.setVisible(True)
 
         main_window = QWidget()
         main_window.setLayout(layout)  # runningLayout
@@ -570,6 +593,70 @@ class MainWindow(QMainWindow):
 
         self.selectedProject = item
 
+    def Update_gantt(self):
+
+        if self.parent_list is not None:
+            project_name = self.parent_list[0]
+
+            gantt = f"""
+~~~mermaid
+gantt
+dateFormat  YYYY-MM-DD
+title       GANTT for {project_name} project
+excludes    weekends
+"""
+
+            for task in self.tasksList:
+                if task["Check"] == 0:
+                    status = "done"
+                else:
+                    status = "active"
+                if task["EndDate"] == "-":
+                    if self.config["no_end_date_format"] == "La fixer à aujourd'hui":
+                        end_date = QDateTime.currentDateTime().date().toString(Qt.ISODate)
+                    else:
+                        end_date = self.config["no_end_date"] + "d"
+                else:
+                    end_date = task["EndDate"]
+                gantt += f"{task['Name']}: {status}, crit, {task['StartDate']}, {end_date}\n"
+
+            gantt += "~~~"
+
+            print(gantt)
+
+
+# """
+# section A section
+# Completed task            :done,    des1, 2014-01-06,2014-01-08
+# Active task               :active,  des2, 2014-01-09, 3d
+# Future task               :         des3, after des2, 5d
+# Future task2              :         des4, after des3, 5d
+#
+# section Critical tasks
+# Completed task in the critical line :crit, done, 2014-01-06,24h
+# Implement parser and jison          :crit, done, after des1, 2d
+# Create tests for parser             :crit, active, 3d
+# Future task in critical line        :crit, 5d
+# Create tests for renderer           :2d
+# Add to mermaid                      :1d
+# Functionality added                 :milestone, 2014-01-25, 0d
+#
+# section Documentation
+# Describe gantt syntax               :active, a1, after des1, 3d
+# Add gantt diagram to demo page      :after a1  , 20h
+# Add another diagram to demo page    :doc1, after a1  , 48h
+#
+# section Last section
+# Describe gantt syntax               :after doc1, 3d
+# Add gantt diagram to demo page      :20h
+# Add another diagram to demo page    :48h
+# ~~~
+# """
+
+            gantt_html = markdown.markdown(gantt, extensions=['md_mermaid'])
+
+            self.web_view.setHtml(gantt_html)
+
     def Show_tree_context_menu(self, position):
 
         if time.time() - self.ts < 0.3:
@@ -596,7 +683,8 @@ class MainWindow(QMainWindow):
             menu = QMenu(self.tree_view)
             menu.addAction(add_project)
 
-        menu.exec_(self.tree_view.mapToGlobal(position))
+        # menu.exec_(self.tree_view.mapToGlobal(position))
+        menu.exec(self.tree_view.mapToGlobal(position))
 
     def OpenParamBtnClicked(self):
         self.paramDialog.show()
@@ -607,7 +695,8 @@ class MainWindow(QMainWindow):
         addProjectDialog.setWindowTitle('Entrer un projet global')
         addProjectDialog.setLabelText('Nom du projet :')
         addProjectDialog.setFont(QFont('AnyStyle', 9))
-        ok = addProjectDialog.exec_()
+        # ok = addProjectDialog.exec_()
+        ok = addProjectDialog.exec()
         text = addProjectDialog.textValue()
 
         if ok:
@@ -633,7 +722,8 @@ class MainWindow(QMainWindow):
                                 addSectionDialog.setWindowTitle('Entrer une section')
                                 addSectionDialog.setLabelText('Nom de la section :')
                                 addSectionDialog.setFont(QFont('AnyStyle', 9))
-                                ok = addSectionDialog.exec_()
+                                # ok = addSectionDialog.exec_()
+                                ok = addSectionDialog.exec()
                                 text = addSectionDialog.textValue()
 
                                 if ok:
@@ -665,7 +755,8 @@ class MainWindow(QMainWindow):
                                 lineEdit = modifySectionDialog.findChild(QLineEdit)
                                 lineEdit.setPlaceholderText(f'{child["Name"]}')
                                 modifySectionDialog.setFont(QFont('AnyStyle', 9))
-                                ok = modifySectionDialog.exec_()
+                                # ok = modifySectionDialog.exec_()
+                                ok = modifySectionDialog.exec()
                                 text = modifySectionDialog.textValue()
 
                                 if ok:
@@ -689,7 +780,8 @@ class MainWindow(QMainWindow):
 
         msg.setButtonText(QMessageBox.Cancel, "Annuler")
         msg.setButtonText(QMessageBox.Ok, "OK")
-        msg.exec_()
+        # msg.exec_()
+        msg.exec()
 
     def onDeleteSectionMsgBoxBtnClicked(self, button):
         if button.text() == 'OK':
@@ -941,6 +1033,7 @@ class MainWindow(QMainWindow):
                 else:
                     elmt.setCheckState(0, Qt.Unchecked)
 
+        self.Update_gantt()
         self.updating = False
 
     def LinkActivated(self, path):
@@ -970,7 +1063,8 @@ class MainWindow(QMainWindow):
             msg.setStandardButtons(QMessageBox.Ok)
             msg.setButtonText(QMessageBox.Ok, "OK")
             msg.setDefaultButton(QMessageBox.Ok)
-            msg.exec_()
+            # msg.exec_()
+            msg.exec()
 
     def finishedTasksTree_changed(self, item, col):
         try:
@@ -1013,12 +1107,12 @@ class MainWindow(QMainWindow):
                             task["Check"] = 1
                             break
 
-                # elif item.checkState(0) == Qt.Unchecked:
-                #     for task in self.tasksList:
-                #         if task["Name"] == self.listTree.itemWidget(item, 1).text() and \
-                #                 task["Description"] == self.listTree.itemWidget(item, 2).text():
-                #             task["Check"] = 0
-                #             break
+                    # elif item.checkState(0) == Qt.Unchecked:
+                    #     for task in self.tasksList:
+                    #         if task["Name"] == self.listTree.itemWidget(item, 1).text() and \
+                    #                 task["Description"] == self.listTree.itemWidget(item, 2).text():
+                    #             task["Check"] = 0
+                    #             break
 
                     # self.Save()
                     self.Save_tree()
@@ -1121,7 +1215,8 @@ class MainWindow(QMainWindow):
 
             msg.setButtonText(QMessageBox.Cancel, "Annuler")
             msg.setButtonText(QMessageBox.Ok, "OK")
-            msg.exec_()
+            # msg.exec_()
+            msg.exec()
         except:
             msg = QMessageBox()
             msg.setWindowTitle("Suppression d'une tâche")
@@ -1130,7 +1225,8 @@ class MainWindow(QMainWindow):
             msg.setStandardButtons(QMessageBox.Ok)
             msg.setDefaultButton(QMessageBox.Ok)
             msg.setButtonText(QMessageBox.Ok, "OK")
-            msg.exec_()
+            # msg.exec_()
+            msg.exec()
 
     def onDeleteMsgBoxBtnClicked(self, button):
         if button.text() == 'OK':
@@ -1239,7 +1335,8 @@ class MainWindow(QMainWindow):
             menu.addAction(add_task)
             menu.addAction(paste_action)
 
-        menu.exec_(self.listTree.mapToGlobal(position))
+        # menu.exec_(self.listTree.mapToGlobal(position))
+        menu.exec(self.listTree.mapToGlobal(position))
 
     def CopyTaskBtnClicked(self):
         current_tree = self.SelectedTree()
@@ -1280,16 +1377,17 @@ class MainWindow(QMainWindow):
 
         msg.setButtonText(QMessageBox.Cancel, "Annuler")
         msg.setButtonText(QMessageBox.Ok, "OK")
-        msg.exec_()
+        # msg.exec_()
+        msg.exec()
 
     # def onCutMsgBoxBtnClicked(self, button):
     #     if button.text() = 'OK':
     #         self.tasksList.remove(task_to_cut)
     #         self.Remove_task(task_to_cut)
 
-        # if button.text() == 'OK':
-        #     self.tasksList.remove(taskToDelete)
-        #     self.Remove_task(taskToDelete)
+    # if button.text() == 'OK':
+    #     self.tasksList.remove(taskToDelete)
+    #     self.Remove_task(taskToDelete)
 
 
     def PasteTaskBtnClicked(self):
@@ -1303,7 +1401,8 @@ class MainWindow(QMainWindow):
             msg.setStandardButtons(QMessageBox.Ok)
             msg.setDefaultButton(QMessageBox.Ok)
             msg.setButtonText(QMessageBox.Ok, "OK")
-            msg.exec_()
+            # msg.exec_()
+            msg.exec()
 
     def ModifiedConfig(self):
         with open(f'{self.d}{self.slash}.config', 'w') as f:
@@ -1311,6 +1410,19 @@ class MainWindow(QMainWindow):
 
         if self.config["notif"]:
             self.ComputeNotificationPeriod()
+
+        if self.config["gantt"] and not self.web_view.isVisible():
+            self.web_view.setFixedHeight(250)
+            self.web_view.setVisible(True)
+            # self.listTree.setMinimumHeight(550)
+            # self.finishedTasksTree.setMinimumHeight(550)
+            self.setGeometry(self.pos().x(), self.pos().y()-250/2, self.width(), self.height())
+        elif not self.config["gantt"] and self.web_view.isVisible():
+            self.web_view.setFixedHeight(0)
+            self.web_view.setVisible(False)
+            self.setGeometry(self.pos().x(), self.pos().y(), self.width(), self.height()-250)
+
+        self.Update_changes()
 
     def ComputeNotificationPeriod(self):
 
@@ -1390,11 +1502,18 @@ class MainWindow(QMainWindow):
         msg.setWindowTitle("Vos tâches")
         msg.setText(notificationText)
         msg.setIcon(QMessageBox.Information)
+
         msg.setStandardButtons(QMessageBox.Ok)
         msg.setButtonText(QMessageBox.Ok, "OK")
+
+        # msg.setStandardButtons(QMessageBox.NoButton)
+        # ok_btn = QPushButton("OK")
+        # msg.addButton(ok_btn, QMessageBox.AcceptRole)
+
         msg.setDefaultButton(QMessageBox.Ok)
         self.notifyTimer.stop()
-        msg.exec_()
+        # msg.exec_()
+        msg.exec()
         self.notifyTimer.start(self.waitForNotifications)
 
 
@@ -1404,4 +1523,5 @@ if __name__ == "__main__":
     style(app)
 
     mainWindow = MainWindow()
-    sys.exit(app.exec_())
+    # sys.exit(app.exec_())
+    sys.exit(app.exec())

@@ -740,7 +740,7 @@ Children:
         Check: 0
         Documents: []
       - Name: faire support switch ethernet
-        Description: ''
+        Description: a imprimer, deja sur carte SD
         Priority: Normal
         StartDate: '2023-06-01'
         EndDate: '-'
@@ -1151,7 +1151,7 @@ Children:
     Priority: Normal
     StartDate: '2023-05-03'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: Attention copie de tache
     Description: "Il semblerait que cela cr\xE9e un lien pour le pointage des documents.\
@@ -1175,6 +1175,30 @@ Children:
       \ qui a d\xE9j\xE0 des t\xE2ches"
     Priority: Normal
     StartDate: '2023-05-26'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Regler tooltip
+    Description: "Depuis passage \xE0 PySide6, il s'affiche en mode clair j'ai l'impression"
+    Priority: Normal
+    StartDate: '2023-06-05'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: "Regler enlever de la s\xE9lection"
+    Description: "A l'ajout de tache, \xE0 la s\xE9lection de fichier, j'ai du mal\
+      \ \xE0 l'enlever. Depuis passage \xE0 PySide6"
+    Priority: Normal
+    StartDate: '2023-06-05'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Accents sur le gantt
+    Description: 'Les accents ne s''affichent pas
+
+      Le passer en francais ?'
+    Priority: Normal
+    StartDate: '2023-06-05'
     EndDate: '-'
     Check: 0
     Documents: []
