@@ -870,6 +870,13 @@ Children:
         EndDate: '-'
         Check: 0
         Documents: []
+      - Name: "Preparer boite fix\xE9e sur armoire secondaire"
+        Description: Verifier borniers passent
+        Priority: Normal
+        StartDate: '2023-06-13'
+        EndDate: '-'
+        Check: 0
+        Documents: []
   - Name: Programmation
     Children:
     - Name: Demander a charles integration joystick
