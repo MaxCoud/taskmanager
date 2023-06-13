@@ -290,6 +290,14 @@ Children:
           EndDate: '-'
           Check: 1
           Documents: []
+        - Name: Revoir timer pour eteindre cartes
+          Description: "J'ai l'impression que le timer ne se remet pas \xE0 0 apr\xE8\
+            s un move"
+          Priority: Normal
+          StartDate: '2023-06-08'
+          EndDate: '-'
+          Check: 0
+          Documents: []
     - Name: Cartes d'axe
       Children:
       - Name: Documenter plc_axis Master_v2
@@ -423,12 +431,29 @@ Children:
         Priority: Normal
         StartDate: '2023-05-17'
         EndDate: '-'
-        Check: 0
+        Check: 1
         Documents: []
       - Name: Imprimer boitier 5 cartes
         Description: "qt\xE9 2"
         Priority: Normal
         StartDate: '2023-05-25'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: Revoir boitier 7 cartes
+        Description: "Trous de fixations d\xE9caler de quelques mm. Comparer ancienne\
+          \ boite et 3D"
+        Priority: Normal
+        StartDate: '2023-06-06'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: Attention VFD en 8N2
+        Description: "Les VFD semblent tous \xEAtre param\xE9tr\xE9s en 2 bits de\
+          \ stops. Cela pourrait \xEAtre la source des probl\xE8mes ?\nEn tout cas\
+          \ il est possible que cela laisse de la merde sur le bus c\xF4t\xE9 slave."
+        Priority: Normal
+        StartDate: '2023-06-07'
         EndDate: '-'
         Check: 0
         Documents: []
@@ -541,7 +566,7 @@ Children:
         Priority: Normal
         StartDate: '2023-05-22'
         EndDate: '-'
-        Check: 0
+        Check: 1
         Documents: []
       - Name: Essayer de faire une IHM avec Fenu btn de navigation
         Description: gauche haut bas droite valider
@@ -558,14 +583,22 @@ Children:
         EndDate: '-'
         Check: 1
         Documents: []
+      - Name: MAJ Gcodes avec nouveaux plaqueurs
+        Description: Il y a des nouveaux M Codes, mettre a jours toutes les macro
+          qui utilisaient M72, M73, M74, M75
+        Priority: Normal
+        StartDate: '2023-06-07'
+        EndDate: '-'
+        Check: 1
+        Documents: []
   - Name: Cablage
     Children:
     - Name: Capteur verin Z etau pre usinage
-      Description: "Il est d\xE9ja cabl\xE9, mais semblerait que la tige du v\xE9\
-        rin ne soit pas magn\xE9tique, donc a voir ce que l'on fait.\nEn fonction,\
-        \ mettre a jour le sch\xE9ma\nD\xE9tails : Cable C11\ndans boite deriv avec\
-        \ 2 lasers\nbornier a droite GND : 0V fil n\xB08\nbornier a droite GND puis\
-        \ droite pr\xE9c\xE9dent: 2704 fil n\xB09"
+      Description: "Il semblerait que la tige du v\xE9rin ne soit pas magn\xE9tique,\
+        \ donc a voir ce que l'on fait.\nJe l'ai d\xE9cabl\xE9 pour le moment\nEn\
+        \ fonction, mettre a jour le sch\xE9ma\nD\xE9tails : Cable C11\ndans boite\
+        \ deriv avec 2 lasers\nbornier a droite GND : 0V fil n\xB08\nbornier a droite\
+        \ GND puis droite pr\xE9c\xE9dent: 2704 fil n\xB09"
       Priority: Normal
       StartDate: '2023-03-09'
       EndDate: '-'
@@ -610,14 +643,26 @@ Children:
       EndDate: '-'
       Check: 0
       Documents: []
-    - Name: Prendre Cable telephone
-      Description: ''
+    - Name: Modif verins
+      Description: "sont devenues des distributeurs monostables :\nYV32A \u2192 verin\
+        \ de l'etau principal n\xB01\nYV32B \u2192 v\xE9rin de l'\xE9tau principal\
+        \ n\xB02\nYV34A \u2192 v\xE9rin Z \xE9tau principal\nYV34B \u2192 v\xE9rin\
+        \ \xE9tau de sortie\n\nCapteurs:\nX29 : V\xE9rin n\xB01 de l'\xE9tau principal\n\
+        X31 : V\xE9rin n\xB02 de l'\xE9tau principal"
       Priority: Normal
-      StartDate: '2023-05-10'
+      StartDate: '2023-06-07'
       EndDate: '-'
       Check: 0
       Documents: []
-  - Name: reparer fuite banc sortie
+    - Name: Changer sens moteurs Z6, Z9
+      Description: "Dans la boite, cote cable d'entr\xE9e, j'ai invers\xE9 les V et\
+        \ W, a mettre a jour dans schema"
+      Priority: Normal
+      StartDate: '2023-06-07'
+      EndDate: '-'
+      Check: 0
+      Documents: []
+  - Name: '[SDV] reparer fuite banc sortie'
     Description: Il y a une fuite sur le l'accu du centre du banc de sortie
     Priority: Normal
     StartDate: '2023-05-03'
@@ -638,10 +683,69 @@ Children:
     EndDate: '-'
     Check: 1
     Documents: []
-  - Name: "Ramener raccords pour v\xE9rin"
-    Description: "Pour installer les nouveaux \xE9taux"
+  - Name: "Liste composants \xE0 prendre"
+    Description: "Capteur de pression\nRegulateur de pression\nTeflon\nRaccords 1/4\
+      \ coud\xE9s et droit\nunion 6mm\n4x EV monostable\nAttaches de cable (nouveaux\
+      \ tuyaux plaqueurs)\n10x M8x40\n8x M8x45\nCable 3G0.5 (plaqueur Z)\nDymo (ou\
+      \ pr\xE9parer les nouvelles gaines)\nGaine transparente 9\u21923\nrislans"
     Priority: Normal
-    StartDate: '2023-05-26'
+    StartDate: '2023-06-06'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: '[SDV] Mettre carter Y pour proteger rail'
+    Description: "Clarinette a d\xE9caler pour la grande\nD\xE9coupe \xE0 faire \xE0\
+      \ la disqueuse sur la petite\nLes 2 \xE0 peindre"
+    Priority: Normal
+    StartDate: '2023-06-07'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: '[SDV] Remettre le graissage sur l''usinage'
+    Description: "Avait \xE9t\xE9 enlev\xE9 pour fixer l'\xE9quilibrage\nIl faut ramener\
+      \ du tuyau, des raccords et une cintreuse"
+    Priority: Normal
+    StartDate: '2023-06-07'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Faire rectifier positionnement plaqueurs
+    Description: "Etau principal :\ndist fix \u2192 bord lat\xE9ral gauche : idem\
+      \ schema\ndist fix \u2192 bord lat\xE9ral droit : 81\ndist fix \u2192 bout fut\
+      \ verin : 140\nEtau de sortie :\ndist fix \u2192 bord lat\xE9ral gauche : idem\
+      \ schema\ndist fix \u2192 bord lat\xE9ral droit : idem schema\ndist fix \u2192\
+      \ bout fut verin : 180\n\nDistance POM \u2192 mors fixe : 210mm"
+    Priority: Normal
+    StartDate: '2023-06-07'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Verifier plaqueurs
+    Description: "Mettre scie en position limite\nTracer sur les plaqueurs et les\
+      \ r\xE9cuperer pour le scier \xE0 l'atelier"
+    Priority: Normal
+    StartDate: '2023-06-07'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: "[SDV] fixer grille r\xE9sistance"
+    Description: ''
+    Priority: Normal
+    StartDate: '2023-06-08'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: '[SDV] Fixer convoyeurs'
+    Description: ''
+    Priority: Normal
+    StartDate: '2023-06-08'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: '[SDV] Mettre des gaines sur les cables'
+    Description: ''
+    Priority: Normal
+    StartDate: '2023-06-08'
     EndDate: '-'
     Check: 0
     Documents: []
@@ -699,7 +803,7 @@ Children:
         Priority: Normal
         StartDate: '2023-05-18'
         EndDate: '-'
-        Check: 0
+        Check: 1
         Documents:
         - /home/mc1/Git/documentations/docs/Drivers/FR150-Series-User-manual-EN-V1.2.pdf
       - Name: "Mettre en place r\xE9seau modbus"
@@ -737,12 +841,32 @@ Children:
         Priority: Normal
         StartDate: '2023-05-31'
         EndDate: '-'
-        Check: 0
+        Check: 1
         Documents: []
       - Name: faire support switch ethernet
         Description: a imprimer, deja sur carte SD
         Priority: Normal
         StartDate: '2023-06-01'
+        EndDate: '-'
+        Check: 1
+        Documents: []
+      - Name: "Pr\xE9parer fond d'armoire 2"
+        Description: "Avec tous les passages de presses \xE9toupes\nPuissance 5G6,\
+          \ 2x18G0.5, modbus pour les inputs (4x2x0.22 ?).\nTous les cables moteurs\
+          \ pour les outputs (4G0.75 pour 370W, 4G1.5 pour 2.2kW)\n+ ecorceuse (5G4\
+          \ ?)"
+        Priority: Normal
+        StartDate: '2023-06-06'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: Probable qu'on doive faire le tour pour passer les cables jusqu'au deck
+          de l'appointeuse
+        Description: "Si on passe a travers, on laisse comme \xE7a\nSi on doit faire\
+          \ le tour, alors essayer de passer le max d'entr\xE9e sortie dans 1 ou 2\
+          \ cables vers l'armoire secondaire et diviser dedans"
+        Priority: Normal
+        StartDate: '2023-06-08'
         EndDate: '-'
         Check: 0
         Documents: []
@@ -752,18 +876,6 @@ Children:
       Description: ''
       Priority: Normal
       StartDate: '2023-04-20'
-      EndDate: '-'
-      Check: 1
-      Documents: []
-  - Name: Panneau de commande
-    Children:
-    - Name: "Faire une d\xE9finition des 2 joysticks pour pr\xE9senter \xE0 faure"
-      Description: "photos, explications, cas d'exemple\n\n2 p\xE9dales: gauche :\
-        \ plaqueur de gauche\ndroite : plaqueurs de gauche et de droite\nTant qu'il\
-        \ reste appuy\xE9, le v\xE9rin est pilot\xE9, quand il relache \xE7a garde\
-        \ la position"
-      Priority: Normal
-      StartDate: '2023-05-17'
       EndDate: '-'
       Check: 1
       Documents: []
@@ -789,6 +901,18 @@ Children:
       StartDate: '2023-05-23'
       EndDate: '-'
       Check: 0
+      Documents: []
+  - Name: Panneau de commande
+    Children:
+    - Name: "Faire une d\xE9finition des 2 joysticks pour pr\xE9senter \xE0 faure"
+      Description: "photos, explications, cas d'exemple\n\n2 p\xE9dales: gauche :\
+        \ plaqueur de gauche\ndroite : plaqueurs de gauche et de droite\nTant qu'il\
+        \ reste appuy\xE9, le v\xE9rin est pilot\xE9, quand il relache \xE7a garde\
+        \ la position"
+      Priority: Normal
+      StartDate: '2023-05-17'
+      EndDate: '-'
+      Check: 1
       Documents: []
     - Name: "Position op\xE9rateur"
       Description: FAURE VEUT ASSIS-DEBOUT
@@ -822,6 +946,13 @@ Children:
       StartDate: '2023-05-24'
       EndDate: '-'
       Check: 1
+      Documents: []
+    - Name: Connecteur chipset 8 ports modbus
+      Description: "VHDCI68\nCoute tr\xE8s cher\nvoir sur ali express"
+      Priority: Normal
+      StartDate: '2023-06-12'
+      EndDate: '-'
+      Check: 0
       Documents: []
 - Name: test
   Children:
@@ -1183,7 +1314,7 @@ Children:
     Priority: Normal
     StartDate: '2023-06-05'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: "Regler enlever de la s\xE9lection"
     Description: "A l'ajout de tache, \xE0 la s\xE9lection de fichier, j'ai du mal\
@@ -1199,6 +1330,13 @@ Children:
       Le passer en francais ?'
     Priority: Normal
     StartDate: '2023-06-05'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Ajouter option jalon
+    Description: Une tache peut etre un jalon, se verra dans le gantt (milestone)
+    Priority: Normal
+    StartDate: '2023-06-08'
     EndDate: '-'
     Check: 0
     Documents: []
@@ -1229,6 +1367,37 @@ Children:
       EndDate: '-'
       Check: 0
       Documents: []
+    - Name: Finaliser et commander cartes d'axes
+      Description: "Rajouter ce qui \xE9tait pr\xE9vu et faire BOM, PickAndPlace,\
+        \ etc."
+      Priority: Normal
+      StartDate: '2023-06-06'
+      EndDate: '2023-06-12'
+      Check: 0
+      Documents: []
+    - Name: Essayer avec des relais 24V
+      Description: "<a href=\"https://www.lcsc.com/product-detail/Power-Relays_HF-Xiamen-Hongfa-Electroacoustic-HF115F-024-1ZS3_C194412.html\"\
+        >lien vers relais 24V qui semble avoir la meme empreinte</a>\n<br>\nCa permettrait\
+        \ de retirer une alim et les galeres qui vont avec\n<br><br>\nAttention quand\
+        \ meme au dimensionnement de la r\xE9sistance du transistor"
+      Priority: Normal
+      StartDate: '2023-06-06'
+      EndDate: '2023-06-12'
+      Check: 1
+      Documents: []
+    - Name: "Dimensionner r\xE9sistance de base transistor"
+      Description: "<a href=\"https://www.youtube.com/watch?v=no38Ov5gtIc\">video</a>\n\
+        <br>\n<a href=\"https://sti.discip.ac-caen.fr/IMG/pdf/le_transistor.pdf\"\
+        >cours de base</a>\n<br>\nJe trouve 33kohms pour 24V, utiliser un BC547 classique\
+        \ pour avoir une plage plus grande et limiter les risques li\xE9s \xE0 un\
+        \ mauvais choix de r\xE9sistance ?\n<br>\n7kohms pour 5V (ali s'\xE9tait peut\
+        \ etre tromp\xE9 sur \xE7a ?) : Voir conv ChatGPT \xE0 ce sujet, c'est bien\
+        \ possible"
+      Priority: Normal
+      StartDate: '2023-06-06'
+      EndDate: '-'
+      Check: 1
+      Documents: []
   - Name: Fabrication
 - Name: Stagiaires
   Children:
@@ -1255,21 +1424,14 @@ Children:
     Priority: Normal
     StartDate: '2023-04-25'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: Moteurs syntec (voir ref mais 0.75kW)
     Description: "Quantit\xE9 2 pour Faure"
     Priority: Normal
     StartDate: '2023-04-25'
     EndDate: '-'
-    Check: 0
-    Documents: []
-  - Name: borniers fusibles ?
-    Description: fusibles qui vont avec ?
-    Priority: Normal
-    StartDate: '2023-04-28'
-    EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: voyants de differentes couleurs aupres jennifer
     Description: '<a href="https://fr.aliexpress.com/item/1005001506142747.html?spm=a2g0o.productlist.main.15.715330958vC8CC&algo_pvid=b9423ce9-47eb-4cf7-8e31-78e87fa66d2c&algo_exp_id=b9423ce9-47eb-4cf7-8e31-78e87fa66d2c-7&pdp_npi=3%40dis%21EUR%211.35%210.49%21%21%21%21%21%402100ba4716826789126472420d074c%2112000016387348970%21sea%21FR%210&curPageLogUid=4tOXp5FMQBcl">lien
@@ -1358,16 +1520,6 @@ Children:
     EndDate: '-'
     Check: 1
     Documents: []
-  - Name: cable 5G6 ?
-    Description: 'liaison armoire principale / secondaire Faure
-
-
-      moteur scie'
-    Priority: Normal
-    StartDate: '2023-05-10'
-    EndDate: '-'
-    Check: 0
-    Documents: []
   - Name: cable micro usb
     Description: amazon
     Priority: Normal
@@ -1387,14 +1539,14 @@ Children:
     Priority: Normal
     StartDate: '2023-05-10'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: Automate syntec
     Description: "Qt\xE9 2"
     Priority: Normal
     StartDate: '2023-05-10'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: "Relais s\xE9cu RS"
     Description: "Qt\xE9 1 ou 2\nhttps://fr.rs-online.com/web/p/relais-de-securite/7579291"
@@ -1418,7 +1570,7 @@ Children:
     Check: 1
     Documents: []
   - Name: Arduino nano every
-    Description: "Qt\xE9 ?\nref RS: 1927586\nref Gotronic: 36478"
+    Description: "Qt\xE9 10?\nref RS: 1927586\nref Gotronic: 36478"
     Priority: Normal
     StartDate: '2023-05-16'
     EndDate: '-'
@@ -1439,7 +1591,7 @@ Children:
     Priority: Normal
     StartDate: '2023-05-17'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: bornes doubles ali express
     Description: ref MBKKB2.5
@@ -1448,19 +1600,12 @@ Children:
     EndDate: '-'
     Check: 1
     Documents: []
-  - Name: Cable 3G0.5 ?
-    Description: ''
-    Priority: Normal
-    StartDate: '2023-05-23'
-    EndDate: '-'
-    Check: 0
-    Documents: []
   - Name: barette de jonction technic achat
     Description: "qt\xE9 10"
     Priority: Normal
     StartDate: '2023-05-25'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: Parler a sylvain de remise technic achat en fonction chiffre d'affaire
     Description: <a href="https://document.technique-achat.com/TAC/INFO/Grille_de_remise_client_2019.pdf">document</a>
@@ -1474,14 +1619,14 @@ Children:
     Priority: Normal
     StartDate: '2023-05-30'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: gaine dymo 9mm
     Description: "qt\xE9 5 ou 10"
     Priority: Normal
     StartDate: '2023-05-30'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: carte Rs485 8 ports
     Description: voir mail charles
@@ -1495,14 +1640,14 @@ Children:
     Priority: Normal
     StartDate: '2023-05-30'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: Moteur brosseuse
     Description: "Qt\xE9 2, ref S08-AM11-40-F3"
     Priority: Normal
     StartDate: '2023-06-01'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: syntec voir mail
     Description: brouillon
@@ -1516,12 +1661,49 @@ Children:
     Priority: Normal
     StartDate: '2023-06-02'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: "p\xE9dales"
     Description: "qt\xE9 2"
     Priority: Normal
     StartDate: '2023-06-02'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: Gaine thermo RS
+    Description: "transparente diam 9 \u2192 3mm\nnoire diam 9 \u2192 3mm"
+    Priority: Normal
+    StartDate: '2023-06-06'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Commande cable CAE
+    Description: "3G0.5\t2 ou 3x50m\n5G6\tarmoire1\u2192armoire2\n5G4\tarmoire2\u2192\
+      ecorceuse\n4G1.5\tdecks\n18G0.5\tfaire point\n12G0.5\tfaire point"
+    Priority: Normal
+    StartDate: '2023-06-06'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Contacter technic achat
+    Description: pour capteurs fin de course
+    Priority: Normal
+    StartDate: '2023-06-08'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: Relais carte d'axe RS
+    Description: "<a href=\"https://fr.rs-online.com/web/p/relais-de-puissance/7903344\"\
+      >lien</a>\n<br>\nQt\xE9 4"
+    Priority: Normal
+    StartDate: '2023-06-12'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Grande boite technic achat
+    Description: "Qt\xE9 1\nPour IO zones 40, 50"
+    Priority: Normal
+    StartDate: '2023-06-12'
     EndDate: '-'
     Check: 0
     Documents: []

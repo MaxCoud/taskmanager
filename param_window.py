@@ -87,7 +87,6 @@ class ParamDialog(QDialog):
         # self.NoEndDateComboBox.setFixedWidth(100)
         self.NoEndDateComboBox.setFixedHeight(30)
         self.NoEndDateComboBox.setFont(QFont('AnyStyle', self.itemFontSize))
-        self.NoEndDateComboBox.currentTextChanged.connect(self.NoEndDateComboBoxChanged)
         grid.addWidget(self.NoEndDateComboBox, 5, 1, 1, 2)
 
         noEndDateChoices = ["Appliquer une durée", "La fixer à aujourd'hui"]
@@ -104,6 +103,8 @@ class ParamDialog(QDialog):
         self.durationTextEdit.setFixedHeight(30)
         self.durationTextEdit.setFont(QFont('AnyStyle', self.itemFontSize))
         grid.addWidget(self.durationTextEdit, 6, 1)
+
+        self.NoEndDateComboBox.currentTextChanged.connect(self.NoEndDateComboBoxChanged)
 
         enterBtn = QPushButton("Entrer")
         enterBtn.setFixedHeight(30)

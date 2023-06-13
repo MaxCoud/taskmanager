@@ -2,9 +2,12 @@
 from PySide6.QtGui import QPalette, QColor
 # from PySide2.QtCore import Qt
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QStyleFactory
+
 
 def style(app):
-    app.setStyle("Fusion")
+    # app.setStyle("Fusion")
+    app.setStyle(QStyleFactory.create("Fusion"))
 
     # app.setStyleSheet("QTreeWidgetItem {margin: 20px}")
     # app.setStyleSheet("QTreeWidget {margin: 5px}")
@@ -15,8 +18,10 @@ def style(app):
     palette.setColor(QPalette.WindowText, Qt.white)
     palette.setColor(QPalette.Base, QColor(25, 25, 25))
     palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
-    palette.setColor(QPalette.ToolTipBase, Qt.black)
-    palette.setColor(QPalette.ToolTipText, Qt.white)
+    # palette.setColor(QPalette.ToolTipBase, Qt.black)
+    palette.setColor(QPalette.ToolTipBase, QColor(0, 0, 0))
+    # palette.setColor(QPalette.ToolTipText, Qt.white)
+    palette.setColor(QPalette.ToolTipText, QColor(255, 255, 255))
     palette.setColor(QPalette.Text, Qt.white)
     palette.setColor(QPalette.Button, QColor(53, 53, 53))
     palette.setColor(QPalette.ButtonText, Qt.white)
@@ -38,6 +43,10 @@ def style(app):
     palette.setColor(QPalette.Disabled, QPalette.Highlight, palette.highlight().color().lighter())
     palette.setColor(QPalette.Disabled, QPalette.HighlightedText, palette.highlightedText().color().lighter())
     app.setPalette(palette)
+
+    # Set the tooltip stylesheet (needed in PySide6...)
+    tooltip_style = "QToolTip { color: #ffffff; background-color: #000000; border: none; }"
+    app.setStyleSheet(tooltip_style)
 
 
 def select_icon(dir, slash, extension):
