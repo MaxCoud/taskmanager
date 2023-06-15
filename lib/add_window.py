@@ -9,7 +9,7 @@ from PySide6.QtGui import QFont, QTextOption, QAction
 from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QLabel, QPushButton, QCheckBox, QDateEdit, \
     QDialog, QPlainTextEdit, QMessageBox, QComboBox, QFileDialog, QMenu
 
-from style import select_icon
+from lib.style import select_icon
 
 class AddTaskDialog(QDialog):
 

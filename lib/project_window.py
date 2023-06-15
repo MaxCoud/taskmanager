@@ -72,7 +72,7 @@ class ProjectsDialog(QDialog):
 
 
     def Save(self):
-        with open('projects.yaml', 'w') as f:
+        with open('../projects.yaml', 'w') as f:
             yaml.dump(self.mainWin.projectList, f, sort_keys=False)
 
     def Update_project_tree(self):

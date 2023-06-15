@@ -117,7 +117,9 @@ class ParamDialog(QDialog):
         enterBtn.setDefault(True)
 
     def showEvent(self, event):
-        self.move(QGuiApplication.screenAt(QCursor.pos()).availableGeometry().center() - self.frameGeometry().center())
+        if self.mainWin.os == 'linux':
+            self.move(QGuiApplication.screenAt(QCursor.pos()).availableGeometry().center() - self.frameGeometry().center())
+
         self.modifying = True
         if self.mainWin.config["notif"]:
             self.notifActivatedCheckBox.setChecked(True)
