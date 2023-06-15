@@ -296,7 +296,7 @@ Children:
           Priority: Normal
           StartDate: '2023-06-08'
           EndDate: '-'
-          Check: 0
+          Check: 1
           Documents: []
     - Name: Cartes d'axe
       Children:
@@ -652,13 +652,21 @@ Children:
       Priority: Normal
       StartDate: '2023-06-07'
       EndDate: '-'
-      Check: 0
+      Check: 1
       Documents: []
     - Name: Changer sens moteurs Z6, Z9
       Description: "Dans la boite, cote cable d'entr\xE9e, j'ai invers\xE9 les V et\
         \ W, a mettre a jour dans schema"
       Priority: Normal
       StartDate: '2023-06-07'
+      EndDate: '-'
+      Check: 1
+      Documents: []
+    - Name: Mettre a jour reperes cp pression
+      Description: "Sur l'armoire principale, certains rep\xE8res ne correspondent\
+        \ pas"
+      Priority: Normal
+      StartDate: '2023-06-14'
       EndDate: '-'
       Check: 0
       Documents: []
@@ -684,10 +692,11 @@ Children:
     Check: 1
     Documents: []
   - Name: "Liste composants \xE0 prendre"
-    Description: "Capteur de pression\nRegulateur de pression\nTeflon\nRaccords 1/4\
-      \ coud\xE9s et droit\nunion 6mm\n4x EV monostable\nAttaches de cable (nouveaux\
-      \ tuyaux plaqueurs)\n10x M8x40\n8x M8x45\nCable 3G0.5 (plaqueur Z)\nDymo (ou\
-      \ pr\xE9parer les nouvelles gaines)\nGaine transparente 9\u21923\nrislans"
+    Description: 'Teflon
+
+      Bouchons pneumatiques 1/4
+
+      2x Electrovannes 3 pos (semblent fuir)'
     Priority: Normal
     StartDate: '2023-06-06'
     EndDate: '-'
@@ -718,7 +727,7 @@ Children:
     Priority: Normal
     StartDate: '2023-06-07'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: Verifier plaqueurs
     Description: "Mettre scie en position limite\nTracer sur les plaqueurs et les\
@@ -736,7 +745,7 @@ Children:
     Check: 0
     Documents: []
   - Name: '[SDV] Fixer convoyeurs'
-    Description: ''
+    Description: Attendre que les pieds soient peints
     Priority: Normal
     StartDate: '2023-06-08'
     EndDate: '-'
@@ -746,6 +755,13 @@ Children:
     Description: ''
     Priority: Normal
     StartDate: '2023-06-08'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Demander code RAL orange
+    Description: A SEB, pour nous, pour les retouches
+    Priority: Urgent
+    StartDate: '2023-06-15'
     EndDate: '-'
     Check: 0
     Documents: []
@@ -874,6 +890,23 @@ Children:
         Description: Verifier borniers passent
         Priority: Normal
         StartDate: '2023-06-13'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: cable ethernet
+        Description: "Depuis bureau ?\nPar courant porteur de ligne ?\nBesoin de l'amener\
+          \ \xE0 l'armoire principale"
+        Priority: Normal
+        StartDate: '2023-06-14'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: Armoire 4 a noter
+        Description: "800x600x400\n\nPour poste de mainenace\ncontient PC, \xE9cran,\
+          \ clavier\nconnections modbus\nfenetre dans porte pour voir \xE9cran au\
+          \ travers"
+        Priority: Normal
+        StartDate: '2023-06-14'
         EndDate: '-'
         Check: 0
         Documents: []
@@ -1380,7 +1413,7 @@ Children:
       Priority: Normal
       StartDate: '2023-06-06'
       EndDate: '2023-06-12'
-      Check: 0
+      Check: 1
       Documents: []
     - Name: Essayer avec des relais 24V
       Description: "<a href=\"https://www.lcsc.com/product-detail/Power-Relays_HF-Xiamen-Hongfa-Electroacoustic-HF115F-024-1ZS3_C194412.html\"\
@@ -1707,10 +1740,24 @@ Children:
     EndDate: '-'
     Check: 0
     Documents: []
-  - Name: Grande boite technic achat
-    Description: "Qt\xE9 1\nPour IO zones 40, 50"
+  - Name: voir panier technic achat
+    Description: ''
     Priority: Normal
     StartDate: '2023-06-12'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: Module PWR
+    Description: "Qt\xE9 1 ou 2"
+    Priority: Normal
+    StartDate: '2023-06-13'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Cable alim machine
+    Description: "5G25mm\xB2 diametre exter 40, PG42 ok"
+    Priority: Normal
+    StartDate: '2023-06-13'
     EndDate: '-'
     Check: 0
     Documents: []
