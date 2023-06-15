@@ -4,27 +4,26 @@ import shutil
 import time
 import markdown
 
-from style import style, select_icon
+from lib.style import style, select_icon
 import subprocess
 
 from pathlib import Path
-from add_window import AddTaskDialog
-from param_window import ParamDialog
-from project_window import ProjectsDialog
+from lib.add_window import AddTaskDialog
+from lib.param_window import ParamDialog
 
 import yaml
 # from PySide2.QtCore import Qt, Signal, QDateTime, QDate, QTimer, QModelIndex
-from PySide6.QtCore import Qt, Signal, QDateTime, QDate, QTimer, QModelIndex
+from PySide6.QtCore import Qt, Signal, QDateTime, QDate, QTimer
 # from PySide2.QtGui import QFont, QTextOption, QKeySequence, QStandardItem, QStandardItemModel, QIcon, QGuiApplication, \
 #     QCursor, QPixmap, QPainter
-from PySide6.QtGui import QFont, QTextOption, QKeySequence, QStandardItem, QStandardItemModel, QIcon, QGuiApplication, \
-    QCursor, QPixmap, QPainter, QAction
+from PySide6.QtGui import QFont, QKeySequence, QStandardItem, QStandardItemModel, QIcon, QGuiApplication, \
+    QCursor, QAction
 # from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QApplication, QLabel, QPushButton, \
 #     QCheckBox, QTreeWidget, QTreeWidgetItem, QDateEdit, QDialog, QVBoxLayout, QPlainTextEdit, QMessageBox, \
 #     QInputDialog, QComboBox, QTabWidget, QAction, QMainWindow, QMenu, QTreeView, QHeaderView, QDesktopWidget
-from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QApplication, QLabel, QPushButton, \
-    QCheckBox, QTreeWidget, QTreeWidgetItem, QDateEdit, QDialog, QVBoxLayout, QPlainTextEdit, QMessageBox, \
-    QInputDialog, QComboBox, QTabWidget, QMainWindow, QMenu, QTreeView, QHeaderView
+from PySide6.QtWidgets import QLineEdit, QGridLayout, QWidget, QApplication, QLabel, QTreeWidget, QTreeWidgetItem, \
+    QMessageBox, \
+    QInputDialog, QTabWidget, QMainWindow, QMenu, QTreeView
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 
@@ -324,12 +323,13 @@ class MainWindow(QMainWindow):
 
         self.show()
 
-        # --- center window ---
-        # - on primary screen -
-        # self.move(QGuiApplication.primaryScreen().availableGeometry().center() - self.frameGeometry().center())
-        # - on screen where mouse pointer is -
-        self.move(QGuiApplication.screenAt(QCursor.pos()).availableGeometry().center() - self.frameGeometry().center())
-        # ---------------------
+        if self.os == 'linux':
+            # --- center window ---
+            # - on primary screen -
+            # self.move(QGuiApplication.primaryScreen().availableGeometry().center() - self.frameGeometry().center())
+            # - on screen where mouse pointer is -
+            self.move(QGuiApplication.screenAt(QCursor.pos()).availableGeometry().center() - self.frameGeometry().center())
+            # ---------------------
 
         self.setWindowIcon(QIcon(f"{self.d}/task_manager_logo1.png"))
 
@@ -622,8 +622,7 @@ excludes    weekends
 
             gantt += "~~~"
 
-            print(gantt)
-
+            # print(gantt)
 
 # """
 # section A section
@@ -653,7 +652,7 @@ excludes    weekends
 # ~~~
 # """
 
-            gantt_html = markdown.markdown(gantt, extensions=['md_mermaid'])
+            gantt_html = markdown.markdown(gantt, extensions=['lib.md_mermaid'])
 
             self.web_view.setHtml(gantt_html)
 
