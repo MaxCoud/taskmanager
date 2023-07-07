@@ -41,7 +41,7 @@ class AddTaskDialog(QDialog):
         grid.addWidget(lbl, 0, 0)
 
         self.nameTextEdit = QLineEdit()
-        self.nameTextEdit.setFixedWidth(240)
+        self.nameTextEdit.setMinimumWidth(240)
         self.nameTextEdit.setFixedHeight(30)
         self.nameTextEdit.setFont(QFont('AnyStyle', self.itemFontSize))
         grid.addWidget(self.nameTextEdit, 0, 1)
@@ -52,8 +52,8 @@ class AddTaskDialog(QDialog):
         grid.addWidget(lbl, 1, 0)
 
         self.descTextEdit = QPlainTextEdit()
-        self.descTextEdit.setFixedWidth(240)
-        self.descTextEdit.setFixedHeight(110)
+        self.descTextEdit.setMinimumWidth(240)
+        self.descTextEdit.setMinimumHeight(110)
         self.descTextEdit.setWordWrapMode(QTextOption.WordWrap.WrapAtWordBoundaryOrAnywhere)
         self.descTextEdit.setFont(QFont('AnyStyle', self.itemFontSize))
         grid.addWidget(self.descTextEdit, 1, 1)
@@ -76,7 +76,7 @@ class AddTaskDialog(QDialog):
         grid.addWidget(lbl, 2, 0)
 
         self.priorityComboBox = QComboBox()
-        self.priorityComboBox.setFixedWidth(240)
+        self.priorityComboBox.setMinimumWidth(240)
         self.priorityComboBox.setFixedHeight(30)
         self.priorityComboBox.setFont(QFont('AnyStyle', self.itemFontSize))
         grid.addWidget(self.priorityComboBox, 2, 1)
@@ -92,10 +92,11 @@ class AddTaskDialog(QDialog):
 
         self.startDateEdit = QDateEdit(calendarPopup=True)
         self.startDateEdit.setDateTime(QDateTime.currentDateTime())
-        self.startDateEdit.setFixedWidth(210)
+        self.startDateEdit.setMinimumWidth(210)
         self.startDateEdit.setFixedHeight(30)
         self.startDateEdit.setFont(QFont('AnyStyle', self.itemFontSize))
-        grid.addWidget(self.startDateEdit, 3, 1, Qt.AlignRight)
+        # grid.addWidget(self.startDateEdit, 3, 1, Qt.AlignRight)
+        grid.addWidget(self.startDateEdit, 3, 1)
 
         lbl = QLabel("Date de fin")
         lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
@@ -110,7 +111,7 @@ class AddTaskDialog(QDialog):
         self.endDateEdit = QDateEdit(calendarPopup=True)
         self.endDateEdit.setEnabled(False)
         self.endDateEdit.setDateTime(QDateTime.currentDateTime())
-        self.endDateEdit.setFixedWidth(210)
+        self.endDateEdit.setMinimumWidth(210)
         self.endDateEdit.setFixedHeight(30)
         self.endDateEdit.setFont(QFont('AnyStyle', self.itemFontSize))
 
