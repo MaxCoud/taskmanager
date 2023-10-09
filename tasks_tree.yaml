@@ -96,7 +96,7 @@ Children:
           Priority: Pressant
           StartDate: '2023-04-25'
           EndDate: '-'
-          Check: 0
+          Check: 1
           Documents: []
       - Name: IHM banc de sortie
         Children:
@@ -113,6 +113,26 @@ Children:
           StartDate: '2023-04-18'
           EndDate: '-'
           Check: 1
+          Documents: []
+        - Name: "Proposer solution pour d\xE9charger plusieurs pieces"
+          Description: "Pour un operateur, ce sera vraiment lourd de cliquer \xE0\
+            \ chaque fois pour d\xE9charger correctement le banc.\nIl faut trouver\
+            \ une solution pour d\xE9charger plusieurs pieces d'un coup\ncase a cocher\
+            \ ??"
+          Priority: Normal
+          StartDate: '2023-07-20'
+          EndDate: '-'
+          Check: 0
+          Documents: []
+        - Name: Changer le label du bouton pour decharger
+          Description: "On pourrait mettre le label du bouton de d\xE9chargement \xE0\
+            \ SELECTIONNER\npuis quand les barres sont arriv\xE9es, on peut mettre\
+            \ DECHARGER\nCela permettrait d'\xE9viter de s'emmeler les pinceaux quand\
+            \ on decharge des pieces qui sont proches"
+          Priority: Normal
+          StartDate: '2023-07-20'
+          EndDate: '-'
+          Check: 0
           Documents: []
       - Name: Dev
         Children:
@@ -159,8 +179,9 @@ Children:
         - Name: Parfois besoin de redemarrer PC a cause driver 4 modbus
           Description: "le signal semble plus faible, je ne sais pas ce qui cause\
             \ \xE7a, mais du coup impossible de communiquer avec des cartes d'axes.\
-            \ Comment l'arranger ?\n\nredemarrer le pc tous les x jours (attention\
-            \ a etre en arret d'urgence)"
+            \ Comment l'arranger ?\n\nhypothese: Il se peut qu'en phase de test, des\
+            \ programmes restaient actifs et occupaient les ports modbus\n\nredemarrer\
+            \ le pc tous les x jours (attention a etre en arret d'urgence)"
           Priority: Normal
           StartDate: '2023-04-26'
           EndDate: '-'
@@ -367,7 +388,84 @@ Children:
           Priority: Normal
           StartDate: '2023-07-07'
           EndDate: '-'
+          Check: 1
+          Documents: []
+        - Name: quand la coupe est finie, redescendre doigts
+          Description: "les doigts ne sont pas redescendus apr\xE8s la coupe...\n\n\
+            mis a jour dans la macro G110: a update"
+          Priority: Normal
+          StartDate: '2023-07-27'
+          EndDate: '-'
+          Check: 1
+          Documents: []
+        - Name: rouleaux x13 stop jog ne marche plus
+          Description: "je ne sais pas pourquoi, pourtant en manuel \xE7a fonctionne\
+            \ bien"
+          Priority: Normal
+          StartDate: '2023-07-27'
+          EndDate: '-'
+          Check: 1
+          Documents: []
+        - Name: impression que tous les axes ont tendances a planter
+          Description: "en fait quand ils sont tous allum\xE9s, j'ai l'impression\
+            \ qu'il se passe qqch qui fait que les PID sont moins efficaces ou je\
+            \ sais pas, les axes ont tendances \xE0 d\xE9passer leurs limites... ce\
+            \ qui les plantes pour de bon..."
+          Priority: Normal
+          StartDate: '2023-07-27'
+          EndDate: '-'
+          Check: 1
+          Documents: []
+        - Name: x12 a bcp de mal
+          Description: "est meme all\xE9 en but\xE9e m\xE9ca!!\nle pid a tendance\
+            \ \xE0 d\xE9passer pas mal la consigne, ce n'\xE9tait pas le cas avant\n\
+            peut etre chaleur ?"
+          Priority: Normal
+          StartDate: '2023-07-27'
+          EndDate: '-'
+          Check: 1
+          Documents: []
+        - Name: essayer de trouver un moyen de regler les problemes sur le grand profil
+          Description: "la longueur est bonne\nmais les positionnement des coupes\
+            \ sont d\xE9cal\xE9s de 1.414 mm (en moins par rapport \xE0 d\xE9sir\xE9\
+            )\nessayer de trouver un offset qui permette de valider le profil de 56x52\
+            \ et de 97x60\n\nAttention, j'ai mis qqch pour essayer de forcer les coupes\
+            \ aux hauteurs de celles choisies par le profil 56x52"
+          Priority: Normal
+          StartDate: '2023-08-03'
+          EndDate: '-'
           Check: 0
+          Documents: []
+        - Name: idee calcul
+          Description: "sur la coupe 1, quand on a mont\xE9 de 50mm on \xE0 du d\xE9\
+            caler de 1.414mm, et sur la coupe 2, on est mont\xE9 de 40mm et on a du\
+            \ d\xE9caler de 1.3 environ\nTrouver relation entre mont\xE9e et d\xE9\
+            calage ??"
+          Priority: Normal
+          StartDate: '2023-08-04'
+          EndDate: '-'
+          Check: 0
+          Documents: []
+        - Name: '!!! attention redemarrage cartes'
+          Description: "si axe n'a pas boug\xE9 pedant 40sec, un redemarrage de la\
+            \ carte est demand\xE9, mais \xE7a peut mettre fin \xE0 un mouvement qui\
+            \ n'avait peut etre pas commenc\xE9 (exemple: X12 est en 70, on veut l'amener\
+            \ en 400. Il bugue, on le red\xE9marre et nous dit que le mouvement est\
+            \ termin\xE9, les \xE9tapes continuent et on peut scier l'\xE9tau!!!)\n\
+            \nJ'AI FAIT UNE MODIF, A TESTER"
+          Priority: Normal
+          StartDate: '2023-08-10'
+          EndDate: '-'
+          Check: 0
+          Documents: []
+        - Name: changer config X12 et config sciage
+          Description: "voir notes taches berges\nchanger config pour limite de consigne\
+            \ vers X12\nchanger config de sciage pour que quand il \xE9tait demand\xE9\
+            \ \xE0 l'\xE9tau d'aller en 0, il aille en 100 (10mm)"
+          Priority: Normal
+          StartDate: '2023-09-27'
+          EndDate: '-'
+          Check: 1
           Documents: []
     - Name: Cartes d'axe
       Children:
@@ -541,6 +639,60 @@ Children:
         Priority: Normal
         StartDate: '2023-06-28'
         EndDate: '-'
+        Check: 1
+        Documents: []
+      - Name: bug sur 54
+        Description: voir pour mettre mes cartes
+        Priority: Normal
+        StartDate: '2023-07-11'
+        EndDate: '-'
+        Check: 1
+        Documents: []
+      - Name: Demarrer Y5 et Z5
+        Description: commencer par aligner ?
+        Priority: Normal
+        StartDate: '2023-07-18'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: carte 35 a changer
+        Description: ''
+        Priority: Normal
+        StartDate: '2023-07-20'
+        EndDate: '-'
+        Check: 1
+        Documents: []
+      - Name: si mouvement trop petit prevoir qqch
+        Description: "on peut aller dans une position safe a quelques cms, puis aller\
+          \ chercher la consigne dans un second temps\nattention au end move qui emet\
+          \ un signal pour indiquer que c'est termin\xE9\nutiliser self.position ?"
+        Priority: Normal
+        StartDate: '2023-07-25'
+        EndDate: '-'
+        Check: 1
+        Documents: []
+      - Name: remettre les vieilles cartes sur l'usinage
+        Description: 'et enlever les potentielles modifs qui font chier ?
+
+          gestion moving axis etc, redemarrage toutes les 40sec etc ?????
+
+          '
+        Priority: Normal
+        StartDate: '2023-07-27'
+        EndDate: '-'
+        Check: 1
+        Documents: []
+      - Name: carte 35 deconne
+        Description: 'a change par nouvelle ?
+
+          j''en ai mis une autre mais fonctionne pas
+
+          porbleme lecture
+
+          peut etre cable modbus a revoir ?'
+        Priority: Normal
+        StartDate: '2023-08-10'
+        EndDate: '-'
         Check: 0
         Documents: []
     - Name: Post pro
@@ -630,9 +782,45 @@ Children:
         Check: 0
         Documents: []
       - Name: "Faire IHM de r\xE9glage pince pour chaque profil"
-        Description: Voir schema sur mon bloc note papier
+        Description: 'Voir schema sur mon bloc note papier
+
+
+          pour debut, voir pc prog, faire recherche pour copier un fichier depuis
+          le client'
         Priority: Normal
         StartDate: '2023-07-05'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: Renvoyer erreur si angle different de 0, 45, -45
+        Description: on peut dire qu'il faut voir avec nous pour parametrer d'autres
+          angles
+        Priority: Normal
+        StartDate: '2023-07-12'
+        EndDate: '-'
+        Check: 1
+        Documents: []
+      - Name: Renvoyer erreur si pas d'outil dispo
+        Description: "Actuellement, si outil fait diametre 4mm par exemple, \xE7a\
+          \ g\xE9n\xE9re quand meme le programme"
+        Priority: Normal
+        StartDate: '2023-07-19'
+        EndDate: '-'
+        Check: 1
+        Documents: []
+      - Name: Renvoyer erreur si work angle != 0 ou 90
+        Description: "\xE7a ne doit pas aller vers la machine avec ce type d'angles"
+        Priority: Normal
+        StartDate: '2023-07-20'
+        EndDate: '-'
+        Check: 0
+        Documents: []
+      - Name: "r\xE9gler pb envoi images"
+        Description: "v\xE9rifier pour chaque PC qu'il n'a pas les images avant d'annuler\
+          \ leur envoi (actuellement check seulement la SV donc n'envoie pas au pc\
+          \ be et bs si la SV \xE0 d\xE9j\xE0 l'image)"
+        Priority: Normal
+        StartDate: '2023-08-10'
         EndDate: '-'
         Check: 0
         Documents: []
@@ -667,7 +855,7 @@ Children:
         Priority: Normal
         StartDate: '2023-04-25'
         EndDate: '-'
-        Check: 0
+        Check: 1
         Documents: []
       - Name: Demander a charles comment faire des IHM et parametrer affichage CN
         Description: Pour modifier/faire de nouvelles/ comprendre pour la machine
@@ -776,7 +964,7 @@ Children:
         Priority: Normal
         StartDate: '2023-06-28'
         EndDate: '-'
-        Check: 0
+        Check: 1
         Documents: []
       - Name: Integrer Z0 aux Gcodes
         Description: "Quand l'\xE9lectrovanne sera en place, il faudra piloter ce\
@@ -784,7 +972,7 @@ Children:
         Priority: Normal
         StartDate: '2023-07-06'
         EndDate: '-'
-        Check: 0
+        Check: 1
         Documents: []
       - Name: PROBLEME RELANCE PRECEDENT PGM
         Description: "Voila ce que je pense\nCe qu'il se passe, c'est que des que\
@@ -809,7 +997,32 @@ Children:
         Priority: Normal
         StartDate: '2023-07-07'
         EndDate: '-'
-        Check: 0
+        Check: 1
+        Documents: []
+      - Name: ajouter offsets angles dans G110
+        Description: reflechir sur le sens des offsets a mettre
+        Priority: Normal
+        StartDate: '2023-07-12'
+        EndDate: '-'
+        Check: 1
+        Documents: []
+      - Name: "Faire macro pour faire des essais de pr\xE9hension"
+        Description: 'en parametre: reference profil ?
+
+          demander aux plaqueurs du BE de plaquer, com avec inlet server'
+        Priority: Normal
+        StartDate: '2023-07-13'
+        EndDate: '-'
+        Check: 1
+        Documents: []
+      - Name: '!!! attention origine piece si pas d''outils'
+        Description: "origines piece ne se font pas si pas de changement d'outil car\
+          \ G540 est appel\xE9 \xE0 l'appel d'un outil\n\npour parclose par exemple,\
+          \ G301 T0\npuis que des decoupes\nil faut au moins faire l'origine en X"
+        Priority: Normal
+        StartDate: '2023-08-10'
+        EndDate: '-'
+        Check: 1
         Documents: []
   - Name: Cablage
     Children:
@@ -890,6 +1103,13 @@ Children:
       EndDate: '-'
       Check: 0
       Documents: []
+    - Name: Mettre a jours schemas
+      Description: A IMPRIMER, ET RELIER
+      Priority: Normal
+      StartDate: '2023-07-20'
+      EndDate: '-'
+      Check: 0
+      Documents: []
   - Name: ramener chute galva
     Description: ''
     Priority: Normal
@@ -905,17 +1125,8 @@ Children:
     Check: 1
     Documents: []
   - Name: "Liste composants \xE0 prendre"
-    Description: '- pince a sertir cosses
-
-      - pince a sertir contacts
-
-      - cosses
-
-      - contacts
-
-      - cable 3G0.5
-
-      - DYMO ou etiquettes pour Z0 (YV30)'
+    Description: "- de quoi reperer tuyaux Z0 (c\xF4t\xE9 EV, avant & apres union\
+      \ de bas d'armoire)\n- cuivre pour soufflettes"
     Priority: Normal
     StartDate: '2023-06-06'
     EndDate: '-'
@@ -1001,7 +1212,7 @@ Children:
     Priority: Normal
     StartDate: '2023-06-15'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: "[SDV] S\xE9parer Y1 et Z0"
     Description: "En cas de profil instable, je sais pas si c'est bien d'avoir Z0...\n\
@@ -1010,7 +1221,7 @@ Children:
     Priority: Normal
     StartDate: '2023-06-15'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: "[SDV] Retirer les anciens \xE9taux"
     Description: "V\xE9rins, patins, rails, parties mobiles...\nAttention, fixer les\
@@ -1027,7 +1238,7 @@ Children:
     Priority: Urgent
     StartDate: '2023-06-15'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: '[SDV] Monter guides convoyeurs BS'
     Description: "Il faut les plier avec un angle de plus de 90\xB0\nAttention, la\
@@ -1055,14 +1266,14 @@ Children:
     Priority: Normal
     StartDate: '2023-06-27'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: "[SDV] Relier le graissage \xE0 la pompe"
     Description: Il y a un flexible par terre. Voir photo
     Priority: Normal
     StartDate: '2023-06-27'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: "Convoyeur de chutes attrape que la moiti\xE9 des chutes a 45\xB0"
     Description: 'Il faut au moins fixer quelque chose sur la tremis de droite (et
@@ -1073,7 +1284,7 @@ Children:
     Priority: Normal
     StartDate: '2023-06-28'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: '[SDV] Passe cable moteur convoyeur chutes'
     Description: 'actuellement il longe les goulottes metalliques.
@@ -1082,14 +1293,14 @@ Children:
     Priority: Normal
     StartDate: '2023-06-28'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: '[SDV] Mettre en place convoyeur copeaux'
     Description: ''
     Priority: Normal
     StartDate: '2023-06-29'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: '[CC] tendeur chaine etau sortie'
     Description: rouleaux qui sautent si grosse barre
@@ -1110,6 +1321,99 @@ Children:
       e... \xE7a d\xE9cale tout"
     Priority: Normal
     StartDate: '2023-07-07'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: Berges veut que le convoyeur de copeaux recupere les chutes
+    Description: "Sinon trop de taf pour recuperer les pi\xE8ces \xE0 la main, possible\
+      \ ?"
+    Priority: Normal
+    StartDate: '2023-07-11'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Problemes machine
+    Description: "bavures un peu g\xE9nantes \xE0 l'interieur, que faire ?\nbavures\
+      \ \xE0 la coupe ? \xE0 la fin, quand la piece doit se s\xE9parer il se passe\
+      \ qqch"
+    Priority: Normal
+    StartDate: '2023-07-11'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: Preparer soufflage
+    Description: cuivre de graissage ?
+    Priority: Normal
+    StartDate: '2023-07-11'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: Decabler capteur verin etau sortie
+    Description: il pend actuellement
+    Priority: Normal
+    StartDate: '2023-07-11'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: Rapprocher etau pre usinage
+    Description: 'bloc alu de 30mm
+
+      on peut pas faire mieux
+
+      une fois que c''est fait : spitter'
+    Priority: Normal
+    StartDate: '2023-07-12'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: Remonter carters poulies Y mill
+    Description: "prendre des vis M6 tete bomb\xE9e, une dizaine"
+    Priority: Normal
+    StartDate: '2023-07-20'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: A NOTER DOIGTS
+    Description: "faire en sorte de mettre les doigts sur de petits v\xE9rins, pour\
+      \ les positionner une seule fois quand le profil est choisi. Ensuite on pilote\
+      \ juste les v\xE9rins"
+    Priority: Normal
+    StartDate: '2023-08-01'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: prendre support palier rouleau pour decaler trous
+    Description: a ramener a champagnac
+    Priority: Normal
+    StartDate: '2023-08-01'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: parfois requetes tcp ne passent pas
+    Description: "le pc be semble envoyer la requete mais \xE7a n'atteint pas la supervision\n\
+      oblig\xE9 de red\xE9marr\xE9 le PC SV\n(j'avais d\xE9ja essay\xE9 de red\xE9\
+      marrer PC BE mais \xE7a n'avait rien chang\xE9)"
+    Priority: Normal
+    StartDate: '2023-08-10'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: demander a sylvain de ramener materiel
+    Description: "- alim 24V avec prises 4p et secteur\n- 1 ou plusieurs codeurs,\
+      \ attention certains sont peut etre rep\xE9r\xE9s comme defaillants\n- boite\
+      \ orange avec embouts de souffleuse a air chaud\n- Dymo avec heat shrink tube\
+      \ 12mm si possible\n- Boites avec prises DB9 male et femelles\n- 1 VFD Frecon\
+      \ 0.75kW (soit etagere du haut, mais je crois qu'il n'y en a plus, soit dans\
+      \ un carton d'un pr\xE9c\xE9dent container)"
+    Priority: Normal
+    StartDate: '2023-09-27'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: faire documentation
+    Description: ''
+    Priority: Normal
+    StartDate: '2023-10-02'
     EndDate: '-'
     Check: 0
     Documents: []
@@ -1309,21 +1613,49 @@ Children:
         Priority: Normal
         StartDate: '2023-07-04'
         EndDate: '-'
-        Check: 0
+        Check: 1
+        Documents: []
+      - Name: agrandir un trou en d22 sur pupitre
+        Description: pour prise des joysticks
+        Priority: Normal
+        StartDate: '2023-08-04'
+        EndDate: '-'
+        Check: 1
+        Documents: []
+      - Name: agrandir trous passages cables joystick
+        Description: de 12.5 en 15.5 pour passer PG9
+        Priority: Normal
+        StartDate: '2023-08-04'
+        EndDate: '-'
+        Check: 1
+        Documents: []
+      - Name: cabler joysticks
+        Description: ''
+        Priority: Normal
+        StartDate: '2023-08-04'
+        EndDate: '-'
+        Check: 1
+        Documents: []
+      - Name: cabler panneau de commande
+        Description: ''
+        Priority: Normal
+        StartDate: '2023-08-04'
+        EndDate: '-'
+        Check: 1
         Documents: []
     - Name: Cabler ecorceuse
       Description: ''
       Priority: Normal
       StartDate: '2023-07-03'
       EndDate: '-'
-      Check: 0
+      Check: 1
       Documents: []
     - Name: "Pr\xE9parer boite zone 30"
       Description: 125x125 meme PE que portique je pense
       Priority: Normal
       StartDate: '2023-07-04'
       EndDate: '-'
-      Check: 0
+      Check: 1
       Documents: []
     - Name: "Pr\xE9parer boite portillon"
       Description: '125x75 ?
@@ -1332,7 +1664,7 @@ Children:
       Priority: Normal
       StartDate: '2023-07-04'
       EndDate: '-'
-      Check: 0
+      Check: 1
       Documents: []
     - Name: Preparer platine pupitre
       Description: "Goulottes ? peut etre pas n\xE9cessaire\nJuste rails\nPr\xE9voir\
@@ -1340,40 +1672,47 @@ Children:
       Priority: Normal
       StartDate: '2023-07-04'
       EndDate: '-'
-      Check: 0
+      Check: 1
       Documents: []
     - Name: "Pr\xE9parer boite poste commande ecorceuse"
       Description: Surement petite vu qu'on garde poste commande de la wemaprobst
       Priority: Normal
       StartDate: '2023-07-04'
       EndDate: '-'
-      Check: 0
+      Check: 1
       Documents: []
     - Name: Preparer boite poste appointeuse
       Description: Ressemble a poste ecorceuse ?
       Priority: Normal
       StartDate: '2023-07-04'
       EndDate: '-'
-      Check: 0
+      Check: 1
       Documents: []
     - Name: "Pr\xE9parer boites capteurs inductifs"
       Description: penser aux pedales pour decks zone 40 et 50
       Priority: Normal
       StartDate: '2023-07-04'
       EndDate: '-'
-      Check: 0
+      Check: 1
       Documents: []
     - Name: Implatation PE boite 30.2
       Description: a faire sur figma
       Priority: Normal
       StartDate: '2023-07-05'
       EndDate: '-'
-      Check: 0
+      Check: 1
       Documents: []
     - Name: Implantation PE boite 40.2
       Description: A faire sur figma
       Priority: Normal
       StartDate: '2023-07-05'
+      EndDate: '-'
+      Check: 1
+      Documents: []
+    - Name: ajouter 2eme capteur sur les pignons?
+      Description: probable qu'on le fasse
+      Priority: Normal
+      StartDate: '2023-08-10'
       EndDate: '-'
       Check: 0
       Documents: []
@@ -1416,22 +1755,16 @@ Children:
       EndDate: '-'
       Check: 1
       Documents: []
-    - Name: "pr\xE9voir bits C et S a partager avec sv"
-      Description: 'pour bouger les axes, pour les alarmes, etc.
-
-        Sinon juste Registres et les bits seront trigger dans la PLC'
-      Priority: Normal
-      StartDate: '2023-06-19'
-      EndDate: '-'
-      Check: 0
-      Documents: []
     - Name: Implementer ServerAxis, Axis, ModbusServer
-      Description: "Se servir de la berges, mais \xE0 adapter / rendre plus \"standard\"\
-        \ pour s'adapter \xE0 davantage de machines"
+      Description: "Axis sera remplac\xE9 par une classe VFDAxis\nServerAxis, toujours\
+        \ utile ? car peut etre plus besoin de router quoi que ce soit\nModbusServer,\
+        \ juste lire et ecrire des requetes, pas de gestion de mouvement.\nDefinir\
+        \ requetes dont j'ai besoin\nAvoir une requete de write manuel (adresse libre,\
+        \ valeur libre)\net de read manuel"
       Priority: Normal
       StartDate: '2023-07-05'
       EndDate: '-'
-      Check: 0
+      Check: 1
       Documents: []
     - Name: Faire une config comme berges ?
       Description: "Je pense que \xE7a peut etre bien de commencer avec une config\
@@ -1439,7 +1772,113 @@ Children:
       Priority: Normal
       StartDate: '2023-07-05'
       EndDate: '-'
+      Check: 1
+      Documents: []
+    - Name: "impl\xE9menter briques joysticks"
+      Description: ''
+      Priority: Normal
+      StartDate: '2023-07-07'
+      EndDate: '-'
+      Check: 1
+      Documents: []
+    - Name: envoyer tous signaux joysticks
+      Description: "front montants, front descendants, \xE9tats,"
+      Priority: Normal
+      StartDate: '2023-07-18'
+      EndDate: '-'
       Check: 0
+      Documents: []
+    - Name: mettre hysteresys sur seuil thumbstick
+      Description: pour eviter d'avoir du parasite
+      Priority: Normal
+      StartDate: '2023-07-18'
+      EndDate: '-'
+      Check: 0
+      Documents: []
+    - Name: "Voir pour base de donn\xE9es peewee"
+      Description: "transmettre des liens d'\xE9lements de la base de donn\xE9es aux\
+        \ classes qui en ont besoin\nCes classes manipuleront des listes, sans avoir\
+        \ \xE0 se rendre compte que c'est une base de donn\xE9e derriere"
+      Priority: Normal
+      StartDate: '2023-07-18'
+      EndDate: '-'
+      Check: 1
+      Documents: []
+    - Name: ameliorer build config
+      Description: "voir avec chat gpt ?\nne pas etre limit\xE9 \xE0 un nombre de\
+        \ niveaux"
+      Priority: Normal
+      StartDate: '2023-07-21'
+      EndDate: '-'
+      Check: 0
+      Documents: []
+    - Name: revoir base joystick
+      Description: "renvoyer exception si classe fille appelle read(), le read doit\
+        \ \xEAtre impl\xE9ment\xE9 dans la classe fille d\xE9pend du modele de joystick\n\
+        \ndans la classe mere, emit quand meme les main x & y axis, et le trigger\
+        \ (gachette)"
+      Priority: Normal
+      StartDate: '2023-07-21'
+      EndDate: '-'
+      Check: 0
+      Documents: []
+    - Name: config
+      Description: 'faire une config par niveau: exemple: unit_20, control_panel,
+        unit-10, etc.
+
+        dedans : VFD, joysticks, etc., ne pas se preocuper des modbus rtu'
+      Priority: Normal
+      StartDate: '2023-07-21'
+      EndDate: '-'
+      Check: 1
+      Documents: []
+    - Name: log
+      Description: "juste getLogger pour recuperer le log\nvoir pour r\xE9impl\xE9\
+        menter AxusLogger ?\n\nVoir ce que charles a fait, je pense attribut name\
+        \ pour logger"
+      Priority: Normal
+      StartDate: '2023-07-21'
+      EndDate: '-'
+      Check: 1
+      Documents: []
+    - Name: VFDAxis mettre la loop optionnelle
+      Description: "pour tous les axes pilot\xE9s avec le joystick, on peut aller\
+        \ dans la loop pour rafraichir la vitesse, mais pour les axes automatiques\
+        \ comme les Decks 40 et 50 ce n'est pas la peine, on va \xE9viter d'envoyer\
+        \ des requetes inutiles"
+      Priority: Normal
+      StartDate: '2023-08-02'
+      EndDate: '-'
+      Check: 1
+      Documents: []
+    - Name: Mettre en place un mode terminal pertinant
+      Description: pour demander certaines commande depuis le terminal, un peu comme
+        berges dans main.py et pas supervision.py
+      Priority: Normal
+      StartDate: '2023-08-02'
+      EndDate: '-'
+      Check: 0
+      Documents: []
+    - Name: a l'init d'un VFD, venir chercher params
+      Description: "tels que freq min, freq max\npour checker le parametre renseign\xE9\
+        \ dans speed_max\n(pour limiter la consigne qui peut etre envoy\xE9s)\n\n\
+        a appliquer en fonction du pourcentage de vitesse qu'on veut atteindre (constituera\
+        \ la consigne de methode set_speed)\n\npermet aussi de tester la connexion"
+      Priority: Normal
+      StartDate: '2023-08-04'
+      EndDate: '-'
+      Check: 1
+      Documents: []
+    - Name: faire class message
+      Description: 'pour faire des return du modbus vers le parent qui a une certaine
+        abstraction
+
+
+        aussi messages d''erreur'
+      Priority: Normal
+      StartDate: '2023-08-04'
+      EndDate: '-'
+      Check: 1
       Documents: []
   - Name: Panneau de commande
     Children:
@@ -1902,7 +2341,7 @@ Children:
     Priority: Normal
     StartDate: '2023-07-05'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
 - Name: Cartes d'axe
   Children:
@@ -1913,16 +2352,15 @@ Children:
       Priority: Normal
       StartDate: '2023-03-17'
       EndDate: '-'
-      Check: 0
+      Check: 1
       Documents:
       - /home/mc1/Git/plc_axis_board/plc_axis_board/TODO
     - Name: voir pour ameliorer 0-10V
-      Description: peut etre que notre AOP est pas assez performant et sa tension
-        chute devant le VFD Frecon
+      Description: metttre un AOP
       Priority: Normal
       StartDate: '2023-05-24'
       EndDate: '-'
-      Check: 0
+      Check: 1
       Documents: []
     - Name: faire manuel ?
       Description: ''
@@ -1963,6 +2401,16 @@ Children:
       Check: 1
       Documents: []
   - Name: Fabrication
+    Children: []
+  - Name: Voir documents
+    Description: 'to_check_cartes
+
+      photos'
+    Priority: Normal
+    StartDate: '2023-09-27'
+    EndDate: '-'
+    Check: 0
+    Documents: []
 - Name: Stagiaires
   Children:
   - Name: Checker code Mohamed
@@ -2147,7 +2595,7 @@ Children:
     Priority: Normal
     StartDate: '2023-06-27'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: petite ventilation technic achat
     Description: 'pour armoire secondaire
@@ -2220,7 +2668,7 @@ Children:
     Priority: Normal
     StartDate: '2023-06-01'
     EndDate: '2023-06-19'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: joystick
     Description: "qt\xE9 2"
@@ -2321,7 +2769,7 @@ Children:
     Priority: Normal
     StartDate: '2023-07-04'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: Cable 5G6
     Description: 'CAE n''en a plus en stock
@@ -2334,38 +2782,87 @@ Children:
     Priority: Normal
     StartDate: '2023-07-04'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: Sectionneur Faure ?
-    Description: 125A ?
+    Description: '<p>
+
+      125A:
+
+      <a href="https://www.one-elec.com/28911-interrupteursectionneur-interpact-ins125-4p-125-a-schneider.html">lien
+      inter sectionneur</a>
+
+      </p>
+
+      <p>
+
+      100A:
+
+      <a href="https://www.one-elec.com/28909-interrupteursectionneur-interpact-ins100-4p-100-a-schneider.html">lien
+      inter sectionneur</a>
+
+      </p>'
     Priority: Normal
     StartDate: '2023-07-05'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
-  - Name: Disjoncteur diff Faure ?
-    Description: '<p>100A ?
-
-      Ref berges : schneider 4P, 125A, 10000A / 16kA, 300mA, C </p>
-
-      <br>
-
-      <a href="https://www.one-elec.com/a9n18567-acti9-ic120-vigi-c120-bloc-differentiel-3p-300ma-type-ac-instantane-schneider.html?gad=1&gclid=EAIaIQobChMIk-rMl4T3_wIVqkBBAh1ZLARFEAQYAyABEgIqm_D_BwE">lien
-      inter diff</a>
-
-      <br>
-
-      <a href="https://www.one-elec.com/a9n18377-disjoncteur-c120n-4p-125-a-courbe-c-10-ka-schneider.html?gad=1&gclid=EAIaIQobChMIj-HZsIf3_wIVg-RRCh2TFw29EAQYASABEgITnPD_BwE">lien
-      disjoncteur</a>'
+  - Name: Disjoncteur diff Faure
+    Description: "<p>Ref berges : schneider 4P, 125A, 10000A / 16kA, 300mA, C \n<br>\n\
+      <a href=\"https://www.one-elec.com/a9n18567-acti9-ic120-vigi-c120-bloc-differentiel-3p-300ma-type-ac-instantane-schneider.html?gad=1&gclid=EAIaIQobChMIk-rMl4T3_wIVqkBBAh1ZLARFEAQYAyABEgIqm_D_BwE\"\
+      >lien inter diff</a>\n<br>\n<a href=\"https://www.one-elec.com/a9n18377-disjoncteur-c120n-4p-125-a-courbe-c-10-ka-schneider.html?gad=1&gclid=EAIaIQobChMIj-HZsIf3_wIVg-RRCh2TFw29EAQYASABEgITnPD_BwE\"\
+      >lien disjoncteur</a>\n</p>\n<p>\n100A: \n<a href=\"https://www.one-elec.com/a9n18480-disjoncteur-c120h-4p-100-a-courbe-c-15-ka-schneider.html\"\
+      >lien disjoncteur</a>\n<br>\n<a href=\"https://www.one-elec.com/a9n18543-acti9-ic120-vigi-c120-bloc-differentiel-4p-300ma-type-ac-instantane-schneider.html\"\
+      >lien inter diff</a>\n</p>\n<p>\n80A: \n<a href=\"https://www.one-elec.com/a9n18372-disjoncteur-c120n-4p-80-a-courbe-c-10-ka-schneider.html\"\
+      >lien disjoncteur</a>\n<br>\n<a href=\"https://www.one-elec.com/a9n18543-acti9-ic120-vigi-c120-bloc-differentiel-4p-300ma-type-ac-instantane-schneider.html\"\
+      >lien inter diff</a>\n</p>"
     Priority: Normal
-    StartDate: '2023-07-05'
+    StartDate: '2023-06-05'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
-  - Name: Disjoncteur ecorceuse faure ?
-    Description: 40A ?
+  - Name: Disjoncteur ecorceuse faure
+    Description: '<p>
+
+      40A:
+
+      <a href="https://www.one-elec.com/a9f77440-acti9-ic60n-disjoncteur-4p-40a-courbe-c-schneider.html">lien
+      disjoncteur</a>
+
+      </p>'
     Priority: Pressant
     StartDate: '2023-07-05'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: Demander a technic achat ou en est la commande de capteurs fin de course
+    Description: Normalement reception 1ere semaine d'aout
+    Priority: Normal
+    StartDate: '2023-07-18'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: brosseuse
+    Description: "1x armoire 700x 1100 ?\n1x gache de s\xE9curit\xE9\n1x BP lumineux\
+      \ vert\n1x BP lumineux rouge\n1x ventilatation\n\nvoir panier"
+    Priority: Normal
+    StartDate: '2023-08-02'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+  - Name: support etiquettes
+    Description: 'voir sur technic achat
+
+      Ali express'
+    Priority: Normal
+    StartDate: '2023-08-07'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: BROSSEUSE Relais secu a rearmement auto
+    Description: https://fr.rs-online.com/web/p/relais-de-securite/0549473
+    Priority: Normal
+    StartDate: '2023-10-02'
     EndDate: '-'
     Check: 0
     Documents: []
@@ -2376,7 +2873,92 @@ Children:
     - Name: "Sch\xE9ma de cablage"
       Description: ''
       Priority: Normal
-      StartDate: '2023-06-21'
-      EndDate: '2023-07-13'
+      StartDate: '2023-09-28'
+      EndDate: '2023-10-03'
+      Check: 1
+      Documents: []
+    - Name: implantation
+      Description: '1x Automate
+
+        2x Driver 2kW
+
+        2x VFD Frecon
+
+        3x DI16
+
+        2x DO16
+
+        (1x SLSR)
+
+        1x battery box
+
+        1x contacteur de puissance
+
+        1x relais de secu
+
+        1x alim 24V 10A
+
+        1x sectionneur 40A'
+      Priority: Normal
+      StartDate: '2023-08-11'
+      EndDate: '-'
       Check: 0
       Documents: []
+    - Name: Notes
+      Description: "- Gache de securit\xE9 sur chaine d'arret d'urgence ?\n- Verrine\
+        \ flash allum\xE9e quand machine tourne : on fera clignoter le vert de la\
+        \ colonne lumineuse\n- CLAPET PILOTE : https://fr.rs-online.com/web/p/cellules-logiques-pneumatique/7013321?gb=b"
+      Priority: Normal
+      StartDate: '2023-09-28'
+      EndDate: '-'
+      Check: 0
+      Documents: []
+    - Name: Facade armoire
+      Description: "BP vert ON/rearm\nBP rouge OFF\nARU\nSelecteur Maintenance (BP\
+        \ tournant \xE0 cl\xE9)\n"
+      Priority: Normal
+      StartDate: '2023-09-28'
+      EndDate: '-'
+      Check: 0
+      Documents: []
+    - Name: Schema VFD
+      Description: 'Mettre run fw, rv et speed en 0-10V
+
+        regarder quelle tension mettre sur pin PLC'
+      Priority: Normal
+      StartDate: '2023-09-28'
+      EndDate: '-'
+      Check: 1
+      Documents: []
+    - Name: Mettre sections fils
+      Description: sur schema cablage
+      Priority: Normal
+      StartDate: '2023-10-02'
+      EndDate: '-'
+      Check: 1
+      Documents: []
+- Name: Laser Berges
+  Children:
+  - Name: Revoir schema de cablage des capteurs fin de course
+    Description: Ce sont des capteurs inductifs 3 fils NPN NC
+    Priority: Normal
+    StartDate: '2023-09-26'
+    EndDate: '-'
+    Check: 1
+    Documents: []
+- Name: Encoder configurator
+  Children:
+  - Name: plante pour le find encoder param
+    Description: voir ce qu'il se passe, s'inspirer de IO modbus module configurator
+    Priority: Normal
+    StartDate: '2023-09-27'
+    EndDate: '-'
+    Check: 0
+    Documents: []
+  - Name: ameliorer un peu tout
+    Description: voir IO modbus modules
+    Priority: Normal
+    StartDate: '2023-09-27'
+    EndDate: '-'
+    Check: 0
+    Documents: []
