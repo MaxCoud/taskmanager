@@ -55,7 +55,7 @@ class MainWindow(QMainWindow):
                 f = open(path, 'w')
                 f.write('[Desktop Entry]\n')
                 f.write('Name=Task Manager\n')
-                f.write(f'Name={self.d}/task_manager_logo1.png\n')
+                f.write(f'Name={self.d}/task_manager_logo.png\n')
                 f.write(f'Exec=/usr/bin/python3 --working-directory={self.d}/ {self.d}/main.py\n')
                 f.write('Terminal=false\n')
                 f.write('Type=Application\n')
@@ -318,7 +318,7 @@ class MainWindow(QMainWindow):
                 QCursor.pos()).availableGeometry().center() - self.frameGeometry().center())
             # ---------------------
 
-        self.setWindowIcon(QIcon(f"{self.d}/task_manager_logo1.png"))
+        self.setWindowIcon(QIcon(f"{self.d}/task_manager_logo.png"))
 
         if self.config["notif"]:
             self.notifyTimer.start(self.waitForNotifications)

@@ -1,18 +1,14 @@
-# from PySide2.QtCore import Qt
 from PySide6.QtCore import Qt
-# from PySide2.QtGui import QFont, QGuiApplication, QCursor
 from PySide6.QtGui import QFont, QGuiApplication, QCursor
-# from PySide2.QtWidgets import QLineEdit, QGridLayout, QLabel, QPushButton, QCheckBox, QDialog, QMessageBox, QComboBox
-from PySide6.QtWidgets import QLineEdit, QGridLayout, QLabel, QPushButton, QCheckBox, QDialog, QMessageBox, QComboBox, \
-    QHBoxLayout, QRadioButton
+from PySide6.QtWidgets import QLineEdit, QGridLayout, QLabel, QPushButton, QCheckBox, QDialog, QMessageBox, QComboBox
 
 
 class ParamDialog(QDialog):
 
-    def __init__(self, mainWin):
+    def __init__(self, main_win):
         super(ParamDialog, self).__init__()
 
-        self.mainWin = mainWin
+        self.mainWin = main_win
 
         self.setWindowModality(Qt.ApplicationModal)
 
@@ -38,7 +34,7 @@ class ParamDialog(QDialog):
         grid.addWidget(lbl, 1, 0)
 
         self.notifActivatedCheckBox = QCheckBox()
-        self.notifActivatedCheckBox.stateChanged.connect(self.NotifActivatedCheckBoxStateChanged)
+        self.notifActivatedCheckBox.stateChanged.connect(self.notif_activated_checkbox_state_changed)
 
         grid.addWidget(self.notifActivatedCheckBox, 1, 1)
 
@@ -59,9 +55,9 @@ class ParamDialog(QDialog):
         self.timeUnitComboBox.setFont(QFont('AnyStyle', self.itemFontSize))
         grid.addWidget(self.timeUnitComboBox, 2, 2)
 
-        timeUnits = ["minutes", "heures"]
-        for i in range(0, len(timeUnits)):
-            self.timeUnitComboBox.insertItem(i, str(timeUnits[i]))
+        time_units = ["minutes", "heures"]
+        for i in range(0, len(time_units)):
+            self.timeUnitComboBox.insertItem(i, str(time_units[i]))
 
         lbl = QLabel("GANTT")
         lbl.setFont(QFont('AnyStyle', self.titleFontSize))
@@ -74,7 +70,7 @@ class ParamDialog(QDialog):
         grid.addWidget(lbl, 4, 0)
 
         self.ganttActivatedCheckBox = QCheckBox()
-        self.ganttActivatedCheckBox.stateChanged.connect(self.GanttActivatedCheckBoxStateChanged)
+        self.ganttActivatedCheckBox.stateChanged.connect(self.gantt_activated_checkbox_state_changed)
 
         grid.addWidget(self.ganttActivatedCheckBox, 4, 1)
 
@@ -89,9 +85,9 @@ class ParamDialog(QDialog):
         self.NoEndDateComboBox.setFont(QFont('AnyStyle', self.itemFontSize))
         grid.addWidget(self.NoEndDateComboBox, 5, 1, 1, 2)
 
-        noEndDateChoices = ["Appliquer une durée", "La fixer à aujourd'hui"]
-        for i in range(0, len(noEndDateChoices)):
-            self.NoEndDateComboBox.insertItem(i, str(noEndDateChoices[i]))
+        no_end_date_choices = ["Appliquer une durée", "La fixer à aujourd'hui"]
+        for i in range(0, len(no_end_date_choices)):
+            self.NoEndDateComboBox.insertItem(i, str(no_end_date_choices[i]))
 
         lbl = QLabel("Durée (jours ouvrés)")
         lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
@@ -104,21 +100,22 @@ class ParamDialog(QDialog):
         self.durationTextEdit.setFont(QFont('AnyStyle', self.itemFontSize))
         grid.addWidget(self.durationTextEdit, 6, 1)
 
-        self.NoEndDateComboBox.currentTextChanged.connect(self.NoEndDateComboBoxChanged)
+        self.NoEndDateComboBox.currentTextChanged.connect(self.no_end_date_combobox_changed)
 
-        enterBtn = QPushButton("Entrer")
-        enterBtn.setFixedHeight(30)
-        # enterBtn.setFixedWidth(90)
-        enterBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        enterBtn.clicked.connect(self.EnterBtnClicked)
-        grid.addWidget(enterBtn, 7, 0, 1, 3)
+        enter_btn = QPushButton("Entrer")
+        enter_btn.setFixedHeight(30)
+        # enter_btn.setFixedWidth(90)
+        enter_btn.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        enter_btn.clicked.connect(self.enter_btn_clicked)
+        grid.addWidget(enter_btn, 7, 0, 1, 3)
 
         self.setLayout(grid)
-        enterBtn.setDefault(True)
+        enter_btn.setDefault(True)
 
     def showEvent(self, event):
         if self.mainWin.os == 'linux':
-            self.move(QGuiApplication.screenAt(QCursor.pos()).availableGeometry().center() - self.frameGeometry().center())
+            self.move(
+                QGuiApplication.screenAt(QCursor.pos()).availableGeometry().center() - self.frameGeometry().center())
 
         self.modifying = True
         if self.mainWin.config["notif"]:
@@ -151,20 +148,20 @@ class ParamDialog(QDialog):
             msg.setIcon(QMessageBox.Warning)
             msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
             msg.setDefaultButton(QMessageBox.Ok)
-            msg.buttonClicked.connect(self.onHideMsgBoxBtnClicked)
+            msg.buttonClicked.connect(self.on_hide_msg_box_btn_clicked)
 
             msg.setButtonText(QMessageBox.Cancel, "Annuler")
             msg.setButtonText(QMessageBox.Ok, "OK")
             # msg.exec_()
             msg.exec()
 
-    def onHideMsgBoxBtnClicked(self, button):
+    def on_hide_msg_box_btn_clicked(self, button):
         if button.text() == "OK":
             self.modifying = False
         elif button.text() == "Annuler":
             self.show()
 
-    def NotifActivatedCheckBoxStateChanged(self):
+    def notif_activated_checkbox_state_changed(self):
         if self.notifActivatedCheckBox.isChecked():
             self.timeTextEdit.setEnabled(True)
             self.timeUnitComboBox.setEnabled(True)
@@ -172,7 +169,7 @@ class ParamDialog(QDialog):
             self.timeTextEdit.setEnabled(False)
             self.timeUnitComboBox.setEnabled(False)
 
-    def GanttActivatedCheckBoxStateChanged(self):
+    def gantt_activated_checkbox_state_changed(self):
         if self.ganttActivatedCheckBox.isChecked():
             self.durationTextEdit.setEnabled(True)
             self.NoEndDateComboBox.setEnabled(True)
@@ -180,13 +177,13 @@ class ParamDialog(QDialog):
             self.durationTextEdit.setEnabled(False)
             self.NoEndDateComboBox.setEnabled(False)
 
-    def NoEndDateComboBoxChanged(self, text):
+    def no_end_date_combobox_changed(self, text):
         if text == "La fixer à aujourd'hui":
             self.durationTextEdit.setEnabled(False)
         else:
             self.durationTextEdit.setEnabled(True)
 
-    def EnterBtnClicked(self):
+    def enter_btn_clicked(self):
 
         if self.modifying:
             msg = QMessageBox()
@@ -195,7 +192,7 @@ class ParamDialog(QDialog):
             msg.setIcon(QMessageBox.Warning)
             msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
             msg.setDefaultButton(QMessageBox.Ok)
-            msg.buttonClicked.connect(self.onEnterMsgBoxBtnClicked)
+            msg.buttonClicked.connect(self.on_enter_msg_box_btn_clicked)
 
             msg.setButtonText(QMessageBox.Cancel, "Annuler")
             msg.setButtonText(QMessageBox.Ok, "OK")
@@ -204,7 +201,7 @@ class ParamDialog(QDialog):
         else:
             self.hide()
 
-    def onEnterMsgBoxBtnClicked(self, button):
+    def on_enter_msg_box_btn_clicked(self, button):
         if button.text() == "OK":
             self.mainWin.config["notif"] = self.notifActivatedCheckBox.isChecked()
             self.mainWin.config["period"] = self.timeTextEdit.text()
