@@ -303,7 +303,7 @@ class MainWindow(QMainWindow):
         self.notifyTimer.timeout.connect(self.notify_user)
 
         self.new_task.connect(self.create_task)
-        self.modify_task.connect(self.addTaskDialog.ModifyTask)
+        self.modify_task.connect(self.addTaskDialog.modify_task)
         self.modified_task.connect(self.update_task)
         self.modified_config.connect(self.update_config)
 

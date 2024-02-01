@@ -1,22 +1,19 @@
 import os
 
-# from PySide2.QtCore import Qt, QDateTime, QDate, QSettings
-from PySide6.QtCore import Qt, QDateTime, QDate, QSettings
-# from PySide2.QtGui import QFont, QTextOption
+from PySide6.QtCore import Qt, QDateTime, QDate
 from PySide6.QtGui import QFont, QTextOption, QAction
-# from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QLabel, QPushButton, QCheckBox, QDateEdit, \
-#     QDialog, QPlainTextEdit, QMessageBox, QComboBox, QFileDialog, QAction, QMenu
 from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QLabel, QPushButton, QCheckBox, QDateEdit, \
     QDialog, QPlainTextEdit, QMessageBox, QComboBox, QFileDialog, QMenu
 
 from lib.style import select_icon
 
+
 class AddTaskDialog(QDialog):
 
-    def __init__(self, mainWin):
+    def __init__(self, main_win):
         super(AddTaskDialog, self).__init__()
 
-        self.mainWin = mainWin
+        self.mainWin = main_win
 
         self.modifying = False
         self.task = None
@@ -58,18 +55,6 @@ class AddTaskDialog(QDialog):
         self.descTextEdit.setFont(QFont('AnyStyle', self.itemFontSize))
         grid.addWidget(self.descTextEdit, 1, 1)
 
-        # lbl = QLabel("Projet")
-        # lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        # lbl.setAlignment(Qt.AlignCenter)
-        # grid.addWidget(lbl, 2, 0)
-        #
-        # self.projectComboBox = QComboBox()
-        # self.projectComboBox.setFixedWidth(240)
-        # self.projectComboBox.setFixedHeight(30)
-        # self.projectComboBox.setFont(QFont('AnyStyle', self.itemFontSize))
-        # self.projectComboBox.currentIndexChanged.connect(self.ProjectComboBoxIndexChanged)
-        # grid.addWidget(self.projectComboBox, 2, 1)
-
         lbl = QLabel("Priorité")
         lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
         lbl.setAlignment(Qt.AlignCenter)
@@ -81,9 +66,9 @@ class AddTaskDialog(QDialog):
         self.priorityComboBox.setFont(QFont('AnyStyle', self.itemFontSize))
         grid.addWidget(self.priorityComboBox, 2, 1)
 
-        priorityDegrees = ["Normal", "Pressant", "Urgent"]
-        for i in range(0, len(priorityDegrees)):
-            self.priorityComboBox.insertItem(i, str(priorityDegrees[i]))
+        priority_degrees = ["Normal", "Pressant", "Urgent"]
+        for i in range(0, len(priority_degrees)):
+            self.priorityComboBox.insertItem(i, str(priority_degrees[i]))
 
         lbl = QLabel("Date de début")
         lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
@@ -95,7 +80,6 @@ class AddTaskDialog(QDialog):
         self.startDateEdit.setMinimumWidth(210)
         self.startDateEdit.setFixedHeight(30)
         self.startDateEdit.setFont(QFont('AnyStyle', self.itemFontSize))
-        # grid.addWidget(self.startDateEdit, 3, 1, Qt.AlignRight)
         grid.addWidget(self.startDateEdit, 3, 1)
 
         lbl = QLabel("Date de fin")
@@ -103,10 +87,10 @@ class AddTaskDialog(QDialog):
         lbl.setAlignment(Qt.AlignCenter)
         grid.addWidget(lbl, 4, 0)
 
-        endDateLayout = QHBoxLayout()
+        end_date_layout = QHBoxLayout()
 
         self.endDateCheckBox = QCheckBox()
-        self.endDateCheckBox.stateChanged.connect(self.EndDateCheckBoxStateChanged)
+        self.endDateCheckBox.stateChanged.connect(self.end_date_checkbox_state_changed)
 
         self.endDateEdit = QDateEdit(calendarPopup=True)
         self.endDateEdit.setEnabled(False)
@@ -115,48 +99,43 @@ class AddTaskDialog(QDialog):
         self.endDateEdit.setFixedHeight(30)
         self.endDateEdit.setFont(QFont('AnyStyle', self.itemFontSize))
 
-        endDateLayout.addWidget(self.endDateCheckBox, 0)
-        endDateLayout.addWidget(self.endDateEdit, 1)
+        end_date_layout.addWidget(self.endDateCheckBox, 0)
+        end_date_layout.addWidget(self.endDateEdit, 1)
 
-        grid.addLayout(endDateLayout, 4, 1)
+        grid.addLayout(end_date_layout, 4, 1)
 
         lbl = QLabel("Documents")
         lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
         lbl.setAlignment(Qt.AlignCenter)
         grid.addWidget(lbl, 5, 0)
 
-        browseLayout = QHBoxLayout()
+        browse_layout = QHBoxLayout()
 
-        browseBtn = QPushButton("Parcourir")
-        browseBtn.setFixedHeight(30)
-        # browseBtn.setFixedWidth(90)
-        browseBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        browseBtn.clicked.connect(self.BrowseBtnClicked)
-        browseLayout.addWidget(browseBtn, 0)
+        browse_btn = QPushButton("Parcourir")
+        browse_btn.setFixedHeight(30)
+        # browse_btn.setFixedWidth(90)
+        browse_btn.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        browse_btn.clicked.connect(self.browse_btn_clicked)
+        browse_layout.addWidget(browse_btn, 0)
 
         self.filesLayout = QGridLayout()
         self.filesLayoutRow = 0
         self.filesLayoutColumn = 0
         self.filesLabels = []
 
-        # self.browseLbl = QLabel("oui")
-        # self.browseLbl.setFont(QFont('AnyStyle', self.itemFontSize))
-        # self.browseLbl.setAlignment(Qt.AlignLeft)
-        # self.filesLayout.addWidget(self.browseLbl, 0, 0)
+        browse_layout.addLayout(self.filesLayout)
 
-        browseLayout.addLayout(self.filesLayout)
+        grid.addLayout(browse_layout, 5, 1)
 
-        grid.addLayout(browseLayout, 5, 1)
-
-        enterTaskBtn = QPushButton("Entrer")
-        enterTaskBtn.setFixedHeight(30)
-        # enterTaskBtn.setFixedWidth(90)
-        enterTaskBtn.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        enterTaskBtn.clicked.connect(self.EnterTaskBtnClicked)
-        grid.addWidget(enterTaskBtn, 6, 0, 1, 2)
+        enter_task_btn = QPushButton("Entrer")
+        enter_task_btn.setFixedHeight(30)
+        # enter_task_btn.setFixedWidth(90)
+        enter_task_btn.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        enter_task_btn.clicked.connect(self.enter_task_btn_clicked)
+        grid.addWidget(enter_task_btn, 6, 0, 1, 2)
 
         self.setLayout(grid)
-        enterTaskBtn.setDefault(True)
+        enter_task_btn.setDefault(True)
 
         # self.hide.connect(self.HideActions)
 
@@ -171,11 +150,10 @@ class AddTaskDialog(QDialog):
             msg.setIcon(QMessageBox.Warning)
             msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
             msg.setDefaultButton(QMessageBox.Ok)
-            msg.buttonClicked.connect(self.onHideMsgBoxBtnClicked)
+            msg.buttonClicked.connect(self.on_hide_msg_box_btn_clicked)
 
             msg.setButtonText(QMessageBox.Cancel, "Annuler")
             msg.setButtonText(QMessageBox.Ok, "OK")
-            # msg.exec_()
             msg.exec()
 
         else:
@@ -194,7 +172,7 @@ class AddTaskDialog(QDialog):
         self.filesLayoutRow = 0
         self.documentsList = []
 
-    def onHideMsgBoxBtnClicked(self, button):
+    def on_hide_msg_box_btn_clicked(self, button):
         if button.text() == "OK":
             self.nameTextEdit.setText("")
             self.descTextEdit.setPlainText("")
@@ -206,28 +184,25 @@ class AddTaskDialog(QDialog):
         elif button.text() == "Annuler":
             self.show()
 
-    def EndDateCheckBoxStateChanged(self):
+    def end_date_checkbox_state_changed(self):
         if self.endDateCheckBox.isChecked():
             self.endDateEdit.setEnabled(True)
         else:
             self.endDateEdit.setEnabled(False)
 
-    def EnterTaskBtnClicked(self):
-        taskName = self.nameTextEdit.text()
-        # taskProject = self.projectComboBox.currentText()
-        taskPriority = self.priorityComboBox.currentText()
-        taskDescription = self.descTextEdit.toPlainText()
-        taskStartDate = self.startDateEdit.date().toString(Qt.ISODate)
+    def enter_task_btn_clicked(self):
+        task_name = self.nameTextEdit.text()
+        task_priority = self.priorityComboBox.currentText()
+        task_description = self.descTextEdit.toPlainText()
+        task_start_date = self.startDateEdit.date().toString(Qt.ISODate)
         if not self.endDateCheckBox.isChecked():
-            taskEndDate = "-"
+            task_end_date = "-"
         else:
-            taskEndDate = self.endDateEdit.date().toString(Qt.ISODate)
-        # self.task = {"Check": 0, "Name": taskName, "Description": taskDescription, "Project": taskProject, "StartDate": taskStartDate, "EndDate": taskEndDate}
-        # self.task = {"Name": taskName, "Description": taskDescription, "Priority": taskPriority, "StartDate": taskStartDate, "EndDate": taskEndDate, "Check": 0}
-        self.task = {"Name": taskName, "Description": taskDescription, "Priority": taskPriority,
-                     "StartDate": taskStartDate, "EndDate": taskEndDate, "Check": 0,
-                     "Documents": self.documentsList}
+            task_end_date = self.endDateEdit.date().toString(Qt.ISODate)
 
+        self.task = {"Name": task_name, "Description": task_description, "Priority": task_priority,
+                     "StartDate": task_start_date, "EndDate": task_end_date, "Check": 0,
+                     "Documents": self.documentsList}
 
         if self.modifying:
             msg = QMessageBox()
@@ -236,27 +211,25 @@ class AddTaskDialog(QDialog):
             msg.setIcon(QMessageBox.Warning)
             msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
             msg.setDefaultButton(QMessageBox.Ok)
-            msg.buttonClicked.connect(self.onEnterMsgBoxBtnClicked)
+            msg.buttonClicked.connect(self.on_enter_msg_box_btn_clicked)
 
             msg.setButtonText(QMessageBox.Cancel, "Annuler")
             msg.setButtonText(QMessageBox.Ok, "OK")
-            # msg.exec_()
             msg.exec()
 
         else:
             self.mainWin.new_task.emit(self.task)
             self.hide()
 
-    def onEnterMsgBoxBtnClicked(self, button):
+    def on_enter_msg_box_btn_clicked(self, button):
         if button.text() == "OK":
             self.mainWin.modified_task.emit(self.task)
             self.modifying = False
             self.hide()
 
-    def ModifyTask(self, task):
+    def modify_task(self, task):
         self.nameTextEdit.setText(task["Name"])
         self.descTextEdit.setPlainText(task["Description"])
-        # self.projectComboBox.setCurrentText(task["Project"])
         self.priorityComboBox.setCurrentText(task["Priority"])
         self.startDateEdit.setDate(QDate.fromString(task["StartDate"], Qt.ISODate))
         if task["EndDate"] == "-":
@@ -269,46 +242,36 @@ class AddTaskDialog(QDialog):
         if not "Documents" in task:
             task["Documents"] = []
 
-        filesPaths = task["Documents"]
+        files_paths = task["Documents"]
 
-        # line_nb = len(filesPaths) // 6
-        # row_nb = len(filesPaths) % 6
-        # print("line_nb", line_nb)
-        # print("row_nb", row_nb)
-
-        self.display_selected_documents(filesPaths)
-
+        self.display_selected_documents(files_paths)
         self.setWindowTitle("Modifier une tâche")
-
         self.modifying = True
-
         self.show()
 
-    def ProjectComboBoxIndexChanged(self, index):
-        if index == len(self.mainWin.projectList):
-            self.mainWin.get_new_project.emit()
-
-    def BrowseBtnClicked(self):
-        # print("last_dir", self.last_dir)
-        file = QFileDialog.getOpenFileNames(parent=self, caption="Sélectionner un ou plusieurs fichier(s)", dir=self.last_dir, options=QFileDialog.DontUseNativeDialog)
+    def browse_btn_clicked(self):
+        file = QFileDialog.getOpenFileNames(parent=self,
+                                            caption="Sélectionner un ou plusieurs fichier(s)",
+                                            dir=self.last_dir)#,
+                                            # options=QFileDialog.DontUseNativeDialog)
         # if file:
-        #     filesPaths = file[0]
-        #     self.display_selected_documents(filesPaths)
+        #     files_paths = file[0]
+        #     self.display_selected_documents(files_paths)
 
         if file:
             if file[0]:
-                filesPaths = file[0]
-                self.last_dir = os.path.dirname(filesPaths[0])  # + "/"
+                files_paths = file[0]
+                self.last_dir = os.path.dirname(files_paths[0])  # + "/"
 
-                self.display_selected_documents(filesPaths)
+                self.display_selected_documents(files_paths)
 
         # get a folder :
         # folder = QFileDialog.getExistingDirectory(parent=self, caption="Sélectionner un dossier")
 
-    def display_selected_documents(self, filesPaths):
-        if len(filesPaths) > 0:
+    def display_selected_documents(self, files_paths):
+        if len(files_paths) > 0:
 
-            for document in filesPaths:
+            for document in files_paths:
 
                 splited_document_path = document.split(".")
                 extension = splited_document_path[len(splited_document_path) - 1]
