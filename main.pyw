@@ -12,18 +12,11 @@ from lib.add_window import AddTaskDialog
 from lib.param_window import ParamDialog
 
 import yaml
-# from PySide2.QtCore import Qt, Signal, QDateTime, QDate, QTimer, QModelIndex
 from PySide6.QtCore import Qt, Signal, QDateTime, QDate, QTimer
-# from PySide2.QtGui import QFont, QTextOption, QKeySequence, QStandardItem, QStandardItemModel, QIcon, QGuiApplication, \
-#     QCursor, QPixmap, QPainter
 from PySide6.QtGui import QFont, QKeySequence, QStandardItem, QStandardItemModel, QIcon, QGuiApplication, \
     QCursor, QAction
-# from PySide2.QtWidgets import QHBoxLayout, QLineEdit, QGridLayout, QWidget, QApplication, QLabel, QPushButton, \
-#     QCheckBox, QTreeWidget, QTreeWidgetItem, QDateEdit, QDialog, QVBoxLayout, QPlainTextEdit, QMessageBox, \
-#     QInputDialog, QComboBox, QTabWidget, QAction, QMainWindow, QMenu, QTreeView, QHeaderView, QDesktopWidget
 from PySide6.QtWidgets import QLineEdit, QGridLayout, QWidget, QApplication, QLabel, QTreeWidget, QTreeWidgetItem, \
-    QMessageBox, \
-    QInputDialog, QTabWidget, QMainWindow, QMenu, QTreeView
+    QMessageBox, QInputDialog, QTabWidget, QMainWindow, QMenu, QTreeView
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 
@@ -40,7 +33,6 @@ class MainWindow(QMainWindow):
     get_new_project = Signal()
     new_project = Signal(object)
     delete_project = Signal(object)
-
 
     def __init__(self):
         super().__init__()
@@ -161,13 +153,6 @@ class MainWindow(QMainWindow):
                 yaml.dump(new_param_file, f, sort_keys=False)
                 self.config = new_param_file
 
-        # try:
-        #     with open(f'{d}{self.slash}tasks.yaml', 'r') as f:
-        #         self.tasksList = yaml.load(f, Loader=yaml.FullLoader)
-        # except FileNotFoundError:
-        #     with open(f'{d}{self.slash}tasks.yaml', 'w') as f:
-        #         yaml.dump(None, f, sort_keys=False)
-
         self.addTaskDialog = AddTaskDialog(self)
         self.paramDialog = ParamDialog(self)
 
@@ -180,34 +165,36 @@ class MainWindow(QMainWindow):
         file = menu.addMenu("Fichier")
         file.addAction("Quitter", lambda: sys.exit(0))
 
-        taskMenu = menu.addMenu("Tâches")
-        taskMenu.addAction("Ajouter une tâche ...", lambda: self.AddTaskBtnClicked(), QKeySequence("a"))
-        taskMenu.addAction("Supprimer une tâche", lambda: self.DeleteTaskBtnClicked(), QKeySequence.Delete)
+        task_menu = menu.addMenu("Tâches")
+        task_menu.addAction("Ajouter une tâche ...", lambda: self.add_task_btn_clicked(), QKeySequence("a"))
+        task_menu.addAction("Supprimer une tâche", lambda: self.delete_task_btn_clicked(), QKeySequence.Delete)
 
-        projectMenu = menu.addMenu("Projets")
-        projectMenu.addAction("Ajouter un projet", lambda: self.AddProjectButtonClicked(), QKeySequence("p"))
-        projectMenu.addAction("Dérouler tous les projets", lambda: self.ExpandProjectTree(), QKeySequence(Qt.CTRL | Qt.ALT | Qt.Key_Plus))
-        projectMenu.addAction("Réduire tous les projets", lambda: self.CollapseProjectTree(), QKeySequence(Qt.CTRL | Qt.ALT | Qt.Key_Minus))
+        project_menu = menu.addMenu("Projets")
+        project_menu.addAction("Ajouter un projet", lambda: self.add_project_btn_clicked(), QKeySequence("p"))
+        project_menu.addAction("Dérouler tous les projets", lambda: self.expand_project_tree(),
+                               QKeySequence(Qt.CTRL | Qt.ALT | Qt.Key_Plus))
+        project_menu.addAction("Réduire tous les projets", lambda: self.collapse_project_tree(),
+                               QKeySequence(Qt.CTRL | Qt.ALT | Qt.Key_Minus))
 
-        optionMenu = menu.addMenu("Options")
-        optionMenu.addAction("Paramètres...", lambda : self.OpenParamBtnClicked())
+        option_menu = menu.addMenu("Options")
+        option_menu.addAction("Paramètres...", lambda: self.open_param_btn_clicked())
 
         layout = QGridLayout()
 
         self.runningWidget = QWidget(self)
-        runningLayout = QGridLayout()
+        running_layout = QGridLayout()
 
         self.tree_view = QTreeView(self)
         self.tree_view.setMinimumWidth(300)
         # self.tree_view.clicked.connect(self.OnProjectTreeClicked)
-        self.tree_view.pressed.connect(self.OnProjectTreeClicked)
+        self.tree_view.pressed.connect(self.on_project_tree_clicked)
         layout.addWidget(self.tree_view, 0, 0, 4, 1)
 
         # create a model for tree view
         self.model = QStandardItemModel()
 
         self.tree_view.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.tree_view.customContextMenuRequested.connect(self.Show_tree_context_menu)
+        self.tree_view.customContextMenuRequested.connect(self.show_tree_context_menu)
 
         # get header of tree view
         self.tree_view_header = self.tree_view.header()
@@ -237,13 +224,13 @@ class MainWindow(QMainWindow):
         # elmt.setStyleSheet("QTreeWidgetItem {margin: 20px}")
 
         self.listTree.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.listTree.customContextMenuRequested.connect(self.Show_lists_context_menu)
+        self.listTree.customContextMenuRequested.connect(self.show_lists_context_menu)
 
-        self.listTree.itemChanged.connect(self.listTree_changed)
+        self.listTree.itemChanged.connect(self.list_tree_changed)
         # self.listTree.itemClicked.connect(self.listTree_itemClicked)
-        self.listTree.itemPressed.connect(self.listTree_itemClicked)
-        self.listTree.itemDoubleClicked.connect(self.ModifyTaskBtnClicked)
-        runningLayout.addWidget(self.listTree, 2, 0, 1, 4)
+        self.listTree.itemPressed.connect(self.list_tree_item_clicked)
+        self.listTree.itemDoubleClicked.connect(self.modify_task_btn_clicked)
+        running_layout.addWidget(self.listTree, 2, 0, 1, 4)
 
         self.listTreeHeader = self.listTree.header()
         self.listTreeHeader.setDefaultAlignment(Qt.AlignCenter | Qt.AlignVCenter)
@@ -251,12 +238,12 @@ class MainWindow(QMainWindow):
         self.listTreeHeader.setStretchLastSection(False)
         # self.listTreeHeader.setSectionResizeMode(2, QHeaderView.ResizeToContents)
         self.listTreeHeader.setSectionsClickable(True)
-        self.listTreeHeader.sectionClicked.connect(self.customSortByColumn)
+        self.listTreeHeader.sectionClicked.connect(self.custom_sort_by_column)
 
-        self.runningWidget.setLayout(runningLayout)
+        self.runningWidget.setLayout(running_layout)
 
         self.finishedWidget = QWidget(self)
-        finishedLayout = QGridLayout()
+        finished_layout = QGridLayout()
 
         self.finishedTasksTree = QTreeWidget(self)
         self.finishedTasksTree.setHeaderLabels(["", "Nom", "Description", "Priorité", "Début", "Fin", "Documents"])
@@ -270,23 +257,22 @@ class MainWindow(QMainWindow):
         self.finishedTasksTree.setColumnWidth(4, 112)
         self.finishedTasksTree.setColumnWidth(5, 112)
         self.finishedTasksTree.setColumnWidth(6, 100)
-        self.finishedTasksTree.itemChanged.connect(self.finishedTasksTree_changed)
+        self.finishedTasksTree.itemChanged.connect(self.finished_tasks_tree_changed)
         # self.finishedTasksTree.itemClicked.connect(self.finishedTasksTree_itemClicked)
-        self.finishedTasksTree.itemPressed.connect(self.finishedTasksTree_itemClicked)
-        self.finishedTasksTree.itemDoubleClicked.connect(self.ModifyTaskBtnClicked)
-        finishedLayout.addWidget(self.finishedTasksTree, 2, 0, 1, 4)
+        self.finishedTasksTree.itemPressed.connect(self.finished_tasks_tree_item_clicked)
+        self.finishedTasksTree.itemDoubleClicked.connect(self.modify_task_btn_clicked)
+        finished_layout.addWidget(self.finishedTasksTree, 2, 0, 1, 4)
 
         self.finishedTasksTree.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.finishedTasksTree.customContextMenuRequested.connect(self.Show_lists_context_menu)
+        self.finishedTasksTree.customContextMenuRequested.connect(self.show_lists_context_menu)
 
         self.finishedTasksTreeHeader = self.finishedTasksTree.header()
         self.finishedTasksTreeHeader.setDefaultAlignment(Qt.AlignCenter | Qt.AlignVCenter)
         self.finishedTasksTreeHeader.setStretchLastSection(False)
         self.finishedTasksTreeHeader.setSectionsClickable(True)
-        self.finishedTasksTreeHeader.sectionClicked.connect(self.customSortByColumn)
+        self.finishedTasksTreeHeader.sectionClicked.connect(self.custom_sort_by_column)
 
-
-        self.finishedWidget.setLayout(finishedLayout)
+        self.finishedWidget.setLayout(finished_layout)
 
         self.tabs = QTabWidget(self)
         self.tabs.addTab(self.runningWidget, "En cours")
@@ -304,22 +290,22 @@ class MainWindow(QMainWindow):
             self.web_view.setVisible(True)
 
         main_window = QWidget()
-        main_window.setLayout(layout)  # runningLayout
+        main_window.setLayout(layout)  # running_layout
         self.setCentralWidget(main_window)
-        # self.setLayout(runningLayout)
+        # self.setLayout(running_layout)
 
-        self.Update_changes()
-        self.Update_tree()
+        self.update_changes()
+        self.update_tree()
 
         self.waitForNotifications = 1800000  # msec  30min = 30*60*1000 = 1.800.000
 
         self.notifyTimer = QTimer(self)
-        self.notifyTimer.timeout.connect(self.NotifyUser)
+        self.notifyTimer.timeout.connect(self.notify_user)
 
-        self.new_task.connect(self.New_task)
+        self.new_task.connect(self.create_task)
         self.modify_task.connect(self.addTaskDialog.ModifyTask)
-        self.modified_task.connect(self.ModifiedTask)
-        self.modified_config.connect(self.ModifiedConfig)
+        self.modified_task.connect(self.update_task)
+        self.modified_config.connect(self.update_config)
 
         self.show()
 
@@ -328,22 +314,23 @@ class MainWindow(QMainWindow):
             # - on primary screen -
             # self.move(QGuiApplication.primaryScreen().availableGeometry().center() - self.frameGeometry().center())
             # - on screen where mouse pointer is -
-            self.move(QGuiApplication.screenAt(QCursor.pos()).availableGeometry().center() - self.frameGeometry().center())
+            self.move(QGuiApplication.screenAt(
+                QCursor.pos()).availableGeometry().center() - self.frameGeometry().center())
             # ---------------------
 
         self.setWindowIcon(QIcon(f"{self.d}/task_manager_logo1.png"))
 
         if self.config["notif"]:
             self.notifyTimer.start(self.waitForNotifications)
-            self.ComputeNotificationPeriod()
-            self.NotifyUser()
+            self.compute_notification_period()
+            self.notify_user()
 
     def keyPressEvent(self, e):
         pass
         # if e.key() == 16777223:
         #     self.DeleteTaskBtnClicked()
 
-    def Update_tree(self):
+    def update_tree(self):
 
         self.model.clear()
 
@@ -358,7 +345,6 @@ class MainWindow(QMainWindow):
                     # if not 'Description' in child:
                     if 'Children' in child or not 'Description' in child:
                         add_item(item, child)
-
 
         # create the root item and add it to the model
         root_item = QStandardItem(self.task_tree['Name'])
@@ -396,26 +382,26 @@ class MainWindow(QMainWindow):
         # hide triangle
         # self.tree_view.setRootIsDecorated(False)
 
-        self.updateIcons()
+        self.update_icons()
 
-    def updateIcons(self):
+    def update_icons(self):
         items = []
         root = self.model.invisibleRootItem()
         for item in self.iter_items(root):
             item.setIcon(QIcon())
             items.append(item)
 
-            hasParent = True
+            has_parent = True
             parent_list = [item.text()]
             child = item
 
-            while hasParent:
+            while has_parent:
                 try:
                     parent = child.parent()
                     parent_list.append(parent.text())
                     child = parent
                 except:
-                    hasParent = False
+                    has_parent = False
 
             parent_name = self.task_tree['Name']
             parent_ = self.task_tree
@@ -516,31 +502,31 @@ class MainWindow(QMainWindow):
                         if child.hasChildren():
                             stack.append(child)
 
-    def ExpandProjectTree(self):
+    def expand_project_tree(self):
         self.tree_view.expandAll()
 
-    def CollapseProjectTree(self):
+    def collapse_project_tree(self):
         self.tree_view.collapseAll()
 
-    def OnProjectTreeClicked(self, index):
+    def on_project_tree_clicked(self, index):
         item = self.model.itemFromIndex(index)
-        self.updateIcons()
+        self.update_icons()
         item.setIcon(QIcon(self.open_folder_icon))
         # print(item.text())
 
         self.ts = time.time()
 
-        hasParent = True
+        has_parent = True
         self.parent_list = [item.text()]
         child = item
 
-        while hasParent:
+        while has_parent:
             try:
                 parent = child.parent()
                 self.parent_list.append(parent.text())
                 child = parent
             except:
-                hasParent = False
+                has_parent = False
 
         # print("parent_list", self.parent_list)
 
@@ -589,11 +575,11 @@ class MainWindow(QMainWindow):
         # print("project_tasks_list:", self.selected_project_tasks_list)
 
         self.tasksList = self.selected_project_tasks_list
-        self.Update_changes()
+        self.update_changes()
 
         self.selectedProject = item
 
-    def Update_gantt(self):
+    def update_gantt(self):
 
         if self.parent_list is not None:
             project_name = self.parent_list[0]
@@ -656,18 +642,18 @@ excludes    weekends
 
             self.web_view.setHtml(gantt_html)
 
-    def Show_tree_context_menu(self, position):
+    def show_tree_context_menu(self, position):
 
         if time.time() - self.ts < 0.3:
 
             add_task = QAction("Ajouter une tâche")
-            add_task.triggered.connect(self.AddTaskBtnClicked)
+            add_task.triggered.connect(self.add_task_btn_clicked)
             add_section = QAction("Ajouter une section")
-            add_section.triggered.connect(self.AddProjectSectionButtonClicked)
+            add_section.triggered.connect(self.add_project_section_btn_clicked)
             modify_section = QAction("Modifier")
-            modify_section.triggered.connect(self.ModifySectionButtonClicked)
+            modify_section.triggered.connect(self.modify_section_btn_clicked)
             delete_section = QAction("Supprimer")
-            delete_section.triggered.connect(self.RemoveSectionButtonClicked)
+            delete_section.triggered.connect(self.remove_section_btn_clicked)
 
             menu = QMenu(self.tree_view)
             menu.addAction(add_task)
@@ -677,34 +663,32 @@ excludes    weekends
 
         else:
             add_project = QAction("Ajouter un projet")
-            add_project.triggered.connect(self.AddProjectButtonClicked)
+            add_project.triggered.connect(self.add_project_btn_clicked)
 
             menu = QMenu(self.tree_view)
             menu.addAction(add_project)
 
-        # menu.exec_(self.tree_view.mapToGlobal(position))
         menu.exec(self.tree_view.mapToGlobal(position))
 
-    def OpenParamBtnClicked(self):
+    def open_param_btn_clicked(self):
         self.paramDialog.show()
 
-    def AddProjectButtonClicked(self):
-        addProjectDialog = QInputDialog(self)
-        addProjectDialog.setInputMode(QInputDialog.TextInput)
-        addProjectDialog.setWindowTitle('Entrer un projet global')
-        addProjectDialog.setLabelText('Nom du projet :')
-        addProjectDialog.setFont(QFont('AnyStyle', 9))
-        # ok = addProjectDialog.exec_()
-        ok = addProjectDialog.exec()
-        text = addProjectDialog.textValue()
+    def add_project_btn_clicked(self):
+        add_project_dialog = QInputDialog(self)
+        add_project_dialog.setInputMode(QInputDialog.TextInput)
+        add_project_dialog.setWindowTitle('Entrer un projet global')
+        add_project_dialog.setLabelText('Nom du projet :')
+        add_project_dialog.setFont(QFont('AnyStyle', 9))
+        ok = add_project_dialog.exec()
+        text = add_project_dialog.textValue()
 
         if ok:
             self.task_tree["Children"].append({"Name": text})
 
-        self.Save_tree()
-        self.Update_tree()
+        self.save_tree()
+        self.update_tree()
 
-    def AddProjectSectionButtonClicked(self):
+    def add_project_section_btn_clicked(self):
 
         if self.parent_list is not None:
             parent_name = self.task_tree['Name']
@@ -716,14 +700,13 @@ excludes    weekends
                         if child['Name'] == self.parent_list[i - 1]:
                             parent_ = child
                             if (i - 1) == 0:  # last element
-                                addSectionDialog = QInputDialog(self)
-                                addSectionDialog.setInputMode(QInputDialog.TextInput)
-                                addSectionDialog.setWindowTitle('Entrer une section')
-                                addSectionDialog.setLabelText('Nom de la section :')
-                                addSectionDialog.setFont(QFont('AnyStyle', 9))
-                                # ok = addSectionDialog.exec_()
-                                ok = addSectionDialog.exec()
-                                text = addSectionDialog.textValue()
+                                add_section_dialog = QInputDialog(self)
+                                add_section_dialog.setInputMode(QInputDialog.TextInput)
+                                add_section_dialog.setWindowTitle('Entrer une section')
+                                add_section_dialog.setLabelText('Nom de la section :')
+                                add_section_dialog.setFont(QFont('AnyStyle', 9))
+                                ok = add_section_dialog.exec()
+                                text = add_section_dialog.textValue()
 
                                 if ok:
                                     if 'Children' in child:
@@ -732,11 +715,11 @@ excludes    weekends
                                         child['Children'] = []
                                         child['Children'].append({"Name": text})
 
-                                self.Save_tree()
-                                self.Update_tree()
-                                self.Update_changes()
+                                self.save_tree()
+                                self.update_tree()
+                                self.update_changes()
 
-    def ModifySectionButtonClicked(self):
+    def modify_section_btn_clicked(self):
         if self.parent_list is not None:
             parent_name = self.task_tree['Name']
             parent_ = self.task_tree
@@ -747,25 +730,24 @@ excludes    weekends
                         if child['Name'] == self.parent_list[i - 1]:
                             parent_ = child
                             if (i - 1) == 0:  # last element
-                                modifySectionDialog = QInputDialog(self)
-                                modifySectionDialog.setInputMode(QInputDialog.TextInput)
-                                modifySectionDialog.setWindowTitle('Modifier une section')
-                                modifySectionDialog.setLabelText('Nouveau nom de la section :')
-                                lineEdit = modifySectionDialog.findChild(QLineEdit)
-                                lineEdit.setPlaceholderText(f'{child["Name"]}')
-                                modifySectionDialog.setFont(QFont('AnyStyle', 9))
-                                # ok = modifySectionDialog.exec_()
-                                ok = modifySectionDialog.exec()
-                                text = modifySectionDialog.textValue()
+                                modify_section_dialog = QInputDialog(self)
+                                modify_section_dialog.setInputMode(QInputDialog.TextInput)
+                                modify_section_dialog.setWindowTitle('Modifier une section')
+                                modify_section_dialog.setLabelText('Nouveau nom de la section :')
+                                line_edit = modify_section_dialog.findChild(QLineEdit)
+                                line_edit.setPlaceholderText(f'{child["Name"]}')
+                                modify_section_dialog.setFont(QFont('AnyStyle', 9))
+                                ok = modify_section_dialog.exec()
+                                text = modify_section_dialog.textValue()
 
                                 if ok:
                                     child['Name'] = text
 
-                                self.Save_tree()
-                                self.Update_tree()
-                                self.Update_changes()
+                                self.save_tree()
+                                self.update_tree()
+                                self.update_changes()
 
-    def RemoveSectionButtonClicked(self):
+    def remove_section_btn_clicked(self):
 
         msg = QMessageBox()
         msg.setWindowTitle("Suppression d'une section")
@@ -775,14 +757,13 @@ excludes    weekends
         msg.setIcon(QMessageBox.Warning)
         msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
         msg.setDefaultButton(QMessageBox.Ok)
-        msg.buttonClicked.connect(self.onDeleteSectionMsgBoxBtnClicked)
+        msg.buttonClicked.connect(self.on_delete_section_msg_box_btn_clicked)
 
         msg.setButtonText(QMessageBox.Cancel, "Annuler")
         msg.setButtonText(QMessageBox.Ok, "OK")
-        # msg.exec_()
         msg.exec()
 
-    def onDeleteSectionMsgBoxBtnClicked(self, button):
+    def on_delete_section_msg_box_btn_clicked(self, button):
         if button.text() == 'OK':
 
             if self.parent_list is not None:
@@ -798,13 +779,13 @@ excludes    weekends
 
                                     parent_["Children"].remove(child)
 
-                                    self.Save_tree()
-                                    self.Update_tree()
-                                    self.Update_changes()
+                                    self.save_tree()
+                                    self.update_tree()
+                                    self.update_changes()
 
                                 parent_ = child
 
-    def Remove_task(self, taskToDelete):
+    def remove_task(self, task_to_delete):
 
         if self.parent_list is not None:
             parent_name = self.task_tree['Name']
@@ -818,33 +799,21 @@ excludes    weekends
                             if (i - 1) == 0:  # last element
 
                                 if 'Children' in child:
-                                    child['Children'].remove(taskToDelete)
+                                    child['Children'].remove(task_to_delete)
 
-                                    self.Save_tree()
-                                    self.Update_tree()
-                                    self.Update_changes()
+                                    self.save_tree()
+                                    self.update_tree()
+                                    self.update_changes()
 
-
-    def Save_tree(self):
+    def save_tree(self):
         with open(f'{self.d}{self.slash}tasks_tree.yaml', 'w') as f:
             yaml.dump(self.task_tree, f, sort_keys=False)
 
-    def Save(self):
+    def save(self):
         with open('tasks.yaml', 'w') as f:
             yaml.dump(self.tasksList, f, sort_keys=False)
 
-    def New_task(self, task):
-        # self.tasksList.append(task)
-
-        # print(self.tasksList)
-        # if 'Children' in self.task_tree:
-        #     self.task_tree['Children'].append(task)
-        # else:
-        #     self.task_tree['Children'] = []
-        #     self.task_tree['Children'].append(task)
-
-        # self.Save()
-
+    def create_task(self, task):
 
         if self.parent_list is not None:
             parent_name = self.task_tree['Name']
@@ -865,11 +834,11 @@ excludes    weekends
 
                                 self.tasksList = child['Children']
 
-                                self.Save_tree()
-                                self.Update_tree()
-                                self.Update_changes()
+                                self.save_tree()
+                                self.update_tree()
+                                self.update_changes()
 
-    def Update_changes(self):
+    def update_changes(self):
         self.updating = True
 
         time.sleep(0.1)
@@ -881,26 +850,26 @@ excludes    weekends
         self.listTree.clear()
         self.finishedTasksTree.clear()
         i = 0
-        iRunning = 0
-        iFinished = 0
-        runningTasksNb = 0
-        finishedTasksNb = 0
+        i_running = 0
+        i_finished = 0
+        running_tasks_nb = 0
+        finished_tasks_nb = 0
         tree_to_build = None
         tree_len = 0
 
         if self.tasksList is not None:
-            newTasksList = []
+            new_tasks_list = []
             for task in self.tasksList:
                 if not "Children" in task and "Description" in task:
-                    newTasksList.append(task)
-            self.tasksList = newTasksList
+                    new_tasks_list.append(task)
+            self.tasksList = new_tasks_list
 
             for task in self.tasksList:
                 if "Check" in task:
                     if task["Check"] == 0:
-                        runningTasksNb += 1
+                        running_tasks_nb += 1
                     elif task["Check"] == 1:
-                        finishedTasksNb += 1
+                        finished_tasks_nb += 1
                 else:
                     self.tasksList = None
                     break
@@ -910,38 +879,38 @@ excludes    weekends
                 # breakpoint()
                 if task["Check"] == 0:
                     tree_to_build = self.listTree
-                    iRunning += 1
-                    i = iRunning
-                    tree_len = runningTasksNb
+                    i_running += 1
+                    i = i_running
+                    tree_len = running_tasks_nb
                 elif task["Check"] == 1:
                     tree_to_build = self.finishedTasksTree
-                    iFinished += 1
-                    i = iFinished
-                    tree_len = finishedTasksNb
+                    i_finished += 1
+                    i = i_finished
+                    tree_len = finished_tasks_nb
 
-                elmt = QTreeWidgetItem(tree_to_build)
-                elmt.setFlags(elmt.flags() | Qt.ItemIsUserCheckable)
+                element = QTreeWidgetItem(tree_to_build)
+                element.setFlags(element.flags() | Qt.ItemIsUserCheckable)
 
                 # lbl = QLabel(f'\n{task["Name"]}\n')
                 lbl = QLabel(f'\n{task["Name"]}\n')
                 lbl.setWordWrap(True)
                 lbl.setFont(QFont('AnyStyle', self.itemFontSize))
                 lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-                tree_to_build.setItemWidget(elmt, 1, lbl)
+                tree_to_build.setItemWidget(element, 1, lbl)
 
                 lbl = QLabel(f'\n{task["Description"]}\n')
                 lbl.setWordWrap(True)
                 lbl.setFont(QFont('AnyStyle', self.itemFontSize))
                 lbl.setMaximumWidth(500)
                 lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-                tree_to_build.setItemWidget(elmt, 2, lbl)
+                tree_to_build.setItemWidget(element, 2, lbl)
 
                 # lbl = QLabel(task["Project"])
                 lbl = QLabel(task["Priority"])
                 lbl.setWordWrap(True)
                 lbl.setFont(QFont('AnyStyle', self.itemFontSize))
                 lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-                tree_to_build.setItemWidget(elmt, 3, lbl)
+                tree_to_build.setItemWidget(element, 3, lbl)
 
                 try:
                     year, month, day = task["StartDate"].split("-")
@@ -953,7 +922,7 @@ excludes    weekends
                 lbl.setWordWrap(True)
                 lbl.setFont(QFont('AnyStyle', self.itemFontSize))
                 lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-                tree_to_build.setItemWidget(elmt, 4, lbl)
+                tree_to_build.setItemWidget(element, 4, lbl)
 
                 try:
                     year, month, day = task["EndDate"].split("-")
@@ -965,7 +934,7 @@ excludes    weekends
                 lbl.setWordWrap(True)
                 lbl.setFont(QFont('AnyStyle', self.itemFontSize))
                 lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-                tree_to_build.setItemWidget(elmt, 5, lbl)
+                tree_to_build.setItemWidget(element, 5, lbl)
 
                 if "Documents" in task:
 
@@ -979,7 +948,6 @@ excludes    weekends
                     row = 0
                     max_col = 4
 
-                    # for document in range(len(doc_list)):
                     for document in doc_list:
                         split_document_path = document.split(".")
                         extension = split_document_path[len(split_document_path)-1]
@@ -1004,7 +972,7 @@ excludes    weekends
                         lbl.setWordWrap(True)
                         lbl.setFont(QFont('AnyStyle', self.itemFontSize))
                         lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-                        lbl.linkActivated.connect(self.LinkActivated)
+                        lbl.linkActivated.connect(self.link_activated)
                         lbl.setToolTip(document)
 
                         if col < max_col:
@@ -1016,7 +984,7 @@ excludes    weekends
 
                         col += 1
 
-                    tree_to_build.setItemWidget(elmt, 6, widget)
+                    tree_to_build.setItemWidget(element, 6, widget)
 
                 # if i < tree_len:
                 #     spacer = QTreeWidgetItem(tree_to_build)
@@ -1028,14 +996,14 @@ excludes    weekends
                 #     tree_to_build.setItemWidget(spacer, 0, lbl)
 
                 if task["Check"] == 1:
-                    elmt.setCheckState(0, Qt.Checked)
+                    element.setCheckState(0, Qt.Checked)
                 else:
-                    elmt.setCheckState(0, Qt.Unchecked)
+                    element.setCheckState(0, Qt.Unchecked)
 
-        self.Update_gantt()
+        self.update_gantt()
         self.updating = False
 
-    def LinkActivated(self, path):
+    def link_activated(self, path):
         split_document_path = path.split("\space")
         reconstructed_path = ""
 
@@ -1062,10 +1030,9 @@ excludes    weekends
             msg.setStandardButtons(QMessageBox.Ok)
             msg.setButtonText(QMessageBox.Ok, "OK")
             msg.setDefaultButton(QMessageBox.Ok)
-            # msg.exec_()
             msg.exec()
 
-    def finishedTasksTree_changed(self, item, col):
+    def finished_tasks_tree_changed(self, item, col):
         try:
             if not self.updating:
 
@@ -1086,14 +1053,13 @@ excludes    weekends
                             task["Check"] = 0
                             break
 
-                    # self.Save()
-                    self.Save_tree()
-                    self.Update_tree()
-                    self.Update_changes()
+                    self.save_tree()
+                    self.update_tree()
+                    self.update_changes()
         except Exception as e:
             print("finishedTasksTree_changed:", e)
 
-    def listTree_changed(self, item, col):
+    def list_tree_changed(self, item, col):
         try:
             if not self.updating:
                 if item.checkState(0) == Qt.Checked:
@@ -1113,14 +1079,13 @@ excludes    weekends
                     #             task["Check"] = 0
                     #             break
 
-                    # self.Save()
-                    self.Save_tree()
-                    self.Update_tree()
-                    self.Update_changes()
+                    self.save_tree()
+                    self.update_tree()
+                    self.update_changes()
         except Exception as e:
             print("listTree_changed:", e)
 
-    def listTree_itemClicked(self, item, col):
+    def list_tree_item_clicked(self, item, col):
         try:
             if item.isSelected():
                 self.selectedItem = item
@@ -1128,7 +1093,7 @@ excludes    weekends
         except Exception as e:
             print("listTree_itemClicked", e)
 
-    def finishedTasksTree_itemClicked(self, item, col):
+    def finished_tasks_tree_item_clicked(self, item, col):
         try:
             if item.isSelected():
                 self.selectedItem = item
@@ -1136,24 +1101,24 @@ excludes    weekends
         except Exception as e:
             print("finishedTasksTree_itemClicked", e)
 
-    def Update_project_combo_box(self):
+    def update_project_combo_box(self):
         self.addTaskDialog.projectComboBox.clear()
         for i in range(0, len(self.projectList)):
             self.addTaskDialog.projectComboBox.insertItem(i, self.projectList[i]["Name"])
         self.addTaskDialog.projectComboBox.insertItem(len(self.projectList), "--Nouveau--")
 
-    def AddTaskBtnClicked(self):
+    def add_task_btn_clicked(self):
         # self.Update_project_combo_box()
         self.addTaskDialog.show()
 
-    def ModifyTaskBtnClicked(self):
+    def modify_task_btn_clicked(self):
         # self.Update_project_combo_box()
 
-        current_tree = self.SelectedTree()
+        current_tree = self.selected_tree()
 
-        taskToModify = self.getTask(current_tree)
+        task_to_modify = self.get_task(current_tree)
 
-        self.modify_task.emit(taskToModify)
+        self.modify_task.emit(task_to_modify)
 
         # for task in self.tasksList:
         #     if f'\n{task["Name"]}\n' == current_tree.itemWidget(self.selectedItem, 1).text() and \
@@ -1163,20 +1128,20 @@ excludes    weekends
         #         self.modify_task.emit(task)
         #         break
 
-    def ModifiedTask(self, modifiedTask):
+    def update_task(self, modified_task):
 
-        current_tree = self.SelectedTree()
+        current_tree = self.selected_tree()
 
-        task = self.getTask(current_tree)
+        task = self.get_task(current_tree)
 
-        task["Name"] = modifiedTask["Name"]
-        task["Description"] = modifiedTask["Description"]
+        task["Name"] = modified_task["Name"]
+        task["Description"] = modified_task["Description"]
         # task["Project"] = modifiedTask["Project"]
-        task["Priority"] = modifiedTask["Priority"]
-        task["StartDate"] = modifiedTask["StartDate"]
-        task["EndDate"] = modifiedTask["EndDate"]
+        task["Priority"] = modified_task["Priority"]
+        task["StartDate"] = modified_task["StartDate"]
+        task["EndDate"] = modified_task["EndDate"]
 
-        task["Documents"] = modifiedTask["Documents"]
+        task["Documents"] = modified_task["Documents"]
 
         # for task in self.tasksList:
         #     if f'\n{task["Name"]}\n' == current_tree.itemWidget(self.selectedItem, 1).text() and \
@@ -1190,31 +1155,29 @@ excludes    weekends
         #         task["EndDate"] = modifiedTask["EndDate"]
         #         break
 
-        # self.Save()
-        self.Save_tree()
-        self.Update_tree()
-        self.Update_changes()
+        self.save_tree()
+        self.update_tree()
+        self.update_changes()
 
-    def DeleteTaskBtnClicked(self):
+    def delete_task_btn_clicked(self):
 
-        current_tree = self.SelectedTree()
+        current_tree = self.selected_tree()
 
         try:
-            taskName = current_tree.itemWidget(self.selectedItem, 1).text()
+            task_name = current_tree.itemWidget(self.selectedItem, 1).text()
 
-            taskName = taskName.replace("\n", "")
+            task_name = task_name.replace("\n", "")
 
             msg = QMessageBox()
             msg.setWindowTitle("Suppression d'une tâche")
-            msg.setText(f'La tache "{taskName}" va être supprimée')
+            msg.setText(f'La tache "{task_name}" va être supprimée')
             msg.setIcon(QMessageBox.Warning)
             msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
             msg.setDefaultButton(QMessageBox.Ok)
-            msg.buttonClicked.connect(self.onDeleteMsgBoxBtnClicked)
+            msg.buttonClicked.connect(self.on_delete_msg_box_btn_clicked)
 
             msg.setButtonText(QMessageBox.Cancel, "Annuler")
             msg.setButtonText(QMessageBox.Ok, "OK")
-            # msg.exec_()
             msg.exec()
         except:
             msg = QMessageBox()
@@ -1224,36 +1187,34 @@ excludes    weekends
             msg.setStandardButtons(QMessageBox.Ok)
             msg.setDefaultButton(QMessageBox.Ok)
             msg.setButtonText(QMessageBox.Ok, "OK")
-            # msg.exec_()
             msg.exec()
 
-    def onDeleteMsgBoxBtnClicked(self, button):
+    def on_delete_msg_box_btn_clicked(self, button):
         if button.text() == 'OK':
 
-            current_tree = self.SelectedTree()
+            current_tree = self.selected_tree()
 
-            # taskToDelete = None
+            # task_to_delete = None
 
-            taskToDelete = self.getTask(current_tree)
+            task_to_delete = self.get_task(current_tree)
 
             # for task in self.tasksList:
             #     # if f'\n{task["Name"]}\n' == current_tree.itemWidget(self.selectedItem, 1).text() and \
             #     #         f'\n{task["Description"]}\n' == current_tree.itemWidget(self.selectedItem, 2).text():
             #     if task["Name"] == current_tree.itemWidget(self.selectedItem, 1).text() and \
             #             task["Description"] == current_tree.itemWidget(self.selectedItem, 2).text():
-            #         taskToDelete = task
+            #         task_to_delete = task
             #         break
 
-            self.tasksList.remove(taskToDelete)
+            self.tasksList.remove(task_to_delete)
 
-            self.Remove_task(taskToDelete)
+            self.remove_task(task_to_delete)
 
-            # # self.Save()
             # self.Save_tree()
             # self.Update_tree()
             # self.Update_changes()
 
-    def getTask(self, tree):
+    def get_task(self, tree):
         for task in self.tasksList:
             if f'\n{task["Name"]}\n' == tree.itemWidget(self.selectedItem, 1).text() and \
                     f'\n{task["Description"]}\n' == tree.itemWidget(self.selectedItem, 2).text():
@@ -1261,8 +1222,7 @@ excludes    weekends
                 #         task["Description"] == tree.itemWidget(self.selectedItem, 2).text():
                 return task
 
-
-    def customSortByColumn(self, column):
+    def custom_sort_by_column(self, column):
         if column == 3:
             # if self.projectAscending is None or not self.projectAscending:
             #     self.tasksList.sort(key=lambda x: x.get("Project"))
@@ -1292,30 +1252,29 @@ excludes    weekends
                 self.tasksList.sort(key=lambda x: x.get("EndDate"), reverse=True)
                 self.endDateAscending = False
 
-        # self.Save()
-        self.Update_changes()
+        self.update_changes()
 
-    def SelectedTree(self):
+    def selected_tree(self):
         if self.tabs.currentWidget() == self.runningWidget:
             return self.listTree
         elif self.tabs.currentWidget() == self.finishedWidget:
             return self.finishedTasksTree
 
-    def Show_lists_context_menu(self, position):
+    def show_lists_context_menu(self, position):
 
         if time.time() - self.ts < 0.1:
             copy_action = QAction("Copier la tâche")
-            copy_action.triggered.connect(self.CopyTaskBtnClicked)
+            copy_action.triggered.connect(self.copy_task_btn_clicked)
             cut_action = QAction("Couper la tâche")
-            cut_action.triggered.connect(self.CutTaskBtnClicked)
+            cut_action.triggered.connect(self.cut_task_btn_clicked)
             paste_action = QAction("Coller la tache ici")
-            paste_action.triggered.connect(self.PasteTaskBtnClicked)
+            paste_action.triggered.connect(self.paste_task_btn_clicked)
             add_task = QAction("Ajouter une tâche")
-            add_task.triggered.connect(self.AddTaskBtnClicked)
+            add_task.triggered.connect(self.add_task_btn_clicked)
             modify_action = QAction("Modifier la tâche")
-            modify_action.triggered.connect(self.ModifyTaskBtnClicked)
+            modify_action.triggered.connect(self.modify_task_btn_clicked)
             delete_action = QAction("Supprimer la tâche")
-            delete_action.triggered.connect(self.DeleteTaskBtnClicked)
+            delete_action.triggered.connect(self.delete_task_btn_clicked)
 
             menu = QMenu(self.listTree)
             menu.addAction(copy_action)
@@ -1326,44 +1285,39 @@ excludes    weekends
             menu.addAction(delete_action)
         else:
             add_task = QAction("Ajouter une tâche")
-            add_task.triggered.connect(self.AddTaskBtnClicked)
+            add_task.triggered.connect(self.add_task_btn_clicked)
             paste_action = QAction("Coller la tache ici")
-            paste_action.triggered.connect(self.PasteTaskBtnClicked)
+            paste_action.triggered.connect(self.paste_task_btn_clicked)
 
             menu = QMenu(self.listTree)
             menu.addAction(add_task)
             menu.addAction(paste_action)
 
-        # menu.exec_(self.listTree.mapToGlobal(position))
         menu.exec(self.listTree.mapToGlobal(position))
 
-    def CopyTaskBtnClicked(self):
-        current_tree = self.SelectedTree()
-        task_to_copy = self.getTask(current_tree)
+    def copy_task_btn_clicked(self):
+        current_tree = self.selected_tree()
+        task_to_copy = self.get_task(current_tree)
 
-        self.copied_task = {}
+        self.copied_task = {"Name": task_to_copy["Name"] + ' (copie)',
+                            "Description": task_to_copy["Description"],
+                            "Priority": task_to_copy["Priority"],
+                            "StartDate": task_to_copy["StartDate"],
+                            "EndDate": task_to_copy["EndDate"],
+                            "Check": task_to_copy["Check"],
+                            "Documents": task_to_copy["Documents"]}
 
-        self.copied_task["Name"] = task_to_copy["Name"] + ' (copie)'
-        self.copied_task["Description"] = task_to_copy["Description"]
-        self.copied_task["Priority"] = task_to_copy["Priority"]
-        self.copied_task["StartDate"] = task_to_copy["StartDate"]
-        self.copied_task["EndDate"] = task_to_copy["EndDate"]
-        self.copied_task["Check"] = task_to_copy["Check"]
-        self.copied_task["Documents"] = task_to_copy["Documents"]
+    def cut_task_btn_clicked(self):
+        current_tree = self.selected_tree()
+        task_to_cut = self.get_task(current_tree)
 
-    def CutTaskBtnClicked(self):
-        current_tree = self.SelectedTree()
-        task_to_cut = self.getTask(current_tree)
-
-        self.copied_task = {}
-
-        self.copied_task["Name"] = task_to_cut["Name"]
-        self.copied_task["Description"] = task_to_cut["Description"]
-        self.copied_task["Priority"] = task_to_cut["Priority"]
-        self.copied_task["StartDate"] = task_to_cut["StartDate"]
-        self.copied_task["EndDate"] = task_to_cut["EndDate"]
-        self.copied_task["Check"] = task_to_cut["Check"]
-        self.copied_task["Documents"] = task_to_cut["Documents"]
+        self.copied_task = {"Name": task_to_cut["Name"],
+                            "Description": task_to_cut["Description"],
+                            "Priority": task_to_cut["Priority"],
+                            "StartDate": task_to_cut["StartDate"],
+                            "EndDate": task_to_cut["EndDate"],
+                            "Check": task_to_cut["Check"],
+                            "Documents": task_to_cut["Documents"]}
 
         msg = QMessageBox()
         msg.setWindowTitle("Suppression d'une tâche")
@@ -1372,11 +1326,10 @@ excludes    weekends
         msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
         msg.setDefaultButton(QMessageBox.Ok)
         # msg.buttonClicked.connect(self.onCutMsgBoxBtnClicked)
-        msg.buttonClicked.connect(self.onDeleteMsgBoxBtnClicked)
+        msg.buttonClicked.connect(self.on_delete_msg_box_btn_clicked)
 
         msg.setButtonText(QMessageBox.Cancel, "Annuler")
         msg.setButtonText(QMessageBox.Ok, "OK")
-        # msg.exec_()
         msg.exec()
 
     # def onCutMsgBoxBtnClicked(self, button):
@@ -1388,10 +1341,9 @@ excludes    weekends
     #     self.tasksList.remove(taskToDelete)
     #     self.Remove_task(taskToDelete)
 
-
-    def PasteTaskBtnClicked(self):
+    def paste_task_btn_clicked(self):
         if "Name" in self.copied_task:
-            self.New_task(self.copied_task)
+            self.create_task(self.copied_task)
         else:
             msg = QMessageBox()
             msg.setWindowTitle("Aucune tâche copiée")
@@ -1400,15 +1352,14 @@ excludes    weekends
             msg.setStandardButtons(QMessageBox.Ok)
             msg.setDefaultButton(QMessageBox.Ok)
             msg.setButtonText(QMessageBox.Ok, "OK")
-            # msg.exec_()
             msg.exec()
 
-    def ModifiedConfig(self):
+    def update_config(self):
         with open(f'{self.d}{self.slash}.config', 'w') as f:
             yaml.dump(self.config, f, sort_keys=False)
 
         if self.config["notif"]:
-            self.ComputeNotificationPeriod()
+            self.compute_notification_period()
 
         if self.config["gantt"] and not self.web_view.isVisible():
             self.web_view.setFixedHeight(250)
@@ -1421,9 +1372,9 @@ excludes    weekends
             self.web_view.setVisible(False)
             self.setGeometry(self.pos().x(), self.pos().y(), self.width(), self.height()-250)
 
-        self.Update_changes()
+        self.update_changes()
 
-    def ComputeNotificationPeriod(self):
+    def compute_notification_period(self):
 
         self.notifyTimer.stop()
 
@@ -1438,68 +1389,65 @@ excludes    weekends
 
             self.notifyTimer.start(self.waitForNotifications)
 
-    def NotifyUser(self):
+    def notify_user(self):
 
         today = QDate.currentDate()
 
         date = QDate()
         date.setDate(QDate.year(today), QDate.month(today), QDate.day(today))
-        dayNumber = date.dayOfWeek()
+        day_number = date.dayOfWeek()
 
-        endOfWeek = today.addDays(7-dayNumber)
+        end_of_week = today.addDays(7-day_number)
 
-        todayDay, todayMonth, todayYear = today.toString(Qt.ISODate).split("-")
-        todayStr = todayDay + todayMonth + todayYear
-        endOfWeekDay, endOfWeekMonth, endOfWeekYear = endOfWeek.toString(Qt.ISODate).split("-")
-        endOfWeekStr = endOfWeekDay + endOfWeekMonth + endOfWeekYear
+        today_day, today_month, today_year = today.toString(Qt.ISODate).split("-")
+        today_str = today_day + today_month + today_year
+        end_of_week_day, end_of_week_month, end_of_week_year = end_of_week.toString(Qt.ISODate).split("-")
+        end_of_week_str = end_of_week_day + end_of_week_month + end_of_week_year
 
-        passedList = []
-        passedList.append("TÂCHES DONT LE DÉLAI EST DÉPASSÉ :")
+        passed_list = ["TÂCHES DONT LE DÉLAI EST DÉPASSÉ :"]
 
-        todayList = []
-        todayList.append("Voici les tâches à accomplir aujourd'hui :")
+        today_list = ["Voici les tâches à accomplir aujourd'hui :"]
 
-        endOfWeekList = []
-        endOfWeekList.append("Voici les tâches à accomplir cette semaine :")
+        end_of_week_list = ["Voici les tâches à accomplir cette semaine :"]
 
         if self.tasksList is not None:
             for task in self.tasksList:
                 if task["Check"] == 0:
                     try:
-                        taskEndDateDay, taskEndDateMonth, taskEndDateYear = task["EndDate"].split("-")
-                        taskEndDate = taskEndDateDay + taskEndDateMonth + taskEndDateYear
+                        task_end_date_day, task_end_date_month, task_end_date_year = task["EndDate"].split("-")
+                        task_end_date = task_end_date_day + task_end_date_month + task_end_date_year
 
-                        if taskEndDate < todayStr:
-                            passedList.append(f' - {task["Name"]}')
-                        elif taskEndDate == todayStr:
-                            todayList.append(f' - {task["Name"]}')
-                        elif taskEndDate <= endOfWeekStr:
-                            endOfWeekList.append(f' - {task["Name"]}')
+                        if task_end_date < today_str:
+                            passed_list.append(f' - {task["Name"]}')
+                        elif task_end_date == today_str:
+                            today_list.append(f' - {task["Name"]}')
+                        elif task_end_date <= end_of_week_str:
+                            end_of_week_list.append(f' - {task["Name"]}')
                     except:
                         pass  # no end date
 
-        notificationText = ""
+        notification_text = ""
 
-        if len(passedList) > 1:
-            for line in passedList:
-                notificationText += ("\n" + line)
-            notificationText += "\n"
+        if len(passed_list) > 1:
+            for line in passed_list:
+                notification_text += ("\n" + line)
+            notification_text += "\n"
 
-        if len(todayList) > 1:
-            for line in todayList:
-                notificationText += ("\n" + line)
-            notificationText += "\n"
+        if len(today_list) > 1:
+            for line in today_list:
+                notification_text += ("\n" + line)
+            notification_text += "\n"
 
-        if len(endOfWeekList) > 1:
-            for line in endOfWeekList:
-                notificationText += ("\n" + line)
+        if len(end_of_week_list) > 1:
+            for line in end_of_week_list:
+                notification_text += ("\n" + line)
 
-        if len(passedList) == 1 and len(todayList) == 1 and len(endOfWeekList) == 1:
-            notificationText = "Vous êtes à jour pour cette semaine"
+        if len(passed_list) == 1 and len(today_list) == 1 and len(end_of_week_list) == 1:
+            notification_text = "Vous êtes à jour pour cette semaine"
 
         msg = QMessageBox()
         msg.setWindowTitle("Vos tâches")
-        msg.setText(notificationText)
+        msg.setText(notification_text)
         msg.setIcon(QMessageBox.Information)
 
         msg.setStandardButtons(QMessageBox.Ok)
@@ -1511,7 +1459,6 @@ excludes    weekends
 
         msg.setDefaultButton(QMessageBox.Ok)
         self.notifyTimer.stop()
-        # msg.exec_()
         msg.exec()
         self.notifyTimer.start(self.waitForNotifications)
 
@@ -1522,5 +1469,4 @@ if __name__ == "__main__":
     style(app)
 
     mainWindow = MainWindow()
-    # sys.exit(app.exec_())
     sys.exit(app.exec())
