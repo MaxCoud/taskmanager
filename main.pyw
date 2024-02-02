@@ -22,18 +22,6 @@ from PySide6.QtWebEngineWidgets import QWebEngineView
 
 class MainWindow(QMainWindow):
 
-    new_task = Signal(object)
-    modify_task = Signal(object)
-    modified_task = Signal(object)
-
-    modified_project = Signal(object)
-
-    modified_config = Signal()
-
-    get_new_project = Signal()
-    new_project = Signal(object)
-    delete_project = Signal(object)
-
     def __init__(self):
         super().__init__()
 
@@ -301,11 +289,6 @@ class MainWindow(QMainWindow):
 
         self.notifyTimer = QTimer(self)
         self.notifyTimer.timeout.connect(self.notify_user)
-
-        self.new_task.connect(self.create_task)
-        self.modify_task.connect(self.addTaskDialog.modify_task)
-        self.modified_task.connect(self.update_task)
-        self.modified_config.connect(self.update_config)
 
         self.show()
 
@@ -1118,7 +1101,7 @@ excludes    weekends
 
         task_to_modify = self.get_task(current_tree)
 
-        self.modify_task.emit(task_to_modify)
+        self.addTaskDialog.modify_task(task_to_modify)
 
         # for task in self.tasksList:
         #     if f'\n{task["Name"]}\n' == current_tree.itemWidget(self.selectedItem, 1).text() and \

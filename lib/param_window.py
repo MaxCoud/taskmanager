@@ -152,7 +152,6 @@ class ParamDialog(QDialog):
 
             msg.setButtonText(QMessageBox.Cancel, "Annuler")
             msg.setButtonText(QMessageBox.Ok, "OK")
-            # msg.exec_()
             msg.exec()
 
     def on_hide_msg_box_btn_clicked(self, button):
@@ -210,5 +209,6 @@ class ParamDialog(QDialog):
             self.mainWin.config["no_end_date_format"] = self.NoEndDateComboBox.currentText()
             self.mainWin.config["no_end_date"] = self.durationTextEdit.text()
             self.modifying = False
-            self.mainWin.modified_config.emit()
+
+            self.mainWin.update_config()
             self.hide()

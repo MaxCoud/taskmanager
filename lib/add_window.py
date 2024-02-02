@@ -218,12 +218,12 @@ class AddTaskDialog(QDialog):
             msg.exec()
 
         else:
-            self.mainWin.new_task.emit(self.task)
+            self.mainWin.create_task(self.task)
             self.hide()
 
     def on_enter_msg_box_btn_clicked(self, button):
         if button.text() == "OK":
-            self.mainWin.modified_task.emit(self.task)
+            self.mainWin.update_task(self.task)
             self.modifying = False
             self.hide()
 
