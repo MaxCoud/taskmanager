@@ -276,6 +276,20 @@ class MainWindow(QMainWindow):
         if self.config["gantt"]:
             self.web_view.setFixedHeight(250)
             self.web_view.setVisible(True)
+            self.web_view.setHtml('''
+<html>
+<head>
+    <style>
+        body{
+            background-color: black;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+</body>
+</html>
+''')
 
         main_window = QWidget()
         main_window.setLayout(layout)  # running_layout
@@ -622,7 +636,6 @@ excludes    weekends
 # """
 
             gantt_html = markdown.markdown(gantt, extensions=['lib.md_mermaid'])
-
             self.web_view.setHtml(gantt_html)
 
     def show_tree_context_menu(self, position):

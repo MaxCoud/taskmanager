@@ -29,7 +29,13 @@ class MermaidPreprocessor(Preprocessor):
         m_end = None
         in_mermaid_code = False
         is_mermaid = False
-        lines.insert(2, "%%{init: {'theme':'default'}}%%")  # available themes: default, neutral, dark, forest, base
+        lines.insert(2, '''
+%%{
+    init: {
+        'theme':'default'
+    }
+}%%
+''')  # available themes: default, neutral, dark, forest, base
         for line in lines:
             # Wait for starting line with MermaidRegex (~~~ or ``` following by [mM]ermaid )
             if not in_mermaid_code:
@@ -84,6 +90,12 @@ class MermaidPreprocessor(Preprocessor):
 <html>
 <head>
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body{
+            <!--background-color: black;-->
+            <!--color: white;-->
+        }
+    </style>
 </head>
 <body>
 '''
