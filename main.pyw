@@ -169,10 +169,10 @@ class MainWindow(QMainWindow):
 
         layout = QGridLayout()
 
-        self.runningWidget = QWidget(self)
+        self.runningWidget = QWidget()
         running_layout = QGridLayout()
 
-        self.tree_view = QTreeView(self)
+        self.tree_view = QTreeView()
         self.tree_view.setMinimumWidth(300)
         # self.tree_view.clicked.connect(self.OnProjectTreeClicked)
         self.tree_view.pressed.connect(self.on_project_tree_clicked)
@@ -188,14 +188,14 @@ class MainWindow(QMainWindow):
         self.tree_view_header = self.tree_view.header()
         # self.tree_view_header.setSectionResizeMode(QHeaderView.Interactive)
 
-        self.selectedProjectLbl = QLabel(self)
+        self.selectedProjectLbl = QLabel()
         self.selectedProjectLbl.setText("Aucun projet selectionné")
         self.selectedProjectLbl.setFont(QFont('AnyStyle', self.titleFontSize))
         self.selectedProjectLbl.setFixedHeight(30)
         self.selectedProjectLbl.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.selectedProjectLbl, 0, 1)
 
-        self.listTree = QTreeWidget(self)
+        self.listTree = QTreeWidget()
         self.listTree.setHeaderLabels(["", "Nom", "Description", "Priorité", "Début", "Fin", "Documents"])
         self.listTree.setFont(QFont('AnyStyle', self.subtitleFontSize))
         self.listTree.setMinimumWidth(1256)
@@ -230,10 +230,10 @@ class MainWindow(QMainWindow):
 
         self.runningWidget.setLayout(running_layout)
 
-        self.finishedWidget = QWidget(self)
+        self.finishedWidget = QWidget()
         finished_layout = QGridLayout()
 
-        self.finishedTasksTree = QTreeWidget(self)
+        self.finishedTasksTree = QTreeWidget()
         self.finishedTasksTree.setHeaderLabels(["", "Nom", "Description", "Priorité", "Début", "Fin", "Documents"])
         self.finishedTasksTree.setFont(QFont('AnyStyle', self.subtitleFontSize))
         self.finishedTasksTree.setMinimumWidth(1256)
@@ -262,13 +262,13 @@ class MainWindow(QMainWindow):
 
         self.finishedWidget.setLayout(finished_layout)
 
-        self.tabs = QTabWidget(self)
+        self.tabs = QTabWidget()
         self.tabs.addTab(self.runningWidget, "En cours")
         self.tabs.addTab(self.finishedWidget, "Terminées")
 
         layout.addWidget(self.tabs, 1, 1, 2, 1)
 
-        self.web_view = QWebEngineView(self)
+        self.web_view = QWebEngineView()
         self.web_view.setFixedHeight(0)
         self.web_view.setVisible(False)
         layout.addWidget(self.web_view, 3, 1)
@@ -304,7 +304,7 @@ class MainWindow(QMainWindow):
         self.notifyTimer = QTimer(self)
         self.notifyTimer.timeout.connect(self.notify_user)
 
-        self.show()
+        self.showMaximized()
 
         if self.os == 'linux':
             # --- center window ---
@@ -1096,12 +1096,6 @@ excludes    weekends
                 self.ts = time.time()
         except Exception as e:
             print("finishedTasksTree_itemClicked", e)
-
-    def update_project_combo_box(self):
-        self.addTaskDialog.projectComboBox.clear()
-        for i in range(0, len(self.projectList)):
-            self.addTaskDialog.projectComboBox.insertItem(i, self.projectList[i]["Name"])
-        self.addTaskDialog.projectComboBox.insertItem(len(self.projectList), "--Nouveau--")
 
     def add_task_btn_clicked(self):
         # self.Update_project_combo_box()
