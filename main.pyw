@@ -131,11 +131,13 @@ class MainWindow(QMainWindow):
                 self.config = yaml.load(f, Loader=yaml.FullLoader)
         else:
             with open(f'{self.d}{self.slash}.config', 'w') as f:
-                new_param_file = {"notif": True,
+                new_param_file = {"git_database": False,
+                                  "database_path": "",
+                                  "notif": True,
                                   "period": "30",
                                   "unit": "minutes",
                                   "gantt": True,
-                                  "no_end_date_format": "Appliquer une durée",
+                                  "no_end_date_format": "Apply duration",
                                   "no_end_date": '10'
                                   }
                 yaml.dump(new_param_file, f, sort_keys=False)
@@ -1372,7 +1374,7 @@ excludes    weekends
             time_factor = 24*3600*1000
             if self.config["unit"] == "minutes":
                 time_factor = 60*1000
-            elif self.config["unit"] == "heures":
+            elif self.config["unit"] == "hours":
                 time_factor = 3600*1000
 
             self.waitForNotifications = int(self.config["period"])*time_factor
