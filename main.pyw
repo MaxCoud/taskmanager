@@ -9,7 +9,7 @@ import subprocess
 
 from pathlib import Path
 from lib.add_window import AddTaskDialog
-from lib.param_window import ParamDialog
+from lib.param_window import *
 
 import yaml
 from PySide6.QtCore import Qt, Signal, QDateTime, QDate, QTimer
@@ -109,13 +109,13 @@ class MainWindow(QMainWindow):
         else:
             with open(f'{self.d}{self.slash}tasks_tree.yaml', 'w') as f:
                 new_task_tree = {
-                    "Name": "Projets et sous-projets",
+                    "Name": "Projects and subprojects",
                     "Children": [{
-                        "Name": "Section exemple",
+                        "Name": "example section",
                         "Children": [{
-                            "Name": "Exemple",
+                            "Name": "example",
                             "Check": 0,
-                            "Description": "exemple",
+                            "Description": "example",
                             "Priority": "Urgent",
                             "StartDate": '2023-02-28',
                             "EndDate": '2023-03-10',
@@ -126,25 +126,10 @@ class MainWindow(QMainWindow):
                 yaml.dump(new_task_tree, f, sort_keys=False)
                 self.task_tree = new_task_tree
 
-        if os.path.exists(f'{self.d}{self.slash}.config'):
-            with open(f'{self.d}{self.slash}.config', 'r') as f:
-                self.config = yaml.load(f, Loader=yaml.FullLoader)
-        else:
-            with open(f'{self.d}{self.slash}.config', 'w') as f:
-                new_param_file = {"git_database": False,
-                                  "database_path": "",
-                                  "notif": True,
-                                  "period": "30",
-                                  "unit": "minutes",
-                                  "gantt": True,
-                                  "no_end_date_format": "Apply duration",
-                                  "no_end_date": '10'
-                                  }
-                yaml.dump(new_param_file, f, sort_keys=False)
-                self.config = new_param_file
-
         self.addTaskDialog = AddTaskDialog(self)
-        self.paramDialog = ParamDialog(self)
+        self.param_dialog = ParamDialog(self)
+
+        self.config = open_config_file(working_dir=self.d, slash=self.slash)
 
         self.titleFontSize = 14
         self.subtitleFontSize = 11
@@ -152,22 +137,22 @@ class MainWindow(QMainWindow):
 
         # menu bar
         menu = self.menuBar()
-        file = menu.addMenu("Fichier")
+        file = menu.addMenu("File")
         file.addAction("Quitter", lambda: sys.exit(0))
 
-        task_menu = menu.addMenu("Tâches")
-        task_menu.addAction("Ajouter une tâche ...", lambda: self.add_task_btn_clicked(), QKeySequence("a"))
-        task_menu.addAction("Supprimer une tâche", lambda: self.delete_task_btn_clicked(), QKeySequence.Delete)
+        task_menu = menu.addMenu("Tasks")
+        task_menu.addAction("Add task ...", lambda: self.add_task_btn_clicked(), QKeySequence("a"))
+        task_menu.addAction("Delete task", lambda: self.delete_task_btn_clicked(), QKeySequence.Delete)
 
-        project_menu = menu.addMenu("Projets")
-        project_menu.addAction("Ajouter un projet", lambda: self.add_project_btn_clicked(), QKeySequence("p"))
-        project_menu.addAction("Dérouler tous les projets", lambda: self.expand_project_tree(),
+        project_menu = menu.addMenu("Projects")
+        project_menu.addAction("Add project", lambda: self.add_project_btn_clicked(), QKeySequence("p"))
+        project_menu.addAction("Expand project tree", lambda: self.expand_project_tree(),
                                QKeySequence(Qt.CTRL | Qt.ALT | Qt.Key_Plus))
-        project_menu.addAction("Réduire tous les projets", lambda: self.collapse_project_tree(),
+        project_menu.addAction("Collapse project tree", lambda: self.collapse_project_tree(),
                                QKeySequence(Qt.CTRL | Qt.ALT | Qt.Key_Minus))
 
         option_menu = menu.addMenu("Options")
-        option_menu.addAction("Paramètres...", lambda: self.open_param_btn_clicked())
+        option_menu.addAction("Settings...", lambda: self.open_param_btn_clicked())
 
         layout = QGridLayout()
 
@@ -191,14 +176,14 @@ class MainWindow(QMainWindow):
         # self.tree_view_header.setSectionResizeMode(QHeaderView.Interactive)
 
         self.selectedProjectLbl = QLabel()
-        self.selectedProjectLbl.setText("Aucun projet selectionné")
+        self.selectedProjectLbl.setText("No project selected")
         self.selectedProjectLbl.setFont(QFont('AnyStyle', self.titleFontSize))
         self.selectedProjectLbl.setFixedHeight(30)
         self.selectedProjectLbl.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.selectedProjectLbl, 0, 1)
 
         self.listTree = QTreeWidget()
-        self.listTree.setHeaderLabels(["", "Nom", "Description", "Priorité", "Début", "Fin", "Documents"])
+        self.listTree.setHeaderLabels(["", "Name", "Description", "Priority", "Start", "End", "Documents"])
         self.listTree.setFont(QFont('AnyStyle', self.subtitleFontSize))
         self.listTree.setMinimumWidth(1256)
         self.listTree.setMinimumHeight(550)
@@ -236,7 +221,7 @@ class MainWindow(QMainWindow):
         finished_layout = QGridLayout()
 
         self.finishedTasksTree = QTreeWidget()
-        self.finishedTasksTree.setHeaderLabels(["", "Nom", "Description", "Priorité", "Début", "Fin", "Documents"])
+        self.finishedTasksTree.setHeaderLabels(["", "Name", "Description", "Priority", "Start", "End", "Documents"])
         self.finishedTasksTree.setFont(QFont('AnyStyle', self.subtitleFontSize))
         self.finishedTasksTree.setMinimumWidth(1256)
         self.finishedTasksTree.setMinimumHeight(550)
@@ -265,8 +250,8 @@ class MainWindow(QMainWindow):
         self.finishedWidget.setLayout(finished_layout)
 
         self.tabs = QTabWidget()
-        self.tabs.addTab(self.runningWidget, "En cours")
-        self.tabs.addTab(self.finishedWidget, "Terminées")
+        self.tabs.addTab(self.runningWidget, "Running")
+        self.tabs.addTab(self.finishedWidget, "Finished")
 
         layout.addWidget(self.tabs, 1, 1, 2, 1)
 
@@ -339,11 +324,11 @@ class MainWindow(QMainWindow):
             item.setEditable(False)
             parent.appendRow(item)
             if 'Children' in data:
-                for child in data['Children']:
+                for child_ in data['Children']:
                     # add_item(item, child)
                     # if not 'Description' in child:
-                    if 'Children' in child or not 'Description' in child:
-                        add_item(item, child)
+                    if 'Children' in child_ or 'Description' not in child_:
+                        add_item(item, child_)
 
         # create the root item and add it to the model
         root_item = QStandardItem(self.task_tree['Name'])
@@ -361,7 +346,7 @@ class MainWindow(QMainWindow):
             for child in self.task_tree['Children']:
                 # add_item(root_item, child)
                 # if not 'Description' in child:
-                if 'Name' in child and not 'Description' in child:
+                if 'Name' in child and 'Description' not in child:
                     add_item(root_item, child)
 
         self.tree_view.setModel(self.model)
@@ -644,13 +629,13 @@ excludes    weekends
 
         if time.time() - self.ts < 0.3:
 
-            add_task = QAction("Ajouter une tâche")
+            add_task = QAction("Add task")
             add_task.triggered.connect(self.add_task_btn_clicked)
-            add_section = QAction("Ajouter une section")
+            add_section = QAction("Add section")
             add_section.triggered.connect(self.add_project_section_btn_clicked)
-            modify_section = QAction("Modifier")
+            modify_section = QAction("Modify")
             modify_section.triggered.connect(self.modify_section_btn_clicked)
-            delete_section = QAction("Supprimer")
+            delete_section = QAction("Delete")
             delete_section.triggered.connect(self.remove_section_btn_clicked)
 
             menu = QMenu(self.tree_view)
@@ -660,7 +645,7 @@ excludes    weekends
             menu.addAction(delete_section)
 
         else:
-            add_project = QAction("Ajouter un projet")
+            add_project = QAction("Add project")
             add_project.triggered.connect(self.add_project_btn_clicked)
 
             menu = QMenu(self.tree_view)
@@ -669,7 +654,7 @@ excludes    weekends
         menu.exec(self.tree_view.mapToGlobal(position))
 
     def open_param_btn_clicked(self):
-        self.paramDialog.show()
+        self.param_dialog.show()
 
     def add_project_btn_clicked(self):
         add_project_dialog = QInputDialog(self)
@@ -998,7 +983,9 @@ excludes    weekends
                 else:
                     element.setCheckState(0, Qt.Unchecked)
 
-        self.update_gantt()
+        if self.config["gantt"]:
+            self.update_gantt()
+
         self.updating = False
 
     def link_activated(self, path):
@@ -1255,17 +1242,17 @@ excludes    weekends
     def show_lists_context_menu(self, position):
 
         if time.time() - self.ts < 0.1:
-            copy_action = QAction("Copier la tâche")
+            copy_action = QAction("Copy task")
             copy_action.triggered.connect(self.copy_task_btn_clicked)
-            cut_action = QAction("Couper la tâche")
+            cut_action = QAction("Cut task")
             cut_action.triggered.connect(self.cut_task_btn_clicked)
-            paste_action = QAction("Coller la tache ici")
+            paste_action = QAction("Paste task here")
             paste_action.triggered.connect(self.paste_task_btn_clicked)
-            add_task = QAction("Ajouter une tâche")
+            add_task = QAction("Add task")
             add_task.triggered.connect(self.add_task_btn_clicked)
-            modify_action = QAction("Modifier la tâche")
+            modify_action = QAction("Modify task")
             modify_action.triggered.connect(self.modify_task_btn_clicked)
-            delete_action = QAction("Supprimer la tâche")
+            delete_action = QAction("Delete task")
             delete_action.triggered.connect(self.delete_task_btn_clicked)
 
             menu = QMenu(self.listTree)
@@ -1276,9 +1263,9 @@ excludes    weekends
             menu.addAction(modify_action)
             menu.addAction(delete_action)
         else:
-            add_task = QAction("Ajouter une tâche")
+            add_task = QAction("Add task")
             add_task.triggered.connect(self.add_task_btn_clicked)
-            paste_action = QAction("Coller la tache ici")
+            paste_action = QAction("Paste task here")
             paste_action.triggered.connect(self.paste_task_btn_clicked)
 
             menu = QMenu(self.listTree)
@@ -1291,7 +1278,7 @@ excludes    weekends
         current_tree = self.selected_tree()
         task_to_copy = self.get_task(current_tree)
 
-        self.copied_task = {"Name": task_to_copy["Name"] + ' (copie)',
+        self.copied_task = {"Name": task_to_copy["Name"] + ' (copy)',
                             "Description": task_to_copy["Description"],
                             "Priority": task_to_copy["Priority"],
                             "StartDate": task_to_copy["StartDate"],
@@ -1347,9 +1334,6 @@ excludes    weekends
             msg.exec()
 
     def update_config(self):
-        with open(f'{self.d}{self.slash}.config', 'w') as f:
-            yaml.dump(self.config, f, sort_keys=False)
-
         if self.config["notif"]:
             self.compute_notification_period()
 
