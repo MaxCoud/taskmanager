@@ -1,3 +1,6 @@
+import os
+
+import yaml
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QGuiApplication, QCursor
 from PySide6.QtWidgets import QLineEdit, QGridLayout, QLabel, QPushButton, QCheckBox, QDialog, QMessageBox, QComboBox, \
@@ -265,3 +268,43 @@ class ParamDialog(QDialog):
 
         else:
             self.hide()
+
+
+# --- STATIC METHODS ---
+def open_config_file(working_dir: str, slash: str) -> dict:
+    if os.path.exists(f'{working_dir}{slash}.config'):
+        with open(f'{working_dir}{slash}.config', 'r') as f:
+            config = yaml.load(f, Loader=yaml.FullLoader)
+            # update config file to be compliant with potential future versions
+            if "git_database" not in config:
+                config["git_database"] = False
+            if "database_path" not in config:
+                config["database_path"] = ""
+            if "notif" not in config:
+                config["notif"] = True
+            if "period" not in config:
+                config["period"] = "30"
+            if "unit" not in config:
+                config["unit"] = "minutes"
+            if "gantt" not in config:
+                config["gantt"] = True
+            if "no_end_date_format" not in config:
+                config["no_end_date_format"] = "Apply duration"
+            if "no_end_date" not in config:
+                config["no_end_date"] = "10"
+
+            return config
+
+    else:
+        with open(f'{working_dir}{slash}.config', 'w') as f:
+            new_param_file = {"git_database": False,
+                              "database_path": "",
+                              "notif": True,
+                              "period": "30",
+                              "unit": "minutes",
+                              "gantt": True,
+                              "no_end_date_format": "Apply duration",
+                              "no_end_date": "10"
+                              }
+            yaml.dump(new_param_file, f, sort_keys=False)
+            return new_param_file
