@@ -21,12 +21,12 @@ class AddTaskDialog(QDialog):
 
         self.setWindowModality(Qt.ApplicationModal)
 
-        self.setWindowTitle("Ajouter une tâche")
+        self.setWindowTitle("Add task")
         self.setWindowFlags(Qt.WindowCloseButtonHint)
 
         self.titleFontSize = 14
         self.subtitleFontSize = 11
-        self.itemFontSize = 9.5
+        self.itemFontSize = 9
 
         self.last_dir = "/"
 
@@ -55,7 +55,7 @@ class AddTaskDialog(QDialog):
         self.descTextEdit.setFont(QFont('AnyStyle', self.itemFontSize))
         grid.addWidget(self.descTextEdit, 1, 1)
 
-        lbl = QLabel("Priorité")
+        lbl = QLabel("Priority")
         lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
         lbl.setAlignment(Qt.AlignCenter)
         grid.addWidget(lbl, 2, 0)
@@ -70,7 +70,7 @@ class AddTaskDialog(QDialog):
         for i in range(0, len(priority_degrees)):
             self.priorityComboBox.insertItem(i, str(priority_degrees[i]))
 
-        lbl = QLabel("Date de début")
+        lbl = QLabel("Start Date")
         lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
         lbl.setAlignment(Qt.AlignCenter)
         grid.addWidget(lbl, 3, 0)
@@ -82,7 +82,7 @@ class AddTaskDialog(QDialog):
         self.startDateEdit.setFont(QFont('AnyStyle', self.itemFontSize))
         grid.addWidget(self.startDateEdit, 3, 1)
 
-        lbl = QLabel("Date de fin")
+        lbl = QLabel("End date")
         lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
         lbl.setAlignment(Qt.AlignCenter)
         grid.addWidget(lbl, 4, 0)
@@ -111,7 +111,7 @@ class AddTaskDialog(QDialog):
 
         browse_layout = QHBoxLayout()
 
-        browse_btn = QPushButton("Parcourir")
+        browse_btn = QPushButton("Browse")
         browse_btn.setFixedHeight(30)
         # browse_btn.setFixedWidth(90)
         browse_btn.setFont(QFont('AnyStyle', self.subtitleFontSize))
@@ -127,7 +127,7 @@ class AddTaskDialog(QDialog):
 
         grid.addLayout(browse_layout, 5, 1)
 
-        enter_task_btn = QPushButton("Entrer")
+        enter_task_btn = QPushButton("Enter")
         enter_task_btn.setFixedHeight(30)
         # enter_task_btn.setFixedWidth(90)
         enter_task_btn.setFont(QFont('AnyStyle', self.subtitleFontSize))
@@ -144,17 +144,22 @@ class AddTaskDialog(QDialog):
 
     def hideEvent(self, event):
         if self.modifying:
-            msg = QMessageBox()
-            msg.setWindowTitle("Modification de tâche")
-            msg.setText("Les modifications ne seront pas prises en compte")
-            msg.setIcon(QMessageBox.Warning)
-            msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
-            msg.setDefaultButton(QMessageBox.Ok)
-            msg.buttonClicked.connect(self.on_hide_msg_box_btn_clicked)
+            button = QMessageBox.warning(self,
+                                         "Modifying task",
+                                         "Changes will not be saved",
+                                         buttons=QMessageBox.Cancel | QMessageBox.Ok,
+                                         defaultButton=QMessageBox.Ok)
 
-            msg.setButtonText(QMessageBox.Cancel, "Annuler")
-            msg.setButtonText(QMessageBox.Ok, "OK")
-            msg.exec()
+            if button == QMessageBox.Ok:
+                self.nameTextEdit.setText("")
+                self.descTextEdit.setPlainText("")
+                self.startDateEdit.setDateTime(QDateTime.currentDateTime())
+                self.endDateCheckBox.setChecked(False)
+                self.endDateEdit.setDateTime(QDateTime.currentDateTime())
+                self.setWindowTitle("Add task")
+                self.modifying = False
+            elif button == QMessageBox.Cancel:
+                self.show()
 
         else:
             self.nameTextEdit.setText("")
@@ -162,7 +167,7 @@ class AddTaskDialog(QDialog):
             self.startDateEdit.setDateTime(QDateTime.currentDateTime())
             self.endDateCheckBox.setChecked(False)
             self.endDateEdit.setDateTime(QDateTime.currentDateTime())
-            self.setWindowTitle("Ajouter une tâche")
+            self.setWindowTitle("Add task")
 
         for lbl in self.filesLabels:
             lbl.setParent(None)
@@ -171,18 +176,6 @@ class AddTaskDialog(QDialog):
         self.filesLayoutColumn = 0
         self.filesLayoutRow = 0
         self.documentsList = []
-
-    def on_hide_msg_box_btn_clicked(self, button):
-        if button.text() == "OK":
-            self.nameTextEdit.setText("")
-            self.descTextEdit.setPlainText("")
-            self.startDateEdit.setDateTime(QDateTime.currentDateTime())
-            self.endDateCheckBox.setChecked(False)
-            self.endDateEdit.setDateTime(QDateTime.currentDateTime())
-            self.setWindowTitle("Ajouter une tâche")
-            self.modifying = False
-        elif button.text() == "Annuler":
-            self.show()
 
     def end_date_checkbox_state_changed(self):
         if self.endDateCheckBox.isChecked():
@@ -205,26 +198,19 @@ class AddTaskDialog(QDialog):
                      "Documents": self.documentsList}
 
         if self.modifying:
-            msg = QMessageBox()
-            msg.setWindowTitle("Modification de tâche")
-            msg.setText("La tâche va être modifiée")
-            msg.setIcon(QMessageBox.Warning)
-            msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
-            msg.setDefaultButton(QMessageBox.Ok)
-            msg.buttonClicked.connect(self.on_enter_msg_box_btn_clicked)
+            button = QMessageBox.warning(self,
+                                         "Modifying task",
+                                         "Task will be modified",
+                                         buttons=QMessageBox.Cancel | QMessageBox.Ok,
+                                         defaultButton=QMessageBox.Ok)
 
-            msg.setButtonText(QMessageBox.Cancel, "Annuler")
-            msg.setButtonText(QMessageBox.Ok, "OK")
-            msg.exec()
+            if button == QMessageBox.Ok:
+                self.mainWin.update_task(self.task)
+                self.modifying = False
+                self.hide()
 
         else:
             self.mainWin.create_task(self.task)
-            self.hide()
-
-    def on_enter_msg_box_btn_clicked(self, button):
-        if button.text() == "OK":
-            self.mainWin.update_task(self.task)
-            self.modifying = False
             self.hide()
 
     def modify_task(self, task):
@@ -239,21 +225,22 @@ class AddTaskDialog(QDialog):
             self.endDateEdit.setDate(QDate.fromString(task["EndDate"], Qt.ISODate))
             self.endDateCheckBox.setChecked(True)
 
-        if not "Documents" in task:
+        if "Documents" not in task:
             task["Documents"] = []
 
         files_paths = task["Documents"]
 
         self.display_selected_documents(files_paths)
-        self.setWindowTitle("Modifier une tâche")
+        self.setWindowTitle("Modify task")
         self.modifying = True
         self.show()
 
     def browse_btn_clicked(self):
         file = QFileDialog.getOpenFileNames(parent=self,
-                                            caption="Sélectionner un ou plusieurs fichier(s)",
-                                            dir=self.last_dir)#,
-                                            # options=QFileDialog.DontUseNativeDialog)
+                                            caption="Select one or more file(s)",
+                                            dir=self.last_dir)  # ,
+        # options=QFileDialog.DontUseNativeDialog)
+
         # if file:
         #     files_paths = file[0]
         #     self.display_selected_documents(files_paths)
@@ -266,15 +253,15 @@ class AddTaskDialog(QDialog):
                 self.display_selected_documents(files_paths)
 
         # get a folder :
-        # folder = QFileDialog.getExistingDirectory(parent=self, caption="Sélectionner un dossier")
+        # folder = QFileDialog.getExistingDirectory(parent=self, caption="Select folder")
 
     def display_selected_documents(self, files_paths):
         if len(files_paths) > 0:
 
             for document in files_paths:
 
-                splited_document_path = document.split(".")
-                extension = splited_document_path[len(splited_document_path) - 1]
+                split_document_path = document.split(".")
+                extension = split_document_path[len(split_document_path) - 1]
 
                 icon = select_icon(self.mainWin.d, self.mainWin.slash, extension)
 
@@ -306,7 +293,7 @@ class AddTaskDialog(QDialog):
     def create_document_context_menu(self, lbl):  # Define a function to create the context menu for a QLabel
 
         context_menu = QMenu()
-        delete_selection = QAction("Enlever de la sélection", context_menu)
+        delete_selection = QAction("Remove from selection", context_menu)
         context_menu.addAction(delete_selection)
 
         def remove_label():  # remove the label from its parent
