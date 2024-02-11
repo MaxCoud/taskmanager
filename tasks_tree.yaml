@@ -1958,7 +1958,6 @@ Children:
           - /home/mc1/Git/taskmanager/task_manager_logo.png
           - /home/mc1/Git/taskmanager/task_manager_logo1.png
           - /home/mc1/Git/taskmanager/main.py
-          - /home/mc1/Git/taskmanager/tasks.yaml
           - /home/mc1/Git/taskmanager/.gitignore
           - /home/mc1/Git/berges/sv/axus/job.csv
         - Name: test1014
@@ -1971,13 +1970,10 @@ Children:
           - /home/mc1/Git/taskmanager/add_window.py
           - /home/mc1/Git/taskmanager/main.py
           - /home/mc1/Git/taskmanager/main.pyw
-          - /home/mc1/Git/taskmanager/projects.yaml
           - /home/mc1/Git/taskmanager/project_window.py
           - /home/mc1/Git/taskmanager/style.py
           - /home/mc1/Git/taskmanager/taskmanager.desktop
           - /home/mc1/Git/taskmanager/task_manager_logo.png
-          - /home/mc1/Git/taskmanager/task_manager_logo1.png
-          - /home/mc1/Git/taskmanager/tasks.yaml
           - /home/mc1/Git/taskmanager/tasks_tree.yaml
         - Name: test1010
           Description: wow
@@ -1985,8 +1981,7 @@ Children:
           StartDate: '2023-03-09'
           EndDate: '-'
           Check: 0
-          Documents:
-          - /home/mc1/Git/taskmanager/projects.yaml
+          Documents: []
   - Name: test20
     Children:
     - Name: test200

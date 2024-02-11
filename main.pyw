@@ -759,10 +759,6 @@ excludes    weekends
         with open(f'{self.d}{self.slash}tasks_tree.yaml', 'w') as f:
             yaml.dump(self.task_tree, f, sort_keys=False)
 
-    def save(self):
-        with open('tasks.yaml', 'w') as f:
-            yaml.dump(self.tasksList, f, sort_keys=False)
-
     def create_task(self, task):
 
         if self.parent_list is not None:
