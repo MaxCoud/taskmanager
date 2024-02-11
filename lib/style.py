@@ -1,3 +1,4 @@
+import os
 from PySide6.QtGui import QPalette, QColor
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QStyleFactory
@@ -45,6 +46,35 @@ def style(app):
     # Set the tooltip stylesheet (needed in PySide6...)
     tooltip_style = "QToolTip { color: #ffffff; background-color: #000000; border: none; }"
     app.setStyleSheet(tooltip_style)
+
+
+def load_icons(path) -> dict:
+    return {
+        "folder": os.fspath(path / "icon/folder-horizontal.png"),
+        "open_folder": os.fspath(path / "icon/folder-horizontal-open.png"),
+        "tick": os.fspath(path / "icon/tick-button.png"),
+        "number_0": os.fspath(path / "icon/alphanumeric/number-0.png"),
+        "number_1": os.fspath(path / "icon/alphanumeric/number-1.png"),
+        "number_2": os.fspath(path / "icon/alphanumeric/number-2.png"),
+        "number_3": os.fspath(path / "icon/alphanumeric/number-3.png"),
+        "number_4": os.fspath(path / "icon/alphanumeric/number-4.png"),
+        "number_5": os.fspath(path / "icon/alphanumeric/number-5.png"),
+        "number_6": os.fspath(path / "icon/alphanumeric/number-6.png"),
+        "number_7": os.fspath(path / "icon/alphanumeric/number-7.png"),
+        "number_8": os.fspath(path / "icon/alphanumeric/number-8.png"),
+        "number_9": os.fspath(path / "icon/alphanumeric/number-9.png"),
+        "number_10": os.fspath(path / "icon/alphanumeric/number-10.png"),
+        "number_11": os.fspath(path / "icon/alphanumeric/number-11.png"),
+        "number_12": os.fspath(path / "icon/alphanumeric/number-12.png"),
+        "number_13": os.fspath(path / "icon/alphanumeric/number-13.png"),
+        "number_14": os.fspath(path / "icon/alphanumeric/number-14.png"),
+        "number_15": os.fspath(path / "icon/alphanumeric/number-15.png"),
+        "number_16": os.fspath(path / "icon/alphanumeric/number-16.png"),
+        "number_17": os.fspath(path / "icon/alphanumeric/number-17.png"),
+        "number_18": os.fspath(path / "icon/alphanumeric/number-18.png"),
+        "number_19": os.fspath(path / "icon/alphanumeric/number-19.png"),
+        "number_20": os.fspath(path / "icon/alphanumeric/number-20.png"),
+    }
 
 
 def select_icon(dir_, slash, extension):

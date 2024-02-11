@@ -4,7 +4,7 @@ import shutil
 import time
 import markdown
 
-from lib.style import style, select_icon
+from lib.style import style, select_icon, load_icons
 import subprocess
 
 from pathlib import Path
@@ -75,31 +75,7 @@ class MainWindow(QMainWindow):
         self.task_tree = []
 
         # icons
-        self.folder_icon = os.fspath(Path(__file__).resolve().parent / "icon/folder-horizontal.png")
-        self.open_folder_icon = os.fspath(Path(__file__).resolve().parent / "icon/folder-horizontal-open.png")
-        self.tick_icon = os.fspath(Path(__file__).resolve().parent / "icon/tick-button.png")
-
-        self.number_0 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-0.png")
-        self.number_1 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-1.png")
-        self.number_2 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-2.png")
-        self.number_3 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-3.png")
-        self.number_4 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-4.png")
-        self.number_5 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-5.png")
-        self.number_6 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-6.png")
-        self.number_7 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-7.png")
-        self.number_8 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-8.png")
-        self.number_9 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-9.png")
-        self.number_10 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-10.png")
-        self.number_11 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-11.png")
-        self.number_12 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-12.png")
-        self.number_13 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-13.png")
-        self.number_14 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-14.png")
-        self.number_15 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-15.png")
-        self.number_16 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-16.png")
-        self.number_17 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-17.png")
-        self.number_18 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-18.png")
-        self.number_19 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-19.png")
-        self.number_20 = os.fspath(Path(__file__).resolve().parent / "icon/alphanumeric/number-20.png")
+        self.icons = load_icons(Path(__file__).resolve().parent)
 
         self.setWindowModality(Qt.ApplicationModal)
 
@@ -421,7 +397,7 @@ class MainWindow(QMainWindow):
                         # break
 
                 if every_tasks_finished:
-                    item.setIcon(QIcon(self.tick_icon))
+                    item.setIcon(QIcon(self.icons["tick"]))
                 else:
                     # print(tasks_list, "\t", "running_tasks", running_tasks)
                     # item.setIcon(QIcon(self.folder_icon))
@@ -429,48 +405,48 @@ class MainWindow(QMainWindow):
                     # item.addIcon(QIcon(self.number_1))
 
                     if running_tasks == 1:
-                        item.setIcon(QIcon(self.number_1))
+                        item.setIcon(QIcon(self.icons["number_1"]))
                     elif running_tasks == 2:
-                        item.setIcon(QIcon(self.number_2))
+                        item.setIcon(QIcon(self.icons["number_2"]))
                     elif running_tasks == 3:
-                        item.setIcon(QIcon(self.number_3))
+                        item.setIcon(QIcon(self.icons["number_3"]))
                     elif running_tasks == 4:
-                        item.setIcon(QIcon(self.number_4))
+                        item.setIcon(QIcon(self.icons["number_4"]))
                     elif running_tasks == 5:
-                        item.setIcon(QIcon(self.number_5))
+                        item.setIcon(QIcon(self.icons["number_5"]))
                     elif running_tasks == 6:
-                        item.setIcon(QIcon(self.number_6))
+                        item.setIcon(QIcon(self.icons["number_6"]))
                     elif running_tasks == 7:
-                        item.setIcon(QIcon(self.number_7))
+                        item.setIcon(QIcon(self.icons["number_7"]))
                     elif running_tasks == 8:
-                        item.setIcon(QIcon(self.number_8))
+                        item.setIcon(QIcon(self.icons["number_8"]))
                     elif running_tasks == 9:
-                        item.setIcon(QIcon(self.number_9))
+                        item.setIcon(QIcon(self.icons["number_9"]))
                     elif running_tasks == 10:
-                        item.setIcon(QIcon(self.number_10))
+                        item.setIcon(QIcon(self.icons["number_10"]))
                     elif running_tasks == 11:
-                        item.setIcon(QIcon(self.number_11))
+                        item.setIcon(QIcon(self.icons["number_11"]))
                     elif running_tasks == 12:
-                        item.setIcon(QIcon(self.number_12))
+                        item.setIcon(QIcon(self.icons["number_12"]))
                     elif running_tasks == 13:
-                        item.setIcon(QIcon(self.number_13))
+                        item.setIcon(QIcon(self.icons["number_13"]))
                     elif running_tasks == 14:
-                        item.setIcon(QIcon(self.number_14))
+                        item.setIcon(QIcon(self.icons["number_14"]))
                     elif running_tasks == 15:
-                        item.setIcon(QIcon(self.number_15))
+                        item.setIcon(QIcon(self.icons["number_15"]))
                     elif running_tasks == 16:
-                        item.setIcon(QIcon(self.number_16))
+                        item.setIcon(QIcon(self.icons["number_16"]))
                     elif running_tasks == 17:
-                        item.setIcon(QIcon(self.number_17))
+                        item.setIcon(QIcon(self.icons["number_17"]))
                     elif running_tasks == 18:
-                        item.setIcon(QIcon(self.number_18))
+                        item.setIcon(QIcon(self.icons["number_18"]))
                     elif running_tasks == 19:
-                        item.setIcon(QIcon(self.number_19))
+                        item.setIcon(QIcon(self.icons["number_19"]))
                     elif running_tasks == 20:
-                        item.setIcon(QIcon(self.number_20))
+                        item.setIcon(QIcon(self.icons["number_20"]))
                     else:
 
-                        item.setIcon(QIcon(self.folder_icon))
+                        item.setIcon(QIcon(self.icons["folder"]))
 
     def iter_items(self, root):
         if root is not None:
@@ -495,7 +471,7 @@ class MainWindow(QMainWindow):
     def on_project_tree_clicked(self, index):
         item = self.model.itemFromIndex(index)
         self.update_icons()
-        item.setIcon(QIcon(self.open_folder_icon))
+        item.setIcon(QIcon(self.icons["open_folder"]))
         # print(item.text())
 
         self.ts = time.time()
