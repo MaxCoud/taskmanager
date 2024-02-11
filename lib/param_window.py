@@ -9,11 +9,12 @@ from PySide6.QtWidgets import QLineEdit, QGridLayout, QLabel, QPushButton, QChec
 
 class ParamDialog(QDialog):
 
-    def __init__(self, main_win):
+    def __init__(self, main_window):
         super(ParamDialog, self).__init__()
 
-        self.main_win = main_win
+        self.main_window = main_window
 
+        self.setWindowIcon(self.main_window.app_logo)
         self.setWindowModality(Qt.ApplicationModal)
 
         self.setWindowTitle("Settings")
@@ -160,20 +161,20 @@ class ParamDialog(QDialog):
         enter_btn.setDefault(True)
 
     def showEvent(self, event):
-        if self.main_win.os == 'linux':
+        if self.main_window.os == 'linux':
             self.move(
                 QGuiApplication.screenAt(QCursor.pos()).availableGeometry().center() - self.frameGeometry().center())
 
         self.modifying = True
-        if self.main_win.config["git_database"]:
+        if self.main_window.config["git_database"]:
             self.git_db_activated_checkbox.setChecked(True)
             self.browse_btn.setEnabled(True)
         else:
             self.git_db_activated_checkbox.setChecked(False)
             self.browse_btn.setEnabled(False)
-        self.path_lbl.setText(self.main_win.config["database_path"])
+        self.path_lbl.setText(self.main_window.config["database_path"])
 
-        if self.main_win.config["notif"]:
+        if self.main_window.config["notif"]:
             self.notif_activated_checkbox.setChecked(True)
             self.time_line_edit.setEnabled(True)
             self.time_unit_combobox.setEnabled(True)
@@ -181,10 +182,10 @@ class ParamDialog(QDialog):
             self.notif_activated_checkbox.setChecked(False)
             self.time_line_edit.setEnabled(False)
             self.time_unit_combobox.setEnabled(False)
-        self.time_line_edit.setText(self.main_win.config["period"])
-        self.time_unit_combobox.setCurrentText(self.main_win.config["unit"])
+        self.time_line_edit.setText(self.main_window.config["period"])
+        self.time_unit_combobox.setCurrentText(self.main_window.config["unit"])
 
-        if self.main_win.config["gantt"]:
+        if self.main_window.config["gantt"]:
             self.gantt_activated_checkbox.setChecked(True)
             self.no_end_date_combobox.setEnabled(True)
             self.duration_line_edit.setEnabled(True)
@@ -192,8 +193,8 @@ class ParamDialog(QDialog):
             self.gantt_activated_checkbox.setChecked(False)
             self.no_end_date_combobox.setEnabled(False)
             self.duration_line_edit.setEnabled(False)
-        self.no_end_date_combobox.setCurrentText(self.main_win.config["no_end_date_format"])
-        self.duration_line_edit.setText(self.main_win.config["no_end_date"])
+        self.no_end_date_combobox.setCurrentText(self.main_window.config["no_end_date_format"])
+        self.duration_line_edit.setText(self.main_window.config["no_end_date"])
 
     def hideEvent(self, event):
         if self.modifying:
@@ -253,17 +254,17 @@ class ParamDialog(QDialog):
                                          buttons=QMessageBox.Cancel | QMessageBox.Ok,
                                          defaultButton=QMessageBox.Ok)
             if button == QMessageBox.Ok:
-                self.main_win.config["git_database"] = self.git_db_activated_checkbox.isChecked()
-                self.main_win.config["database_path"] = self.path_lbl.text()
-                self.main_win.config["notif"] = self.notif_activated_checkbox.isChecked()
-                self.main_win.config["period"] = self.time_line_edit.text()
-                self.main_win.config["unit"] = self.time_unit_combobox.currentText()
-                self.main_win.config["gantt"] = self.gantt_activated_checkbox.isChecked()
-                self.main_win.config["no_end_date_format"] = self.no_end_date_combobox.currentText()
-                self.main_win.config["no_end_date"] = self.duration_line_edit.text()
+                self.main_window.config["git_database"] = self.git_db_activated_checkbox.isChecked()
+                self.main_window.config["database_path"] = self.path_lbl.text()
+                self.main_window.config["notif"] = self.notif_activated_checkbox.isChecked()
+                self.main_window.config["period"] = self.time_line_edit.text()
+                self.main_window.config["unit"] = self.time_unit_combobox.currentText()
+                self.main_window.config["gantt"] = self.gantt_activated_checkbox.isChecked()
+                self.main_window.config["no_end_date_format"] = self.no_end_date_combobox.currentText()
+                self.main_window.config["no_end_date"] = self.duration_line_edit.text()
                 self.modifying = False
 
-                self.main_win.update_config()
+                self.main_window.update_config()
                 self.hide()
 
         else:

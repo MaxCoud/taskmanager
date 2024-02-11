@@ -10,15 +10,16 @@ from lib.style import select_icon
 
 class AddTaskDialog(QDialog):
 
-    def __init__(self, main_win):
+    def __init__(self, main_window):
         super(AddTaskDialog, self).__init__()
 
-        self.mainWin = main_win
+        self.main_window = main_window
 
         self.modifying = False
         self.task = None
         self.documentsList = []
 
+        self.setWindowIcon(self.main_window.app_logo)
         self.setWindowModality(Qt.ApplicationModal)
 
         self.setWindowTitle("Add task")
@@ -205,12 +206,12 @@ class AddTaskDialog(QDialog):
                                          defaultButton=QMessageBox.Ok)
 
             if button == QMessageBox.Ok:
-                self.mainWin.update_task(self.task)
+                self.main_window.update_task(self.task)
                 self.modifying = False
                 self.hide()
 
         else:
-            self.mainWin.create_task(self.task)
+            self.main_window.create_task(self.task)
             self.hide()
 
     def modify_task(self, task):
@@ -263,7 +264,7 @@ class AddTaskDialog(QDialog):
                 split_document_path = document.split(".")
                 extension = split_document_path[len(split_document_path) - 1]
 
-                icon = select_icon(self.mainWin.d, self.mainWin.slash, extension)
+                icon = select_icon(self.main_window.d, self.main_window.slash, extension)
 
                 path = f"<a href={document}><img src={icon}></a>"
 
