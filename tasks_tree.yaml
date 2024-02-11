@@ -2109,7 +2109,8 @@ Children:
     Check: 0
     Documents: []
   - Name: Ajouter menus de recherche de projet/section
-    Description: Pour faciliter navigation si bcp de projets
+    Description: "Pour faciliter navigation si bcp de projets, sera plus simple avec\
+      \ une base de donn\xE9es"
     Priority: Normal
     StartDate: '2023-03-17'
     EndDate: '-'
@@ -2334,7 +2335,7 @@ Children:
     Priority: Normal
     StartDate: '2023-07-05'
     EndDate: '-'
-    Check: 0
+    Check: 1
     Documents: []
   - Name: Gerer elargissement fenetres
     Description: Surtout add window
@@ -2342,6 +2343,15 @@ Children:
     StartDate: '2023-07-05'
     EndDate: '-'
     Check: 1
+    Documents: []
+  - Name: Reparer bug modify task
+    Description: "Si je veux modifier une tache, que je clique sur le bouton pour\
+      \ fermer la fenetre, et que je clique sur Annuler, la fenetre est affich\xE9\
+      e mais elle est bugu\xE9e"
+    Priority: Normal
+    StartDate: '2024-02-11'
+    EndDate: '-'
+    Check: 0
     Documents: []
 - Name: Cartes d'axe
   Children:

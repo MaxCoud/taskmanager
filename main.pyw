@@ -77,6 +77,8 @@ class MainWindow(QMainWindow):
         # icons
         self.icons = load_icons(Path(__file__).resolve().parent)
 
+        self.app_logo = QIcon(f"{self.d}/task_manager_logo.png")
+        self.setWindowIcon(self.app_logo)
         self.setWindowModality(Qt.ApplicationModal)
 
         if os.path.exists(f'{self.d}{self.slash}tasks_tree.yaml'):
@@ -277,8 +279,6 @@ class MainWindow(QMainWindow):
             self.move(QGuiApplication.screenAt(
                 QCursor.pos()).availableGeometry().center() - self.frameGeometry().center())
             # ---------------------
-
-        self.setWindowIcon(QIcon(f"{self.d}/task_manager_logo.png"))
 
         if self.config["notif"]:
             self.notifyTimer.start(self.waitForNotifications)
@@ -707,24 +707,15 @@ excludes    weekends
                                 self.update_changes()
 
     def remove_section_btn_clicked(self):
+        button = QMessageBox.warning(self,
+                                     "Removing section",
+                                     f'Section "{self.selectedProject.text()}" is going to be removed,\n'
+                                     f'as well as all other potential subsections\n'
+                                     f'and tasks that belongs to them.',
+                                     buttons=QMessageBox.Cancel | QMessageBox.Ok,
+                                     defaultButton=QMessageBox.Ok)
 
-        msg = QMessageBox()
-        msg.setWindowTitle("Suppression d'une section")
-        msg.setText(f'La section "{self.selectedProject.text()}" va être supprimée,\n'
-                    f'ainsi que toutes les potentielles sous sections\n'
-                    f'et tâches lui appartenant.')
-        msg.setIcon(QMessageBox.Warning)
-        msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
-        msg.setDefaultButton(QMessageBox.Ok)
-        msg.buttonClicked.connect(self.on_delete_section_msg_box_btn_clicked)
-
-        msg.setButtonText(QMessageBox.Cancel, "Annuler")
-        msg.setButtonText(QMessageBox.Ok, "OK")
-        msg.exec()
-
-    def on_delete_section_msg_box_btn_clicked(self, button):
-        if button.text() == 'OK':
-
+        if button == QMessageBox.Ok:
             if self.parent_list is not None:
                 parent_name = self.task_tree['Name']
                 parent_ = self.task_tree
@@ -984,14 +975,11 @@ excludes    weekends
             else:
                 os.startfile(folder_path)
         else:
-            msg = QMessageBox()
-            msg.setWindowTitle("Fichier absent")
-            msg.setText("Le fichier que vous demandez n'existe pas")
-            msg.setIcon(QMessageBox.Critical)
-            msg.setStandardButtons(QMessageBox.Ok)
-            msg.setButtonText(QMessageBox.Ok, "OK")
-            msg.setDefaultButton(QMessageBox.Ok)
-            msg.exec()
+            QMessageBox.critical(self,
+                                 "File not found",
+                                 "The file you are requesting does not exist",
+                                 buttons=QMessageBox.Ok,
+                                 defaultButton=QMessageBox.Ok)
 
     def finished_tasks_tree_changed(self, item, col):
         try:
@@ -1120,54 +1108,29 @@ excludes    weekends
 
         try:
             task_name = current_tree.itemWidget(self.selectedItem, 1).text()
-
             task_name = task_name.replace("\n", "")
 
-            msg = QMessageBox()
-            msg.setWindowTitle("Suppression d'une tâche")
-            msg.setText(f'La tache "{task_name}" va être supprimée')
-            msg.setIcon(QMessageBox.Warning)
-            msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
-            msg.setDefaultButton(QMessageBox.Ok)
-            msg.buttonClicked.connect(self.on_delete_msg_box_btn_clicked)
+            button = QMessageBox.warning(self,
+                                         "Removing task",
+                                         f'Task "{task_name}" is going to be removed',
+                                         buttons=QMessageBox.Cancel | QMessageBox.Ok,
+                                         defaultButton=QMessageBox.Ok)
 
-            msg.setButtonText(QMessageBox.Cancel, "Annuler")
-            msg.setButtonText(QMessageBox.Ok, "OK")
-            msg.exec()
+            if button == QMessageBox.Ok:
+                self.on_delete_msg_box_btn_clicked()
+
         except:
-            msg = QMessageBox()
-            msg.setWindowTitle("Suppression d'une tâche")
-            msg.setText(f"Aucune tâche sélectionnée")
-            msg.setIcon(QMessageBox.Warning)
-            msg.setStandardButtons(QMessageBox.Ok)
-            msg.setDefaultButton(QMessageBox.Ok)
-            msg.setButtonText(QMessageBox.Ok, "OK")
-            msg.exec()
+            QMessageBox.warning(self,
+                                "Removing task",
+                                "No task selected",
+                                buttons=QMessageBox.Ok,
+                                defaultButton=QMessageBox.Ok)
 
-    def on_delete_msg_box_btn_clicked(self, button):
-        if button.text() == 'OK':
-
-            current_tree = self.selected_tree()
-
-            # task_to_delete = None
-
-            task_to_delete = self.get_task(current_tree)
-
-            # for task in self.tasksList:
-            #     # if f'\n{task["Name"]}\n' == current_tree.itemWidget(self.selectedItem, 1).text() and \
-            #     #         f'\n{task["Description"]}\n' == current_tree.itemWidget(self.selectedItem, 2).text():
-            #     if task["Name"] == current_tree.itemWidget(self.selectedItem, 1).text() and \
-            #             task["Description"] == current_tree.itemWidget(self.selectedItem, 2).text():
-            #         task_to_delete = task
-            #         break
-
-            self.tasksList.remove(task_to_delete)
-
-            self.remove_task(task_to_delete)
-
-            # self.Save_tree()
-            # self.Update_tree()
-            # self.Update_changes()
+    def on_delete_msg_box_btn_clicked(self):
+        current_tree = self.selected_tree()
+        task_to_delete = self.get_task(current_tree)
+        self.tasksList.remove(task_to_delete)
+        self.remove_task(task_to_delete)
 
     def get_task(self, tree):
         for task in self.tasksList:
@@ -1274,40 +1237,24 @@ excludes    weekends
                             "Check": task_to_cut["Check"],
                             "Documents": task_to_cut["Documents"]}
 
-        msg = QMessageBox()
-        msg.setWindowTitle("Suppression d'une tâche")
-        msg.setText(f'La tache "{task_to_cut["Name"]}" va être coupée')
-        msg.setIcon(QMessageBox.Warning)
-        msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
-        msg.setDefaultButton(QMessageBox.Ok)
-        # msg.buttonClicked.connect(self.onCutMsgBoxBtnClicked)
-        msg.buttonClicked.connect(self.on_delete_msg_box_btn_clicked)
+        button = QMessageBox.warning(self,
+                                     "Removing task",
+                                     f'Task "{task_to_cut["Name"]}" is going to be cut',
+                                     buttons=QMessageBox.Cancel | QMessageBox.Ok,
+                                     defaultButton=QMessageBox.Ok)
 
-        msg.setButtonText(QMessageBox.Cancel, "Annuler")
-        msg.setButtonText(QMessageBox.Ok, "OK")
-        msg.exec()
-
-    # def onCutMsgBoxBtnClicked(self, button):
-    #     if button.text() = 'OK':
-    #         self.tasksList.remove(task_to_cut)
-    #         self.Remove_task(task_to_cut)
-
-    # if button.text() == 'OK':
-    #     self.tasksList.remove(taskToDelete)
-    #     self.Remove_task(taskToDelete)
+        if button == QMessageBox.Ok:
+            self.on_delete_msg_box_btn_clicked()
 
     def paste_task_btn_clicked(self):
         if "Name" in self.copied_task:
             self.create_task(self.copied_task)
         else:
-            msg = QMessageBox()
-            msg.setWindowTitle("Aucune tâche copiée")
-            msg.setText(f"Pas de tâche à coller")
-            msg.setIcon(QMessageBox.Warning)
-            msg.setStandardButtons(QMessageBox.Ok)
-            msg.setDefaultButton(QMessageBox.Ok)
-            msg.setButtonText(QMessageBox.Ok, "OK")
-            msg.exec()
+            QMessageBox.warning(self,
+                                "No task copied",
+                                "No task to paste",
+                                buttons=QMessageBox.Ok,
+                                defaultButton=QMessageBox.Ok)
 
     def update_config(self):
         if self.config["notif"]:
@@ -1356,11 +1303,11 @@ excludes    weekends
         end_of_week_day, end_of_week_month, end_of_week_year = end_of_week.toString(Qt.ISODate).split("-")
         end_of_week_str = end_of_week_day + end_of_week_month + end_of_week_year
 
-        passed_list = ["TÂCHES DONT LE DÉLAI EST DÉPASSÉ :"]
+        passed_list = ["TASKS FOR WHICH THE DEADLINE HAS PASSED:"]
 
-        today_list = ["Voici les tâches à accomplir aujourd'hui :"]
+        today_list = ["Here are the tasks for today:"]
 
-        end_of_week_list = ["Voici les tâches à accomplir cette semaine :"]
+        end_of_week_list = ["This week's tasks include:"]
 
         if self.tasksList is not None:
             for task in self.tasksList:
@@ -1395,23 +1342,16 @@ excludes    weekends
                 notification_text += ("\n" + line)
 
         if len(passed_list) == 1 and len(today_list) == 1 and len(end_of_week_list) == 1:
-            notification_text = "Vous êtes à jour pour cette semaine"
+            notification_text = "You are up to date for this week"
 
-        msg = QMessageBox()
-        msg.setWindowTitle("Vos tâches")
-        msg.setText(notification_text)
-        msg.setIcon(QMessageBox.Information)
-
-        msg.setStandardButtons(QMessageBox.Ok)
-        msg.setButtonText(QMessageBox.Ok, "OK")
-
-        # msg.setStandardButtons(QMessageBox.NoButton)
-        # ok_btn = QPushButton("OK")
-        # msg.addButton(ok_btn, QMessageBox.AcceptRole)
-
-        msg.setDefaultButton(QMessageBox.Ok)
         self.notifyTimer.stop()
-        msg.exec()
+
+        QMessageBox.information(self,
+                                "Your tasks",
+                                notification_text,
+                                buttons=QMessageBox.Ok,
+                                defaultButton=QMessageBox.Ok)
+
         self.notifyTimer.start(self.waitForNotifications)
 
 
