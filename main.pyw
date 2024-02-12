@@ -12,7 +12,7 @@ from lib.add_window import AddTaskDialog
 from lib.param_window import *
 
 import yaml
-from PySide6.QtCore import Qt, Signal, QDateTime, QDate, QTimer
+from PySide6.QtCore import Qt, QDateTime, QDate, QTimer
 from PySide6.QtGui import QFont, QKeySequence, QStandardItem, QStandardItemModel, QIcon, QGuiApplication, \
     QCursor, QAction
 from PySide6.QtWidgets import QLineEdit, QGridLayout, QWidget, QApplication, QLabel, QTreeWidget, QTreeWidgetItem, \
@@ -122,11 +122,11 @@ class MainWindow(QMainWindow):
         task_menu.addAction("Add task ...", lambda: self.add_task_btn_clicked(), QKeySequence("a"))
         task_menu.addAction("Delete task", lambda: self.delete_task_btn_clicked(), QKeySequence.Delete)
 
-        project_menu = menu.addMenu("Projects")
-        project_menu.addAction("Add project", lambda: self.add_project_btn_clicked(), QKeySequence("p"))
-        project_menu.addAction("Expand project tree", lambda: self.expand_project_tree(),
+        project_menu = menu.addMenu("Sections")
+        project_menu.addAction("Add section", lambda: self.add_section_btn_clicked(), QKeySequence("s"))
+        project_menu.addAction("Expand sections tree", lambda: self.expand_section_tree(),
                                QKeySequence(Qt.CTRL | Qt.ALT | Qt.Key_Plus))
-        project_menu.addAction("Collapse project tree", lambda: self.collapse_project_tree(),
+        project_menu.addAction("Collapse sections tree", lambda: self.collapse_section_tree(),
                                QKeySequence(Qt.CTRL | Qt.ALT | Qt.Key_Minus))
 
         option_menu = menu.addMenu("Options")
@@ -172,9 +172,6 @@ class MainWindow(QMainWindow):
         self.listTree.setColumnWidth(4, 112)
         self.listTree.setColumnWidth(5, 112)
         self.listTree.setColumnWidth(6, 100)
-        # self.listTree.setStyleSheet("QTreeWidget::Item{border-bottom: 10px solid red}")
-        # self.listTree.setStyleSheet("QTreeWidget::Item{padding: 5px}")
-        # elmt.setStyleSheet("QTreeWidgetItem {margin: 20px}")
 
         self.listTree.setContextMenuPolicy(Qt.CustomContextMenu)
         self.listTree.customContextMenuRequested.connect(self.show_lists_context_menu)
@@ -347,21 +344,11 @@ class MainWindow(QMainWindow):
     def update_icons(self):
         items = []
         root = self.model.invisibleRootItem()
-        for item in self.iter_items(root):
+        for item in iter_items(root):
             item.setIcon(QIcon())
             items.append(item)
 
-            has_parent = True
-            parent_list = [item.text()]
-            child = item
-
-            while has_parent:
-                try:
-                    parent = child.parent()
-                    parent_list.append(parent.text())
-                    child = parent
-                except:
-                    has_parent = False
+            parent_list = generate_parent_list(item)
 
             parent_name = self.task_tree['Name']
             parent_ = self.task_tree
@@ -399,11 +386,6 @@ class MainWindow(QMainWindow):
                 if every_tasks_finished:
                     item.setIcon(QIcon(self.icons["tick"]))
                 else:
-                    # print(tasks_list, "\t", "running_tasks", running_tasks)
-                    # item.setIcon(QIcon(self.folder_icon))
-                    # item.setIcon(QIcon(self.number_1))
-                    # item.addIcon(QIcon(self.number_1))
-
                     if running_tasks == 1:
                         item.setIcon(QIcon(self.icons["number_1"]))
                     elif running_tasks == 2:
@@ -445,50 +427,22 @@ class MainWindow(QMainWindow):
                     elif running_tasks == 20:
                         item.setIcon(QIcon(self.icons["number_20"]))
                     else:
-
                         item.setIcon(QIcon(self.icons["folder"]))
 
-    def iter_items(self, root):
-        if root is not None:
-            stack = [root]
-            while stack:
-                parent = stack.pop(0)
-                for row in range(parent.rowCount()):
-                    for column in range(parent.columnCount()):
-                        child = parent.child(row, column)
-                        yield child
-                        # print("child", child)
-                        # print("child.text()", child.text())
-                        if child.hasChildren():
-                            stack.append(child)
-
-    def expand_project_tree(self):
+    def expand_section_tree(self):
         self.tree_view.expandAll()
 
-    def collapse_project_tree(self):
+    def collapse_section_tree(self):
         self.tree_view.collapseAll()
 
     def on_project_tree_clicked(self, index):
         item = self.model.itemFromIndex(index)
         self.update_icons()
         item.setIcon(QIcon(self.icons["open_folder"]))
-        # print(item.text())
 
         self.ts = time.time()
 
-        has_parent = True
-        self.parent_list = [item.text()]
-        child = item
-
-        while has_parent:
-            try:
-                parent = child.parent()
-                self.parent_list.append(parent.text())
-                child = parent
-            except:
-                has_parent = False
-
-        # print("parent_list", self.parent_list)
+        self.parent_list = generate_parent_list(item)
 
         project_text = ""
         for i in range(len(self.parent_list)-1, 0, -1):
@@ -500,7 +454,6 @@ class MainWindow(QMainWindow):
         self.selectedProjectLbl.setText(project_text)
 
         parent_name = self.task_tree['Name']
-        # parent_ = self.task_tree['Children'][0]
         parent_ = self.task_tree
         tasks_list = None
 
@@ -525,14 +478,12 @@ class MainWindow(QMainWindow):
         # print("tasks_list:", tasks_list)
 
         if tasks_list is not None:
-            try:
+            if 'Children' in tasks_list:
                 self.selected_project_tasks_list = tasks_list['Children']
-            except:
+            else:
                 self.selected_project_tasks_list = None
         else:
             self.selected_project_tasks_list = None
-
-        # print("project_tasks_list:", self.selected_project_tasks_list)
 
         self.tasksList = self.selected_project_tasks_list
         self.update_changes()
@@ -558,7 +509,7 @@ excludes    weekends
                 else:
                     status = "active"
                 if task["EndDate"] == "-":
-                    if self.config["no_end_date_format"] == "La fixer à aujourd'hui":
+                    if self.config["no_end_date_format"] == "Set to today":
                         end_date = QDateTime.currentDateTime().date().toString(Qt.ISODate)
                     else:
                         end_date = self.config["no_end_date"] + "d"
@@ -608,7 +559,7 @@ excludes    weekends
             add_task = QAction("Add task")
             add_task.triggered.connect(self.add_task_btn_clicked)
             add_section = QAction("Add section")
-            add_section.triggered.connect(self.add_project_section_btn_clicked)
+            add_section.triggered.connect(self.add_subsection_btn_clicked)
             modify_section = QAction("Modify")
             modify_section.triggered.connect(self.modify_section_btn_clicked)
             delete_section = QAction("Delete")
@@ -622,7 +573,7 @@ excludes    weekends
 
         else:
             add_project = QAction("Add project")
-            add_project.triggered.connect(self.add_project_btn_clicked)
+            add_project.triggered.connect(self.add_section_btn_clicked)
 
             menu = QMenu(self.tree_view)
             menu.addAction(add_project)
@@ -632,11 +583,11 @@ excludes    weekends
     def open_param_btn_clicked(self):
         self.param_dialog.show()
 
-    def add_project_btn_clicked(self):
+    def add_section_btn_clicked(self):
         add_project_dialog = QInputDialog(self)
         add_project_dialog.setInputMode(QInputDialog.TextInput)
-        add_project_dialog.setWindowTitle('Entrer un projet global')
-        add_project_dialog.setLabelText('Nom du projet :')
+        add_project_dialog.setWindowTitle('Create new section')
+        add_project_dialog.setLabelText('Section name:')
         add_project_dialog.setFont(QFont('AnyStyle', 9))
         ok = add_project_dialog.exec()
         text = add_project_dialog.textValue()
@@ -647,7 +598,7 @@ excludes    weekends
         self.save_tree()
         self.update_tree()
 
-    def add_project_section_btn_clicked(self):
+    def add_subsection_btn_clicked(self):
 
         if self.parent_list is not None:
             parent_name = self.task_tree['Name']
@@ -661,8 +612,8 @@ excludes    weekends
                             if (i - 1) == 0:  # last element
                                 add_section_dialog = QInputDialog(self)
                                 add_section_dialog.setInputMode(QInputDialog.TextInput)
-                                add_section_dialog.setWindowTitle('Entrer une section')
-                                add_section_dialog.setLabelText('Nom de la section :')
+                                add_section_dialog.setWindowTitle('Create sub-section')
+                                add_section_dialog.setLabelText('Sub-section name:')
                                 add_section_dialog.setFont(QFont('AnyStyle', 9))
                                 ok = add_section_dialog.exec()
                                 text = add_section_dialog.textValue()
@@ -691,8 +642,8 @@ excludes    weekends
                             if (i - 1) == 0:  # last element
                                 modify_section_dialog = QInputDialog(self)
                                 modify_section_dialog.setInputMode(QInputDialog.TextInput)
-                                modify_section_dialog.setWindowTitle('Modifier une section')
-                                modify_section_dialog.setLabelText('Nouveau nom de la section :')
+                                modify_section_dialog.setWindowTitle('Modify section')
+                                modify_section_dialog.setLabelText('New section name:')
                                 line_edit = modify_section_dialog.findChild(QLineEdit)
                                 line_edit.setPlaceholderText(f'{child["Name"]}')
                                 modify_section_dialog.setFont(QFont('AnyStyle', 9))
@@ -795,18 +746,16 @@ excludes    weekends
         self.finishedTasksTree.clearSelection()
         self.listTree.clear()
         self.finishedTasksTree.clear()
-        i = 0
         i_running = 0
         i_finished = 0
         running_tasks_nb = 0
         finished_tasks_nb = 0
         tree_to_build = None
-        tree_len = 0
 
         if self.tasksList is not None:
             new_tasks_list = []
             for task in self.tasksList:
-                if not "Children" in task and "Description" in task:
+                if "Children" not in task and "Description" in task:
                     new_tasks_list.append(task)
             self.tasksList = new_tasks_list
 
@@ -822,22 +771,16 @@ excludes    weekends
 
         if self.tasksList is not None:
             for task in self.tasksList:
-                # breakpoint()
                 if task["Check"] == 0:
                     tree_to_build = self.listTree
                     i_running += 1
-                    i = i_running
-                    tree_len = running_tasks_nb
                 elif task["Check"] == 1:
                     tree_to_build = self.finishedTasksTree
                     i_finished += 1
-                    i = i_finished
-                    tree_len = finished_tasks_nb
 
                 element = QTreeWidgetItem(tree_to_build)
                 element.setFlags(element.flags() | Qt.ItemIsUserCheckable)
 
-                # lbl = QLabel(f'\n{task["Name"]}\n')
                 lbl = QLabel(f'\n{task["Name"]}\n')
                 lbl.setWordWrap(True)
                 lbl.setFont(QFont('AnyStyle', self.itemFontSize))
@@ -851,7 +794,6 @@ excludes    weekends
                 lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
                 tree_to_build.setItemWidget(element, 2, lbl)
 
-                # lbl = QLabel(task["Project"])
                 lbl = QLabel(task["Priority"])
                 lbl.setWordWrap(True)
                 lbl.setFont(QFont('AnyStyle', self.itemFontSize))
@@ -861,7 +803,8 @@ excludes    weekends
                 try:
                     year, month, day = task["StartDate"].split("-")
                     date = f'{day}/{month}/{year}'
-                except:
+                except ValueError:
+                    print("ValueError")
                     date = task["StartDate"]
 
                 lbl = QLabel(date)
@@ -873,7 +816,7 @@ excludes    weekends
                 try:
                     year, month, day = task["EndDate"].split("-")
                     date = f'{day}/{month}/{year}'
-                except:
+                except ValueError:
                     date = task["EndDate"]
 
                 lbl = QLabel(date)
@@ -911,7 +854,6 @@ excludes    weekends
                         if not os.path.exists(document):
                             icon = self.d + self.slash + "icon" + self.slash + "document-broken.png"
 
-                        # path = f"<a href={document}><img src={icon}></a>"
                         path = f"<a href={no_space_path}><img src={icon}></a>"
 
                         lbl = QLabel(path)
@@ -931,15 +873,6 @@ excludes    weekends
                         col += 1
 
                     tree_to_build.setItemWidget(element, 6, widget)
-
-                # if i < tree_len:
-                #     spacer = QTreeWidgetItem(tree_to_build)
-                #     spacer.setFlags(Qt.NoItemFlags)
-                #
-                #     lbl = QLabel("")
-                #     lbl.setFont(QFont('AnyStyle', 1))
-                #
-                #     tree_to_build.setItemWidget(spacer, 0, lbl)
 
                 if task["Check"] == 1:
                     element.setCheckState(0, Qt.Checked)
@@ -1102,8 +1035,9 @@ excludes    weekends
 
         current_tree = self.selected_tree()
 
-        try:
-            task_name = current_tree.itemWidget(self.selectedItem, 1).text()
+        task_widget = current_tree.itemWidget(self.selectedItem, 1)
+        if task_widget is not None:
+            task_name = task_widget.text()
             task_name = task_name.replace("\n", "")
 
             button = QMessageBox.warning(self,
@@ -1115,7 +1049,7 @@ excludes    weekends
             if button == QMessageBox.Ok:
                 self.on_delete_msg_box_btn_clicked()
 
-        except:
+        else:
             QMessageBox.warning(self,
                                 "Removing task",
                                 "No task selected",
@@ -1318,7 +1252,7 @@ excludes    weekends
                             today_list.append(f' - {task["Name"]}')
                         elif task_end_date <= end_of_week_str:
                             end_of_week_list.append(f' - {task["Name"]}')
-                    except:
+                    except ValueError:
                         pass  # no end date
 
         notification_text = ""
@@ -1349,6 +1283,31 @@ excludes    weekends
                                 defaultButton=QMessageBox.Ok)
 
         self.notifyTimer.start(self.waitForNotifications)
+
+
+def iter_items(root: QStandardItem | None):
+    if root is not None:
+        stack = [root]
+        while stack:
+            parent = stack.pop(0)
+            for row in range(parent.rowCount()):
+                for column in range(parent.columnCount()):
+                    child = parent.child(row, column)
+                    yield child
+                    # print("child", child)
+                    # print("child.text()", child.text())
+                    if child.hasChildren():
+                        stack.append(child)
+
+
+def generate_parent_list(item: QStandardItem | None) -> list[QStandardItem]:
+    parent_list = []
+    child = item
+    while child is not None:
+        parent_list.append(child.text())
+        child = child.parent()
+
+    return parent_list
 
 
 if __name__ == "__main__":

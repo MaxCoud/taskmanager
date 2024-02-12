@@ -1981,7 +1981,8 @@ Children:
           StartDate: '2023-03-09'
           EndDate: '-'
           Check: 0
-          Documents: []
+          Documents:
+          - C:/Users/maxim/Documents/Emplois/greenov/Mutuelle/lettre_arret_mutuelle.png
   - Name: test20
     Children:
     - Name: test200
