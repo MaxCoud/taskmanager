@@ -344,11 +344,11 @@ class MainWindow(QMainWindow):
     def update_icons(self):
         items = []
         root = self.model.invisibleRootItem()
-        for item in iter_items(root):
+        for item in self.iter_items(root):
             item.setIcon(QIcon())
             items.append(item)
 
-            parent_list = generate_parent_list(item)
+            parent_list = self.generate_parent_list(item)
 
             parent_name = self.task_tree['Name']
             parent_ = self.task_tree
@@ -429,6 +429,31 @@ class MainWindow(QMainWindow):
                     else:
                         item.setIcon(QIcon(self.icons["folder"]))
 
+    @staticmethod
+    def iter_items(root: QStandardItem | None):
+        if root is not None:
+            stack = [root]
+            while stack:
+                parent = stack.pop(0)
+                for row in range(parent.rowCount()):
+                    for column in range(parent.columnCount()):
+                        child = parent.child(row, column)
+                        yield child
+                        # print("child", child)
+                        # print("child.text()", child.text())
+                        if child.hasChildren():
+                            stack.append(child)
+
+    @staticmethod
+    def generate_parent_list(item: QStandardItem | None) -> list[QStandardItem]:
+        parent_list = []
+        child = item
+        while child is not None:
+            parent_list.append(child.text())
+            child = child.parent()
+
+        return parent_list
+
     def expand_section_tree(self):
         self.tree_view.expandAll()
 
@@ -442,7 +467,7 @@ class MainWindow(QMainWindow):
 
         self.ts = time.time()
 
-        self.parent_list = generate_parent_list(item)
+        self.parent_list = self.generate_parent_list(item)
 
         project_text = ""
         for i in range(len(self.parent_list)-1, 0, -1):
@@ -1283,31 +1308,6 @@ excludes    weekends
                                 defaultButton=QMessageBox.Ok)
 
         self.notifyTimer.start(self.waitForNotifications)
-
-
-def iter_items(root: QStandardItem | None):
-    if root is not None:
-        stack = [root]
-        while stack:
-            parent = stack.pop(0)
-            for row in range(parent.rowCount()):
-                for column in range(parent.columnCount()):
-                    child = parent.child(row, column)
-                    yield child
-                    # print("child", child)
-                    # print("child.text()", child.text())
-                    if child.hasChildren():
-                        stack.append(child)
-
-
-def generate_parent_list(item: QStandardItem | None) -> list[QStandardItem]:
-    parent_list = []
-    child = item
-    while child is not None:
-        parent_list.append(child.text())
-        child = child.parent()
-
-    return parent_list
 
 
 if __name__ == "__main__":
