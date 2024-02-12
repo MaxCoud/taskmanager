@@ -4,3 +4,4 @@ PySide6-Addons==6.6.0
 PySide6-Essentials==6.6.0
 PyYAML==6.0.1
 shiboken6==6.6.0
+peewee==3.17.1
