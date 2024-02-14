@@ -1,8 +1,208 @@
 import os
+import sys
+
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QStandardItemModel, QFont, Qt, QGuiApplication, QCursor
+from PySide6.QtWidgets import QGridLayout, QWidget, QMainWindow, QTreeView, QLabel, QTreeWidget, QTabWidget, \
+    QApplication
 from peewee import *
-from datetime import datetime, date
+import time
 
 from PySide6.QtCore import QObject
+
+
+class TestWindow(QMainWindow):
+
+    def __init__(self):
+        super().__init__()
+
+        self.os = sys.platform
+
+        # change working directory to this script directory
+        os.chdir(os.path.dirname(os.path.abspath(__file__)))
+        self.d = os.getcwd()
+
+        # linux shortcut
+        if self.os == 'linux':
+            self.slash = "/"
+
+        elif self.os == 'windows' or self.os == 'win32':
+            self.slash = "\\"
+
+        self.setWindowTitle("Task Manager")
+
+        self.tasksList = None
+        self.projectList = []
+        self.selectedItem = None
+        self.parent_list = None
+        self.selectedProject = None
+        self.selected_project_tasks_list = None
+        self.updating = False
+        self.copied_task = {}
+
+        # self.projectAscending = None
+        self.priorityAscending = None
+        self.startDateAscending = None
+        self.endDateAscending = None
+        self.ts = time.time()  # store timestamp
+
+        self.task_tree = []
+
+        self.setWindowModality(Qt.ApplicationModal)
+
+        self.titleFontSize = 14
+        self.subtitleFontSize = 11
+        self.itemFontSize = 10
+
+        layout = QGridLayout()
+
+        self.runningWidget = QWidget()
+        running_layout = QGridLayout()
+
+        self.tree_view = QTreeView()
+        self.tree_view.setMinimumWidth(300)
+        # self.tree_view.clicked.connect(self.OnProjectTreeClicked)
+        self.tree_view.pressed.connect(self.on_project_tree_clicked)
+        layout.addWidget(self.tree_view, 0, 0, 4, 1)
+
+        # create a model for tree view
+        self.model = QStandardItemModel()
+
+        self.tree_view.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.tree_view.customContextMenuRequested.connect(self.show_tree_context_menu)
+
+        # get header of tree view
+        self.tree_view_header = self.tree_view.header()
+        # self.tree_view_header.setSectionResizeMode(QHeaderView.Interactive)
+
+        self.selectedProjectLbl = QLabel()
+        self.selectedProjectLbl.setText("No project selected")
+        self.selectedProjectLbl.setFont(QFont('AnyStyle', self.titleFontSize))
+        self.selectedProjectLbl.setFixedHeight(30)
+        self.selectedProjectLbl.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.selectedProjectLbl, 0, 1)
+
+        self.listTree = QTreeWidget()
+        self.listTree.setHeaderLabels(["", "Name", "Description", "Priority", "Start", "End", "Documents"])
+        self.listTree.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        self.listTree.setMinimumWidth(1256)
+        self.listTree.setMinimumHeight(550)
+        self.listTree.setColumnWidth(0, 50)
+        self.listTree.setColumnWidth(1, 200)
+        self.listTree.setColumnWidth(2, 480)
+        self.listTree.setColumnWidth(3, 200)
+        self.listTree.setColumnWidth(4, 112)
+        self.listTree.setColumnWidth(5, 112)
+        self.listTree.setColumnWidth(6, 100)
+
+        self.listTree.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.listTree.customContextMenuRequested.connect(self.show_lists_context_menu)
+
+        self.listTree.itemChanged.connect(self.list_tree_changed)
+        # self.listTree.itemClicked.connect(self.listTree_itemClicked)
+        self.listTree.itemPressed.connect(self.list_tree_item_clicked)
+        self.listTree.itemDoubleClicked.connect(self.modify_task_btn_clicked)
+        running_layout.addWidget(self.listTree, 2, 0, 1, 4)
+
+        self.listTreeHeader = self.listTree.header()
+        self.listTreeHeader.setDefaultAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+        # self.listTreeHeader.setSectionResizeMode(QHeaderView.Fixed)
+        self.listTreeHeader.setStretchLastSection(False)
+        # self.listTreeHeader.setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        self.listTreeHeader.setSectionsClickable(True)
+        self.listTreeHeader.sectionClicked.connect(self.custom_sort_by_column)
+
+        self.runningWidget.setLayout(running_layout)
+
+        self.finishedWidget = QWidget()
+        finished_layout = QGridLayout()
+
+        self.finishedTasksTree = QTreeWidget()
+        self.finishedTasksTree.setHeaderLabels(["", "Name", "Description", "Priority", "Start", "End", "Documents"])
+        self.finishedTasksTree.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        self.finishedTasksTree.setMinimumWidth(1256)
+        self.finishedTasksTree.setMinimumHeight(550)
+        self.finishedTasksTree.setColumnWidth(0, 50)
+        self.finishedTasksTree.setColumnWidth(1, 200)
+        self.finishedTasksTree.setColumnWidth(2, 480)
+        self.finishedTasksTree.setColumnWidth(3, 200)
+        self.finishedTasksTree.setColumnWidth(4, 112)
+        self.finishedTasksTree.setColumnWidth(5, 112)
+        self.finishedTasksTree.setColumnWidth(6, 100)
+        self.finishedTasksTree.itemChanged.connect(self.finished_tasks_tree_changed)
+        # self.finishedTasksTree.itemClicked.connect(self.finishedTasksTree_itemClicked)
+        self.finishedTasksTree.itemPressed.connect(self.finished_tasks_tree_item_clicked)
+        self.finishedTasksTree.itemDoubleClicked.connect(self.modify_task_btn_clicked)
+        finished_layout.addWidget(self.finishedTasksTree, 2, 0, 1, 4)
+
+        self.finishedTasksTree.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.finishedTasksTree.customContextMenuRequested.connect(self.show_lists_context_menu)
+
+        self.finishedTasksTreeHeader = self.finishedTasksTree.header()
+        self.finishedTasksTreeHeader.setDefaultAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+        self.finishedTasksTreeHeader.setStretchLastSection(False)
+        self.finishedTasksTreeHeader.setSectionsClickable(True)
+        self.finishedTasksTreeHeader.sectionClicked.connect(self.custom_sort_by_column)
+
+        self.finishedWidget.setLayout(finished_layout)
+
+        self.tabs = QTabWidget()
+        self.tabs.addTab(self.runningWidget, "Running")
+        self.tabs.addTab(self.finishedWidget, "Finished")
+
+        layout.addWidget(self.tabs, 1, 1, 2, 1)
+
+        main_window = QWidget()
+        main_window.setLayout(layout)  # running_layout
+        self.setCentralWidget(main_window)
+        # self.setLayout(running_layout)
+
+        self.update_changes()
+        self.update_tree()
+
+        self.showMaximized()
+
+        if self.os == 'linux':
+            # --- center window ---
+            # - on primary screen -
+            # self.move(QGuiApplication.primaryScreen().availableGeometry().center() - self.frameGeometry().center())
+            # - on screen where mouse pointer is -
+            self.move(QGuiApplication.screenAt(
+                QCursor.pos()).availableGeometry().center() - self.frameGeometry().center())
+            # ---------------------
+
+    def on_project_tree_clicked(self):
+        pass
+
+    def show_tree_context_menu(self):
+        pass
+
+    def list_tree_changed(self):
+        pass
+
+    def list_tree_item_clicked(self):
+        pass
+
+    def finished_tasks_tree_changed(self):
+        pass
+
+    def finished_tasks_tree_item_clicked(self):
+        pass
+
+    def modify_task_btn_clicked(self):
+        pass
+
+    def show_lists_context_menu(self):
+        pass
+
+    def custom_sort_by_column(self):
+        pass
+
+    def update_changes(self):
+        pass
+
+    def update_tree(self):
+        pass
 
 
 # Define a custom field type for storing a list of strings
@@ -29,6 +229,12 @@ class Task(Model):
     precedents = ListField()  # list of tasks that need to be done before this one
     progress = IntegerField()  # task progression, from 0 to 100%
     subtasks = ListField()  # list of sub-tasks, if any this task became a section
+
+    def __str__(self):
+        return f'Task(ref={self.ref}, name={self.name}, description={self.description}, start_date={self.start_date},' \
+               f' end_date={self.end_date}, documents={self.documents}, priority={self.priority},' \
+               f' milestone={self.milestone}, precedents={self.precedents}, progress={self.progress},' \
+               f' subtasks={self.subtasks})'
 
     class Meta:
         database = None  # SQLite database file
@@ -74,14 +280,42 @@ class TaskDatabaseManager(QObject):
     def get_every_task():
         return Task.select()
 
+    @staticmethod
+    def remove_task(task_id):
+        try:
+            task_to_remove = Task.get(Task.ref == task_id)
+            task_to_remove.delete_instance()
+        except Task.DoesNotExist:
+            print(f"Task with ref={task_id} does not exists in database")
 
-task_database_manager = TaskDatabaseManager('task_database.db')
+    def clear_db(self):
+        for task in self.get_every_task():
+            self.remove_task(task.ref)
 
-ref = task_database_manager.add_task(name="Test2", documents=["tasks.db", "again.ini"])
-print(f'{ref=}')
+    def close_db(self):
+        self.tasks_db.close()
 
-for entry in task_database_manager.get_every_task():
-    print(entry.name, entry.documents)
+
+if __name__ == '__main__':
+
+    app = QApplication([])
+
+    mainWindow = TestWindow()
+
+    # task_database_manager = TaskDatabaseManager('task_database.db')
+    #
+    # ref = task_database_manager.add_task(name="Test2", description="", start_date="2024-02-14", end_date="2024-02-14",
+    #                                      documents=["tasks.db", "again.ini"], priority=0, milestone=True,
+    #                                      precedents=[], progress=0, subtasks=[])
+    # task_database_manager.remove_task(task_id=1)
+    # task_database_manager.clear_db()
+    #
+    # for entry in task_database_manager.get_every_task():
+    #     print(entry)
+    #
+    # task_database_manager.close_db()
+
+    sys.exit(app.exec())
 
 
 # # Define your model
