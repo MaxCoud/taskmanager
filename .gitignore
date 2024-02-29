@@ -1,3 +1,4 @@
 taskmanager.desktop
 .idea/*
 __pycache__/*
+lib/task_database.db
