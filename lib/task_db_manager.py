@@ -1,12 +1,13 @@
 import os
 import sys
-
+from pathlib import Path
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QStandardItemModel, QFont, Qt, QGuiApplication, QCursor
+from PySide6.QtGui import QStandardItemModel, QFont, Qt, QGuiApplication, QCursor, QCloseEvent, QStandardItem, QIcon
 from PySide6.QtWidgets import QGridLayout, QWidget, QMainWindow, QTreeView, QLabel, QTreeWidget, QTabWidget, \
     QApplication
 from peewee import *
 import time
+from lib.style import style, select_icon, load_icons
 
 from PySide6.QtCore import QObject
 
@@ -46,7 +47,10 @@ class TestWindow(QMainWindow):
         self.endDateAscending = None
         self.ts = time.time()  # store timestamp
 
-        self.task_tree = []
+        self.icons = load_icons(Path(__file__).resolve().parent.parent)
+
+        database_path = f'{Path(__file__).resolve().parent}{self.slash}task_database.db'
+        self.task_database_manager = TaskDatabaseManager(database_path)
 
         self.setWindowModality(Qt.ApplicationModal)
 
@@ -202,7 +206,65 @@ class TestWindow(QMainWindow):
         pass
 
     def update_tree(self):
+
+        self.model.clear()
+
+        def add_item(parent, data):
+            item = QStandardItem(data.name)
+            item.setData(data)
+            item.setEditable(False)
+            parent.appendRow(item)
+
+            running_tasks = 0
+            for subtask_id in data.subtasks:
+                if self.task_database_manager.get_task(subtask_id).progress != 100:
+                    running_tasks += 1
+
+            if running_tasks == 0:
+                item.setIcon(QIcon(self.icons["tick"]))
+            elif running_tasks > 20:
+                item.setIcon(QIcon(self.icons["folder"]))
+            else:
+                item.setIcon(QIcon(self.icons[running_tasks]))
+
+            for subtask_id in data.subtasks:
+                if len(self.task_database_manager.get_task(subtask_id).subtasks) > 0:
+                    add_item(item, self.task_database_manager.get_task(subtask_id))
+
+        # create the root item and add it to the model
+        root_item = QStandardItem(self.task_database_manager.get_task(task_id=1).name)
+        root_item.setData(self.task_database_manager.get_every_task())
+        self.model.appendRow(root_item)
+
+        # set label of tree header with root name
+        self.model.setHorizontalHeaderLabels(["Projects"])
+
+        if self.task_database_manager.get_task(task_id=1).subtasks == [0]:
+            for task in self.task_database_manager.get_every_task():
+                print(f'{task=}')
+                if len(task.subtasks) > 0:
+                    has_parent = False
+                    for task_ in self.task_database_manager.get_every_task():
+                        if task.ref in task_.subtasks:
+                            has_parent = True
+                    if not has_parent:
+                        add_item(root_item, self.task_database_manager.get_task(task.ref))
+
+        self.tree_view.setModel(self.model)
+        self.tree_view.expandAll()
+
+        # hide root element
+        self.tree_view.setRootIndex(self.model.index(0, 0))
+
+        self.tree_view_header.resizeSection(0, self.tree_view.sizeHintForColumn(0))
+
+        self.update_icons()
+
+    def update_icons(self):
         pass
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        self.task_database_manager.close_db()
 
 
 # Define a custom field type for storing a list of strings
@@ -214,6 +276,19 @@ class ListField(Field):
     def python_value(self, value):
         if value is not None:
             return value.split(',')
+
+
+# Define a custom field type for storing a list of integers
+class IntListField(Field):
+    def db_value(self, value):
+        if value is not None:
+            return ','.join(str(x) for x in value)
+
+    def python_value(self, value):
+        if value is not None and value != '':
+            return [int(x) for x in value.split(',')]
+        else:
+            return []
 
 
 class Task(Model):
@@ -228,7 +303,7 @@ class Task(Model):
     milestone = BooleanField()  # task is milestone or not
     precedents = ListField()  # list of tasks that need to be done before this one
     progress = IntegerField()  # task progression, from 0 to 100%
-    subtasks = ListField()  # list of sub-tasks, if any this task became a section
+    subtasks = IntListField()  # list of sub-tasks, if any this task became a section
 
     def __str__(self):
         return f'Task(ref={self.ref}, name={self.name}, description={self.description}, start_date={self.start_date},' \
@@ -250,8 +325,10 @@ class TaskDatabaseManager(QObject):
         Task._meta.database = self.tasks_db
 
         self.tasks_db.connect()
-        if not os.path.exists(f'lib/{db_path}'):
+
+        if not os.path.exists(db_path):
             self.tasks_db.create_tables([Task], safe=True)
+            self.add_task(name="Projects", subtasks=[0])
 
     @staticmethod
     def add_task(name="", description="", start_date="", end_date="", documents=None, priority=0,
@@ -277,8 +354,21 @@ class TaskDatabaseManager(QObject):
         return task.ref
 
     @staticmethod
-    def get_every_task():
-        return Task.select()
+    def add_subtask(parent_id, child_id):
+        task = Task.get(Task.ref == parent_id)
+        task.subtasks.append(child_id)
+        task.save()
+
+    @staticmethod
+    def get_task(task_id):
+        return Task.get(Task.ref == task_id)
+
+    @staticmethod
+    def get_every_task(with_root=False):
+        if with_root:
+            return Task.select()
+        else:
+            return Task.select().where(Task.ref != 1)
 
     @staticmethod
     def remove_task(task_id):
@@ -288,9 +378,19 @@ class TaskDatabaseManager(QObject):
         except Task.DoesNotExist:
             print(f"Task with ref={task_id} does not exists in database")
 
-    def clear_db(self):
-        for task in self.get_every_task():
-            self.remove_task(task.ref)
+    @staticmethod
+    def update_progress(task_id, new_progress):
+        task = Task.get(Task.ref == task_id)
+        task.progress = new_progress
+        task.save()
+
+    def clear_db(self, force=False):
+        if force:
+            for task in self.get_every_task(with_root=True):
+                self.remove_task(task.ref)
+        else:
+            for task in self.get_every_task():
+                self.remove_task(task.ref)
 
     def close_db(self):
         self.tasks_db.close()
@@ -299,15 +399,18 @@ class TaskDatabaseManager(QObject):
 if __name__ == '__main__':
 
     app = QApplication([])
-
     mainWindow = TestWindow()
+    sys.exit(app.exec())
 
-    # task_database_manager = TaskDatabaseManager('task_database.db')
+    # db_path = f'{Path(__file__).resolve().parent}\\task_database.db'
+    # task_database_manager = TaskDatabaseManager(db_path)
     #
-    # ref = task_database_manager.add_task(name="Test2", description="", start_date="2024-02-14", end_date="2024-02-14",
-    #                                      documents=["tasks.db", "again.ini"], priority=0, milestone=True,
+    # ref = task_database_manager.add_task(name="Task2bis.1", description="desc", start_date="2024-02-29", end_date="2024-02-29",
+    #                                      documents=[], priority=0, milestone=False,
     #                                      precedents=[], progress=0, subtasks=[])
-    # task_database_manager.remove_task(task_id=1)
+    # task_database_manager.remove_task(task_id=13)
+    # task_database_manager.update_progress(task_id=2, new_progress=100)
+    # task_database_manager.add_subtask(10, 11)
     # task_database_manager.clear_db()
     #
     # for entry in task_database_manager.get_every_task():
@@ -315,7 +418,7 @@ if __name__ == '__main__':
     #
     # task_database_manager.close_db()
 
-    sys.exit(app.exec())
+
 
 
 # # Define your model
