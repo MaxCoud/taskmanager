@@ -385,49 +385,10 @@ class MainWindow(QMainWindow):
 
                 if every_tasks_finished:
                     item.setIcon(QIcon(self.icons["tick"]))
+                elif running_tasks > 20:
+                    item.setIcon(QIcon(self.icons["folder"]))
                 else:
-                    if running_tasks == 1:
-                        item.setIcon(QIcon(self.icons["number_1"]))
-                    elif running_tasks == 2:
-                        item.setIcon(QIcon(self.icons["number_2"]))
-                    elif running_tasks == 3:
-                        item.setIcon(QIcon(self.icons["number_3"]))
-                    elif running_tasks == 4:
-                        item.setIcon(QIcon(self.icons["number_4"]))
-                    elif running_tasks == 5:
-                        item.setIcon(QIcon(self.icons["number_5"]))
-                    elif running_tasks == 6:
-                        item.setIcon(QIcon(self.icons["number_6"]))
-                    elif running_tasks == 7:
-                        item.setIcon(QIcon(self.icons["number_7"]))
-                    elif running_tasks == 8:
-                        item.setIcon(QIcon(self.icons["number_8"]))
-                    elif running_tasks == 9:
-                        item.setIcon(QIcon(self.icons["number_9"]))
-                    elif running_tasks == 10:
-                        item.setIcon(QIcon(self.icons["number_10"]))
-                    elif running_tasks == 11:
-                        item.setIcon(QIcon(self.icons["number_11"]))
-                    elif running_tasks == 12:
-                        item.setIcon(QIcon(self.icons["number_12"]))
-                    elif running_tasks == 13:
-                        item.setIcon(QIcon(self.icons["number_13"]))
-                    elif running_tasks == 14:
-                        item.setIcon(QIcon(self.icons["number_14"]))
-                    elif running_tasks == 15:
-                        item.setIcon(QIcon(self.icons["number_15"]))
-                    elif running_tasks == 16:
-                        item.setIcon(QIcon(self.icons["number_16"]))
-                    elif running_tasks == 17:
-                        item.setIcon(QIcon(self.icons["number_17"]))
-                    elif running_tasks == 18:
-                        item.setIcon(QIcon(self.icons["number_18"]))
-                    elif running_tasks == 19:
-                        item.setIcon(QIcon(self.icons["number_19"]))
-                    elif running_tasks == 20:
-                        item.setIcon(QIcon(self.icons["number_20"]))
-                    else:
-                        item.setIcon(QIcon(self.icons["folder"]))
+                    item.setIcon(QIcon(self.icons[running_tasks]))
 
     @staticmethod
     def iter_items(root: QStandardItem | None):
