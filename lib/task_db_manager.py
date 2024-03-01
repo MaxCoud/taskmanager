@@ -91,53 +91,55 @@ class TestWindow(QMainWindow):
         self.selectedProjectLbl.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.selectedProjectLbl, 0, 1, 1, 2)
 
-        self.listTree = CustomTreeWidget()
-        self.listTree.setHeaderLabels(["Name", "Description"])
-        self.listTree.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        self.listTree.setMinimumWidth(750)
-        self.listTree.setMinimumHeight(100)
-        self.listTree.setColumnWidth(0, 300)
+        self.list_tree = CustomTreeWidget()
+        self.list_tree.setHeaderLabels(["Name", "Description"])
+        self.list_tree.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        self.list_tree.setMinimumWidth(750)
+        self.list_tree.setMinimumHeight(100)
+        self.list_tree.setColumnWidth(0, 300)
         # self.listTree.setColumnWidth(1, 680)
 
-        self.listTree.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.listTree.customContextMenuRequested.connect(self.show_lists_context_menu)
+        self.list_tree.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.list_tree.customContextMenuRequested.connect(self.show_lists_context_menu)
 
-        self.listTree.itemChanged.connect(self.list_tree_changed)
+        self.list_tree.itemChanged.connect(self.list_tree_changed)
         # self.listTree.itemClicked.connect(self.listTree_itemClicked)
-        self.listTree.itemPressed.connect(self.item_clicked)
-        self.listTree.itemDoubleClicked.connect(self.modify_task_btn_clicked)
-        running_layout.addWidget(self.listTree, 0, 0)
+        self.list_tree.itemPressed.connect(self.item_clicked)
+        self.list_tree.itemDoubleClicked.connect(self.modify_task_btn_clicked)
+        self.list_tree.clicked_outside.connect(self.mousePressEvent)
+        running_layout.addWidget(self.list_tree, 0, 0)
 
-        self.listTreeHeader = self.listTree.header()
-        self.listTreeHeader.setDefaultAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-        self.listTreeHeader.setStretchLastSection(True)
-        self.listTreeHeader.setSectionsClickable(True)
-        self.listTreeHeader.sectionClicked.connect(self.custom_sort_by_column)
+        self.list_tree_header = self.list_tree.header()
+        self.list_tree_header.setDefaultAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+        self.list_tree_header.setStretchLastSection(True)
+        self.list_tree_header.setSectionsClickable(True)
+        self.list_tree_header.sectionClicked.connect(self.custom_sort_by_column)
 
         self.finishedWidget = QWidget()
         finished_layout = QGridLayout()
 
-        self.finishedTasksTree = CustomTreeWidget()
-        self.finishedTasksTree.setHeaderLabels(["Name", "Description"])
-        self.finishedTasksTree.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        self.finishedTasksTree.setMinimumWidth(750)
-        self.finishedTasksTree.setMinimumHeight(500)
-        self.finishedTasksTree.setColumnWidth(0, 300)
+        self.finished_tree = CustomTreeWidget()
+        self.finished_tree.setHeaderLabels(["Name", "Description"])
+        self.finished_tree.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        self.finished_tree.setMinimumWidth(750)
+        self.finished_tree.setMinimumHeight(500)
+        self.finished_tree.setColumnWidth(0, 300)
         # self.finishedTasksTree.setColumnWidth(1, 680)
-        self.finishedTasksTree.itemChanged.connect(self.finished_tasks_tree_changed)
+        self.finished_tree.itemChanged.connect(self.finished_tasks_tree_changed)
         # self.finishedTasksTree.itemClicked.connect(self.finishedTasksTree_itemClicked)
-        self.finishedTasksTree.itemPressed.connect(self.item_clicked)
-        self.finishedTasksTree.itemDoubleClicked.connect(self.modify_task_btn_clicked)
-        finished_layout.addWidget(self.finishedTasksTree, 0, 0)
+        self.finished_tree.itemPressed.connect(self.item_clicked)
+        self.finished_tree.itemDoubleClicked.connect(self.modify_task_btn_clicked)
+        self.finished_tree.clicked_outside.connect(self.mousePressEvent)
+        finished_layout.addWidget(self.finished_tree, 0, 0)
 
-        self.finishedTasksTree.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.finishedTasksTree.customContextMenuRequested.connect(self.show_lists_context_menu)
+        self.finished_tree.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.finished_tree.customContextMenuRequested.connect(self.show_lists_context_menu)
 
-        self.finishedTasksTreeHeader = self.finishedTasksTree.header()
-        self.finishedTasksTreeHeader.setDefaultAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-        self.finishedTasksTreeHeader.setStretchLastSection(True)
-        self.finishedTasksTreeHeader.setSectionsClickable(True)
-        self.finishedTasksTreeHeader.sectionClicked.connect(self.custom_sort_by_column)
+        self.finished_tree_header = self.finished_tree.header()
+        self.finished_tree_header.setDefaultAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+        self.finished_tree_header.setStretchLastSection(True)
+        self.finished_tree_header.setSectionsClickable(True)
+        self.finished_tree_header.sectionClicked.connect(self.custom_sort_by_column)
 
         self.finishedWidget.setLayout(finished_layout)
 
@@ -302,14 +304,15 @@ class TestWindow(QMainWindow):
         save_btn = QPushButton("Save modifications")
         save_btn.setFixedHeight(50)
         save_btn.setFont(QFont('AnyStyle', self.titleFontSize))
+        save_btn.clicked.connect(self.save_modifications)
         item_details_grid.addWidget(save_btn, 11, 0, 1, 3)
 
         self.item_details_grid_widget = QWidget()
         self.item_details_grid_widget.setFixedWidth(350)
         # self.item_details_grid_widget.setFixedHeight(500)
         self.item_details_grid_widget.setLayout(item_details_grid)
-        self.listTree.set_details_widget(self.item_details_grid_widget)
-        self.finishedTasksTree.set_details_widget(self.item_details_grid_widget)
+        self.list_tree.set_details_widget(self.item_details_grid_widget)
+        self.finished_tree.set_details_widget(self.item_details_grid_widget)
 
         # ----
         # ----
@@ -336,6 +339,9 @@ class TestWindow(QMainWindow):
         self.showMaximized()
         # self.item_details_grid_widget.hide()
 
+        # Install event filter on the central widget
+        self.item_details_grid_widget.installEventFilter(self)
+
         if self.os == 'linux':
             # --- center window ---
             # - on primary screen -
@@ -351,8 +357,8 @@ class TestWindow(QMainWindow):
         if not isinstance(widget, QTreeWidget):
             if self.selected_item is not None:
                 if self.selected_item.isSelected():
-                    self.listTree.clearSelection()
-                    self.finishedTasksTree.clearSelection()
+                    self.list_tree.clearSelection()
+                    self.finished_tree.clearSelection()
                     # if self.item_details_grid_widget.isVisible():
                     #     self.item_details_grid_widget.hide()
         super().mousePressEvent(event)
@@ -385,8 +391,8 @@ class TestWindow(QMainWindow):
         # ----------------------------
 
         # Create tasks lists
-        self.listTree.clear()
-        self.finishedTasksTree.clear()
+        self.list_tree.clear()
+        self.finished_tree.clear()
 
         task = self.task_database_manager.get_task(task_id=item.ref)
         self.display_details(task)
@@ -398,9 +404,9 @@ class TestWindow(QMainWindow):
 
             if len(task.subtasks) == 0:
                 if task.progress < 100:
-                    tree_to_build = self.listTree
+                    tree_to_build = self.list_tree
                 else:
-                    tree_to_build = self.finishedTasksTree
+                    tree_to_build = self.finished_tree
 
                 element = CustomTreeWidgetItem(ref=task.ref, tree=tree_to_build)
 
@@ -555,6 +561,9 @@ class TestWindow(QMainWindow):
     def browse_btn_clicked(self):
         pass
 
+    def save_modifications(self):
+        print("oui")
+
     def display_selected_documents(self, files_paths):
 
         while self.files_layout.count():
@@ -689,6 +698,9 @@ class CustomTreeView(QTreeView):
 
 
 class CustomTreeWidget(QTreeWidget):
+
+    clicked_outside = Signal(QMouseEvent)
+
     def __init__(self, item_details_widget: QWidget = None):
         super().__init__()
         self.item_details_widget = item_details_widget
@@ -702,7 +714,9 @@ class CustomTreeWidget(QTreeWidget):
         if not item:
             self.clearSelection()
             if self.item_details_widget is not None:
-                pass
+                self.clicked_outside.emit(event)
+                event.accept()
+
                 # if self.item_details_widget.isVisible():
                 #     self.item_details_widget.hide()
         super().mousePressEvent(event)
