@@ -1,10 +1,13 @@
 import os
+import subprocess
 import sys
 from pathlib import Path
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QStandardItemModel, QFont, Qt, QGuiApplication, QCursor, QCloseEvent, QStandardItem, QIcon
+from PySide6.QtCore import Qt, QPoint, Signal, QDateTime, QDate
+from PySide6.QtGui import QStandardItemModel, QFont, Qt, QGuiApplication, QCursor, QCloseEvent, QStandardItem, QIcon, \
+    QTextOption, QMouseEvent, QAction
 from PySide6.QtWidgets import QGridLayout, QWidget, QMainWindow, QTreeView, QLabel, QTreeWidget, QTabWidget, \
-    QApplication
+    QApplication, QLineEdit, QPlainTextEdit, QTreeWidgetItem, QDateEdit, QHBoxLayout, QCheckBox, QComboBox, QPushButton, \
+    QMenu, QMessageBox
 from peewee import *
 import time
 from lib.style import style, select_icon, load_icons
@@ -34,7 +37,7 @@ class TestWindow(QMainWindow):
 
         self.tasksList = None
         self.projectList = []
-        self.selectedItem = None
+        self.selected_item = None
         self.parent_list = None
         self.selectedProject = None
         self.selected_project_tasks_list = None
@@ -63,11 +66,13 @@ class TestWindow(QMainWindow):
         self.runningWidget = QWidget()
         running_layout = QGridLayout()
 
-        self.tree_view = QTreeView()
-        self.tree_view.setMinimumWidth(300)
-        # self.tree_view.clicked.connect(self.OnProjectTreeClicked)
+        self.tree_view = CustomTreeView()
+        self.tree_view.setFixedWidth(300)
+        # self.tree_view.clicked.connect(self.on_project_tree_clicked)
         self.tree_view.pressed.connect(self.on_project_tree_clicked)
         layout.addWidget(self.tree_view, 0, 0, 4, 1)
+
+        self.tree_view.clicked_outside.connect(self.mousePressEvent)
 
         # create a model for tree view
         self.model = QStandardItemModel()
@@ -84,77 +89,241 @@ class TestWindow(QMainWindow):
         self.selectedProjectLbl.setFont(QFont('AnyStyle', self.titleFontSize))
         self.selectedProjectLbl.setFixedHeight(30)
         self.selectedProjectLbl.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.selectedProjectLbl, 0, 1)
+        layout.addWidget(self.selectedProjectLbl, 0, 1, 1, 2)
 
-        self.listTree = QTreeWidget()
-        self.listTree.setHeaderLabels(["", "Name", "Description", "Priority", "Start", "End", "Documents"])
+        self.listTree = CustomTreeWidget()
+        self.listTree.setHeaderLabels(["Name", "Description"])
         self.listTree.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        self.listTree.setMinimumWidth(1256)
-        self.listTree.setMinimumHeight(550)
-        self.listTree.setColumnWidth(0, 50)
-        self.listTree.setColumnWidth(1, 200)
-        self.listTree.setColumnWidth(2, 480)
-        self.listTree.setColumnWidth(3, 200)
-        self.listTree.setColumnWidth(4, 112)
-        self.listTree.setColumnWidth(5, 112)
-        self.listTree.setColumnWidth(6, 100)
+        self.listTree.setMinimumWidth(750)
+        self.listTree.setMinimumHeight(100)
+        self.listTree.setColumnWidth(0, 300)
+        # self.listTree.setColumnWidth(1, 680)
 
         self.listTree.setContextMenuPolicy(Qt.CustomContextMenu)
         self.listTree.customContextMenuRequested.connect(self.show_lists_context_menu)
 
         self.listTree.itemChanged.connect(self.list_tree_changed)
         # self.listTree.itemClicked.connect(self.listTree_itemClicked)
-        self.listTree.itemPressed.connect(self.list_tree_item_clicked)
+        self.listTree.itemPressed.connect(self.item_clicked)
         self.listTree.itemDoubleClicked.connect(self.modify_task_btn_clicked)
-        running_layout.addWidget(self.listTree, 2, 0, 1, 4)
+        running_layout.addWidget(self.listTree, 0, 0)
 
         self.listTreeHeader = self.listTree.header()
         self.listTreeHeader.setDefaultAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-        # self.listTreeHeader.setSectionResizeMode(QHeaderView.Fixed)
-        self.listTreeHeader.setStretchLastSection(False)
-        # self.listTreeHeader.setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        self.listTreeHeader.setStretchLastSection(True)
         self.listTreeHeader.setSectionsClickable(True)
         self.listTreeHeader.sectionClicked.connect(self.custom_sort_by_column)
-
-        self.runningWidget.setLayout(running_layout)
 
         self.finishedWidget = QWidget()
         finished_layout = QGridLayout()
 
-        self.finishedTasksTree = QTreeWidget()
-        self.finishedTasksTree.setHeaderLabels(["", "Name", "Description", "Priority", "Start", "End", "Documents"])
+        self.finishedTasksTree = CustomTreeWidget()
+        self.finishedTasksTree.setHeaderLabels(["Name", "Description"])
         self.finishedTasksTree.setFont(QFont('AnyStyle', self.subtitleFontSize))
-        self.finishedTasksTree.setMinimumWidth(1256)
-        self.finishedTasksTree.setMinimumHeight(550)
-        self.finishedTasksTree.setColumnWidth(0, 50)
-        self.finishedTasksTree.setColumnWidth(1, 200)
-        self.finishedTasksTree.setColumnWidth(2, 480)
-        self.finishedTasksTree.setColumnWidth(3, 200)
-        self.finishedTasksTree.setColumnWidth(4, 112)
-        self.finishedTasksTree.setColumnWidth(5, 112)
-        self.finishedTasksTree.setColumnWidth(6, 100)
+        self.finishedTasksTree.setMinimumWidth(750)
+        self.finishedTasksTree.setMinimumHeight(500)
+        self.finishedTasksTree.setColumnWidth(0, 300)
+        # self.finishedTasksTree.setColumnWidth(1, 680)
         self.finishedTasksTree.itemChanged.connect(self.finished_tasks_tree_changed)
         # self.finishedTasksTree.itemClicked.connect(self.finishedTasksTree_itemClicked)
-        self.finishedTasksTree.itemPressed.connect(self.finished_tasks_tree_item_clicked)
+        self.finishedTasksTree.itemPressed.connect(self.item_clicked)
         self.finishedTasksTree.itemDoubleClicked.connect(self.modify_task_btn_clicked)
-        finished_layout.addWidget(self.finishedTasksTree, 2, 0, 1, 4)
+        finished_layout.addWidget(self.finishedTasksTree, 0, 0)
 
         self.finishedTasksTree.setContextMenuPolicy(Qt.CustomContextMenu)
         self.finishedTasksTree.customContextMenuRequested.connect(self.show_lists_context_menu)
 
         self.finishedTasksTreeHeader = self.finishedTasksTree.header()
         self.finishedTasksTreeHeader.setDefaultAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-        self.finishedTasksTreeHeader.setStretchLastSection(False)
+        self.finishedTasksTreeHeader.setStretchLastSection(True)
         self.finishedTasksTreeHeader.setSectionsClickable(True)
         self.finishedTasksTreeHeader.sectionClicked.connect(self.custom_sort_by_column)
 
         self.finishedWidget.setLayout(finished_layout)
 
+        # --- item details ---
+        item_details_grid = QGridLayout()
+
+        lbl = QLabel("Item details")
+        lbl.setFixedWidth(350)
+        lbl.setFont(QFont('AnyStyle', self.titleFontSize))
+        lbl.setAlignment(Qt.AlignCenter)
+        item_details_grid.addWidget(lbl, 0, 0, 1, 3)
+
+        self.name_line_edit = QLineEdit()
+        # self.name_line_edit.setFixedWidth(350)
+        self.name_line_edit.setFixedHeight(40)
+        self.name_line_edit.setFont(QFont('AnyStyle', self.itemFontSize))
+        item_details_grid.addWidget(self.name_line_edit, 1, 0, 1, 3)
+
+        self.description_text_edit = QPlainTextEdit()
+        # self.description_text_edit.setFixedWidth(350)
+        self.description_text_edit.setMinimumHeight(110)
+        self.description_text_edit.setWordWrapMode(QTextOption.WordWrap.WrapAtWordBoundaryOrAnywhere)
+        self.description_text_edit.setFont(QFont('AnyStyle', self.itemFontSize))
+        item_details_grid.addWidget(self.description_text_edit, 2, 0, 1, 3)
+
+        lbl = QLabel("Progress")
+        # lbl.setFixedWidth(80)
+        lbl.setFixedHeight(40)
+        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        lbl.setAlignment(Qt.AlignCenter)
+        item_details_grid.addWidget(lbl, 3, 0)
+
+        self.progress_line_edit = QLineEdit()
+        self.progress_line_edit.setFixedWidth(180)
+        self.progress_line_edit.setFixedHeight(40)
+        self.progress_line_edit.setFont(QFont('AnyStyle', self.itemFontSize))
+        item_details_grid.addWidget(self.progress_line_edit, 3, 1)
+
+        lbl = QLabel("%")
+        lbl.setFixedWidth(80)
+        lbl.setFixedHeight(40)
+        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        lbl.setAlignment(Qt.AlignCenter)
+        item_details_grid.addWidget(lbl, 3, 2)
+
+        lbl = QLabel("Start Date")
+        # lbl.setFixedWidth(80)
+        lbl.setFixedHeight(40)
+        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        lbl.setAlignment(Qt.AlignCenter)
+        item_details_grid.addWidget(lbl, 4, 0)
+
+        self.start_date_edit = QDateEdit(calendarPopup=True)
+        self.start_date_edit.setMinimumWidth(240)
+        self.start_date_edit.setFixedHeight(40)
+        self.start_date_edit.setFont(QFont('AnyStyle', self.itemFontSize))
+        item_details_grid.addWidget(self.start_date_edit, 4, 1)
+
+        lbl = QLabel("End date")
+        lbl.setFixedHeight(40)
+        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        lbl.setAlignment(Qt.AlignCenter)
+        item_details_grid.addWidget(lbl, 5, 0)
+
+        end_date_layout = QHBoxLayout()
+
+        self.end_date_checkbox = QCheckBox()
+        self.end_date_checkbox.stateChanged.connect(self.end_date_checkbox_state_changed)
+
+        self.end_date_edit = QDateEdit(calendarPopup=True)
+        self.end_date_edit.setEnabled(False)
+        self.end_date_edit.setMinimumWidth(220)
+        self.end_date_edit.setFixedHeight(40)
+        self.end_date_edit.setFont(QFont('AnyStyle', self.itemFontSize))
+
+        end_date_layout.addWidget(self.end_date_checkbox, 0)
+        end_date_layout.addWidget(self.end_date_edit, 1)
+
+        item_details_grid.addLayout(end_date_layout, 5, 1)
+
+        lbl = QLabel("Priority")
+        # lbl.setFixedWidth(80)
+        lbl.setFixedHeight(40)
+        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        lbl.setAlignment(Qt.AlignCenter)
+        item_details_grid.addWidget(lbl, 6, 0)
+
+        self.priority_combobox = QComboBox()
+        self.priority_combobox.setMinimumWidth(240)
+        self.priority_combobox.setFixedHeight(40)
+        self.priority_combobox.setFont(QFont('AnyStyle', self.itemFontSize))
+        item_details_grid.addWidget(self.priority_combobox, 6, 1)
+
+        for i in range(0, len(self.task_database_manager.priority_degrees)):
+            self.priority_combobox.insertItem(i, str(self.task_database_manager.priority_degrees[i]))
+
+        lbl = QLabel("Milestone")
+        # lbl.setFixedWidth(80)
+        lbl.setFixedHeight(40)
+        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        lbl.setAlignment(Qt.AlignCenter)
+        item_details_grid.addWidget(lbl, 7, 0)
+
+        self.milestone_checkbox = QCheckBox()
+        item_details_grid.addWidget(self.milestone_checkbox, 7, 1)
+
+        lbl = QLabel("Precedents")
+        # lbl.setFixedWidth(80)
+        lbl.setFixedHeight(40)
+        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        lbl.setAlignment(Qt.AlignCenter)
+        item_details_grid.addWidget(lbl, 8, 0)
+
+        self.precedents_combobox = QComboBox()
+        self.precedents_combobox.setMinimumWidth(240)
+        self.precedents_combobox.setFixedHeight(40)
+        self.precedents_combobox.setFont(QFont('AnyStyle', self.itemFontSize))
+        item_details_grid.addWidget(self.precedents_combobox, 8, 1)
+
+        self.precedents_combobox_refs = []
+
+        lbl = QLabel("Sub tasks")
+        # lbl.setFixedWidth(80)
+        lbl.setFixedHeight(40)
+        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        lbl.setAlignment(Qt.AlignCenter)
+        item_details_grid.addWidget(lbl, 9, 0)
+
+        self.subtasks_combobox = QComboBox()
+        self.subtasks_combobox.setMinimumWidth(240)
+        self.subtasks_combobox.setFixedHeight(40)
+        self.subtasks_combobox.setFont(QFont('AnyStyle', self.itemFontSize))
+        item_details_grid.addWidget(self.subtasks_combobox, 9, 1)
+
+        self.subtasks_combobox_refs = []
+
+        lbl = QLabel("Documents")
+        lbl.setFixedHeight(40)
+        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        lbl.setAlignment(Qt.AlignCenter)
+        item_details_grid.addWidget(lbl, 10, 0)
+
+        browse_layout = QHBoxLayout()
+
+        browse_btn = QPushButton("Browse")
+        browse_btn.setFixedHeight(40)
+        browse_btn.setFixedWidth(90)
+        browse_btn.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        browse_btn.clicked.connect(self.browse_btn_clicked)
+        browse_layout.addWidget(browse_btn, 0, Qt.AlignLeft)
+
+        self.files_layout = QGridLayout()
+        self.files_layout_row = 0
+        self.files_layout_column = 0
+        self.files_labels = []
+
+        browse_layout.addLayout(self.files_layout)
+
+        item_details_grid.addLayout(browse_layout, 10, 1)
+        self.documents_list = []
+
+        save_btn = QPushButton("Save modifications")
+        save_btn.setFixedHeight(50)
+        save_btn.setFont(QFont('AnyStyle', self.titleFontSize))
+        item_details_grid.addWidget(save_btn, 11, 0, 1, 3)
+
+        self.item_details_grid_widget = QWidget()
+        self.item_details_grid_widget.setFixedWidth(350)
+        # self.item_details_grid_widget.setFixedHeight(500)
+        self.item_details_grid_widget.setLayout(item_details_grid)
+        self.listTree.set_details_widget(self.item_details_grid_widget)
+        self.finishedTasksTree.set_details_widget(self.item_details_grid_widget)
+
+        # ----
+        # ----
+
+        self.runningWidget.setLayout(running_layout)
+
         self.tabs = QTabWidget()
+        # self.tabs.setMinimumHeight(300)
+        self.tabs.setFixedHeight(400)
         self.tabs.addTab(self.runningWidget, "Running")
         self.tabs.addTab(self.finishedWidget, "Finished")
 
-        layout.addWidget(self.tabs, 1, 1, 2, 1)
+        layout.addWidget(self.tabs, 1, 1, 2, 1, Qt.AlignTop)
+        layout.addWidget(self.item_details_grid_widget, 1, 2, 2, 1, Qt.AlignTop)
 
         main_window = QWidget()
         main_window.setLayout(layout)  # running_layout
@@ -165,6 +334,7 @@ class TestWindow(QMainWindow):
         self.update_tree()
 
         self.showMaximized()
+        # self.item_details_grid_widget.hide()
 
         if self.os == 'linux':
             # --- center window ---
@@ -175,8 +345,91 @@ class TestWindow(QMainWindow):
                 QCursor.pos()).availableGeometry().center() - self.frameGeometry().center())
             # ---------------------
 
-    def on_project_tree_clicked(self):
-        pass
+    def mousePressEvent(self, event):
+        pos = event.position()
+        widget = self.childAt(QPoint(pos.x(), pos.y()))
+        if not isinstance(widget, QTreeWidget):
+            if self.selected_item is not None:
+                if self.selected_item.isSelected():
+                    self.listTree.clearSelection()
+                    self.finishedTasksTree.clearSelection()
+                    # if self.item_details_grid_widget.isVisible():
+                    #     self.item_details_grid_widget.hide()
+        super().mousePressEvent(event)
+
+    def end_date_checkbox_state_changed(self):
+        if self.end_date_checkbox.isChecked():
+            self.end_date_edit.setEnabled(True)
+        else:
+            self.end_date_edit.setEnabled(False)
+
+    def on_project_tree_clicked(self, index):
+        # Get item and set open folder item
+        item = self.model.itemFromIndex(index)
+        self.update_icons()
+        item.setIcon(QIcon(self.icons["open_folder"]))
+        # ---------------------------------
+
+        self.ts = time.time()
+
+        # Build selected project title
+        self.parent_list = self.generate_parent_list(item)
+        project_text = ""
+        for i in range(len(self.parent_list) - 1, 0, -1):
+            if len(self.parent_list) - 1 > i > 0:
+                project_text += " → " + self.parent_list[i - 1]
+            else:
+                project_text += self.parent_list[i - 1]
+
+        self.selectedProjectLbl.setText(project_text)
+        # ----------------------------
+
+        # Create tasks lists
+        self.listTree.clear()
+        self.finishedTasksTree.clear()
+
+        task = self.task_database_manager.get_task(task_id=item.ref)
+        self.display_details(task)
+
+        self.precedents_combobox_refs.clear()
+
+        for subtask_id in task.subtasks:
+            task = self.task_database_manager.get_task(task_id=subtask_id)
+
+            if len(task.subtasks) == 0:
+                if task.progress < 100:
+                    tree_to_build = self.listTree
+                else:
+                    tree_to_build = self.finishedTasksTree
+
+                element = CustomTreeWidgetItem(ref=task.ref, tree=tree_to_build)
+
+                lbl = QLabel(f'\n{task.name}\n')
+                lbl.setWordWrap(True)
+                lbl.setFont(QFont('AnyStyle', self.itemFontSize))
+                lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+                tree_to_build.setItemWidget(element, 0, lbl)
+
+                lbl = QLabel(f'\n{task.description}\n')
+                lbl.setWordWrap(True)
+                lbl.setFont(QFont('AnyStyle', self.itemFontSize))
+                # lbl.setMaximumWidth(500)
+                lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+                tree_to_build.setItemWidget(element, 1, lbl)
+
+            self.precedents_combobox_refs.append(task.ref)
+
+        # ---------------
+
+    @staticmethod
+    def generate_parent_list(item: QStandardItem | None) -> list[QStandardItem]:
+        parent_list = []
+        child = item
+        while child is not None:
+            parent_list.append(child.text())
+            child = child.parent()
+
+        return parent_list
 
     def show_tree_context_menu(self):
         pass
@@ -184,13 +437,42 @@ class TestWindow(QMainWindow):
     def list_tree_changed(self):
         pass
 
-    def list_tree_item_clicked(self):
-        pass
+    def item_clicked(self, item):
+        self.selected_item = item
+        self.display_details(self.task_database_manager.get_task(task_id=item.ref))
+        self.ts = time.time()
+
+    def display_details(self, task):
+        self.name_line_edit.setText(task.name)
+        self.description_text_edit.setPlainText(task.description)
+        self.progress_line_edit.setText(str(task.progress))
+
+        self.start_date_edit.setDate(task.start_date)
+        if task.end_date == "":
+            self.end_date_edit.setDate(QDate.currentDate())
+            self.end_date_checkbox.setChecked(False)
+        else:
+            self.end_date_edit.setDate(task.end_date)
+            self.end_date_checkbox.setChecked(True)
+
+        self.priority_combobox.setCurrentText(str(task.priority))
+        self.milestone_checkbox.setChecked(task.milestone)
+
+        self.precedents_combobox.clear()
+        for task_id in task.precedents:
+            task_name = self.task_database_manager.get_task(task_id).name
+            self.precedents_combobox.addItem(task_name)
+
+        self.subtasks_combobox.clear()
+        for task_id in task.subtasks:
+            task_name = self.task_database_manager.get_task(task_id).name
+            self.subtasks_combobox.addItem(task_name)
+
+        self.display_selected_documents(task.documents)
+
+        self.item_details_grid_widget.show()
 
     def finished_tasks_tree_changed(self):
-        pass
-
-    def finished_tasks_tree_item_clicked(self):
         pass
 
     def modify_task_btn_clicked(self):
@@ -210,29 +492,17 @@ class TestWindow(QMainWindow):
         self.model.clear()
 
         def add_item(parent, data):
-            item = QStandardItem(data.name)
+            item = CustomStandardItem(ref=data.ref, text=data.name)
             item.setData(data)
             item.setEditable(False)
             parent.appendRow(item)
-
-            running_tasks = 0
-            for subtask_id in data.subtasks:
-                if self.task_database_manager.get_task(subtask_id).progress != 100:
-                    running_tasks += 1
-
-            if running_tasks == 0:
-                item.setIcon(QIcon(self.icons["tick"]))
-            elif running_tasks > 20:
-                item.setIcon(QIcon(self.icons["folder"]))
-            else:
-                item.setIcon(QIcon(self.icons[running_tasks]))
 
             for subtask_id in data.subtasks:
                 if len(self.task_database_manager.get_task(subtask_id).subtasks) > 0:
                     add_item(item, self.task_database_manager.get_task(subtask_id))
 
         # create the root item and add it to the model
-        root_item = QStandardItem(self.task_database_manager.get_task(task_id=1).name)
+        root_item = CustomStandardItem(ref=1, text=self.task_database_manager.get_task(task_id=1).name)
         root_item.setData(self.task_database_manager.get_every_task())
         self.model.appendRow(root_item)
 
@@ -261,10 +531,181 @@ class TestWindow(QMainWindow):
         self.update_icons()
 
     def update_icons(self):
+
+        # Function to recursively iterate through items and their children
+        def iterate_items(item):
+            if item.ref != 1:
+                subtasks_length = len(self.task_database_manager.get_task(task_id=item.ref).subtasks)
+                for subtask_id in self.task_database_manager.get_task(task_id=item.ref).subtasks:
+                    if self.task_database_manager.get_task(task_id=subtask_id).progress == 100:
+                        subtasks_length -= 1
+                if subtasks_length == 0:
+                    item.setIcon(QIcon(self.icons["tick"]))
+                elif subtasks_length > 20:
+                    item.setIcon(QIcon(self.icons["folder"]))
+                else:
+                    item.setIcon(QIcon(self.icons[subtasks_length]))
+
+            for row in range(item.rowCount()):
+                child_item = item.child(row)
+                iterate_items(child_item)
+
+        iterate_items(self.model.item(0))
+
+    def browse_btn_clicked(self):
         pass
+
+    def display_selected_documents(self, files_paths):
+
+        while self.files_layout.count():
+            item = self.files_layout.takeAt(0)
+            widget = item.widget()
+            if widget:
+                widget.deleteLater()
+
+        self.files_labels = []
+        self.files_layout_column = 0
+        self.files_layout_row = 0
+        self.documents_list = []
+
+        if len(files_paths) > 0:
+            for document in files_paths:
+                if document != "":
+                    split_document_path = document.split(".")
+                    extension = split_document_path[len(split_document_path) - 1]
+
+                    if not os.path.exists(document):
+                        icon = f'{Path(__file__).resolve().parent.parent}{self.slash}icon{self.slash}document-broken.png'
+                    else:
+                        icon = select_icon(f'{Path(__file__).resolve().parent.parent}', self.slash, extension)
+
+                    path = f"<a href={document}><img src={icon}></a>"
+
+                    lbl = QLabel(path)
+                    lbl.setWordWrap(True)
+                    lbl.setFont(QFont('AnyStyle', self.itemFontSize))
+                    lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+                    lbl.linkActivated.connect(self.link_activated)
+                    lbl.setToolTip(document)
+                    self.files_labels.append(lbl)
+
+                    context_menu_fn = self.make_context_menu_fn(lbl)  # create a separate context menu for each label
+
+                    lbl.setContextMenuPolicy(Qt.CustomContextMenu)
+                    lbl.customContextMenuRequested.connect(context_menu_fn)
+
+                    if self.files_layout_column < 6:
+                        self.files_layout.addWidget(lbl, self.files_layout_row, self.files_layout_column)
+                    else:
+                        self.files_layout_row += 1
+                        self.files_layout_column = 0
+                        self.files_layout.addWidget(lbl, self.files_layout_row, self.files_layout_column)
+
+                    self.files_layout_column += 1
+
+                    self.documents_list.append(document)
+
+    def make_context_menu_fn(self, lbl):  # Define a function to create a closure for a label
+        context_menu = self.create_document_context_menu(lbl)
+
+        def show_context_menu(pos):
+            # context_menu.exec_(lbl.mapToGlobal(pos))
+            context_menu.exec(lbl.mapToGlobal(pos))
+
+        return show_context_menu
+
+    def create_document_context_menu(self, lbl):  # Define a function to create the context menu for a QLabel
+
+        context_menu = QMenu()
+        delete_selection = QAction("Remove from selection", context_menu)
+        context_menu.addAction(delete_selection)
+
+        def remove_label():  # remove the label from its parent
+            lbl.setParent(None)
+            self.files_labels.remove(lbl)
+            self.documents_list.remove(lbl.toolTip())
+
+        delete_selection.triggered.connect(remove_label)
+        return context_menu
+
+    def link_activated(self, path):
+        split_document_path = path.split("\space")
+        reconstructed_path = ""
+
+        for i in range(len(split_document_path)):
+            if len(split_document_path) > i > 0:
+                reconstructed_path += " " + split_document_path[i]
+            else:
+                reconstructed_path += split_document_path[i]
+
+        if os.path.exists(reconstructed_path):
+            folder_path = os.path.dirname(reconstructed_path)
+
+            # on linux only (maybe it works on windows?). If not, use os.startfile(folder_path):
+            if self.os == 'linux':
+                subprocess.call(["xdg-open", folder_path])
+                # subprocess.call(["xdg-open", path])  # to directly open file
+            else:
+                os.startfile(folder_path)
+        else:
+            QMessageBox.critical(self,
+                                 "File not found",
+                                 "The file you are requesting does not exist",
+                                 buttons=QMessageBox.Ok,
+                                 defaultButton=QMessageBox.Ok)
 
     def closeEvent(self, event: QCloseEvent) -> None:
         self.task_database_manager.close_db()
+
+
+class CustomStandardItem(QStandardItem):
+
+    def __init__(self, ref, text=''):
+        super().__init__(text)
+        self.ref = ref
+
+
+class CustomTreeWidgetItem(QTreeWidgetItem):
+
+    def __init__(self, ref, tree: QTreeWidget):
+        super().__init__(tree)
+        self.ref = ref
+
+
+class CustomTreeView(QTreeView):
+
+    clicked_outside = Signal(QMouseEvent)
+
+    def __init__(self):
+        super().__init__()
+
+    def mousePressEvent(self, event):
+        pos = event.position()
+        index = self.indexAt(QPoint(pos.x(), pos.y()))
+        if not index.isValid():
+            self.clicked_outside.emit(event)
+            event.accept()
+        super().mousePressEvent(event)
+
+
+class CustomTreeWidget(QTreeWidget):
+    def __init__(self, item_details_widget: QWidget = None):
+        super().__init__()
+        self.item_details_widget = item_details_widget
+
+    def set_details_widget(self, item_details_widget: QWidget):
+        self.item_details_widget = item_details_widget
+
+    def mousePressEvent(self, event):
+        pos = event.position()
+        item = self.itemAt(QPoint(pos.x(), pos.y()))
+        if not item:
+            self.clearSelection()
+            if self.item_details_widget is not None:
+                pass
+                # if self.item_details_widget.isVisible():
+                #     self.item_details_widget.hide()
+        super().mousePressEvent(event)
 
 
 # Define a custom field type for storing a list of strings
@@ -301,7 +742,7 @@ class Task(Model):
     documents = ListField()  # list of documents
     priority = IntegerField()  # task priority
     milestone = BooleanField()  # task is milestone or not
-    precedents = ListField()  # list of tasks that need to be done before this one
+    precedents = IntListField()  # list of tasks that need to be done before this one
     progress = IntegerField()  # task progression, from 0 to 100%
     subtasks = IntListField()  # list of sub-tasks, if any this task became a section
 
@@ -330,15 +771,20 @@ class TaskDatabaseManager(QObject):
             self.tasks_db.create_tables([Task], safe=True)
             self.add_task(name="Projects", subtasks=[0])
 
-    @staticmethod
-    def add_task(name="", description="", start_date="", end_date="", documents=None, priority=0,
-                 milestone=False, precedents=None, progress=0, subtasks=None) -> Task.ref:
+        self.priority_degrees = (1, 2, 3, 4, 5)
+
+    def add_task(self, name="", description="", start_date="", end_date="", documents=None,
+                 priority=None, milestone=False, precedents=None, progress=0,
+                 subtasks=None) -> Task.ref:
         if subtasks is None:
             subtasks = []
         if precedents is None:
             precedents = []
         if documents is None:
             documents = []
+        if priority is None:
+            priority = max(self.priority_degrees)
+
         task = Task(name=name,
                     description=description,
                     start_date=start_date,
@@ -354,13 +800,20 @@ class TaskDatabaseManager(QObject):
         return task.ref
 
     @staticmethod
-    def add_subtask(parent_id, child_id):
+    def add_subtask(parent_id, child_id: int):
         task = Task.get(Task.ref == parent_id)
-        task.subtasks.append(child_id)
+        if child_id not in task.subtasks:
+            task.subtasks.append(child_id)
+            task.save()
+
+    @staticmethod
+    def remove_subtask(parent_id, child_id: int):
+        task = Task.get(Task.ref == parent_id)
+        task.subtasks.remove(child_id)
         task.save()
 
     @staticmethod
-    def get_task(task_id):
+    def get_task(task_id: int):
         return Task.get(Task.ref == task_id)
 
     @staticmethod
@@ -371,7 +824,7 @@ class TaskDatabaseManager(QObject):
             return Task.select().where(Task.ref != 1)
 
     @staticmethod
-    def remove_task(task_id):
+    def remove_task(task_id: int):
         try:
             task_to_remove = Task.get(Task.ref == task_id)
             task_to_remove.delete_instance()
@@ -379,9 +832,59 @@ class TaskDatabaseManager(QObject):
             print(f"Task with ref={task_id} does not exists in database")
 
     @staticmethod
-    def update_progress(task_id, new_progress):
+    def set_progress(task_id: int, new_progress: int):
         task = Task.get(Task.ref == task_id)
         task.progress = new_progress
+        task.save()
+
+    @staticmethod
+    def set_start_date(task_id: int, new_start_date):
+        task = Task.get(Task.ref == task_id)
+        task.start_date = new_start_date
+        task.save()
+
+    @staticmethod
+    def set_end_date(task_id, new_end_date):
+        task = Task.get(Task.ref == task_id)
+        task.end_date = new_end_date
+        task.save()
+
+    @staticmethod
+    def set_priority(task_id, new_priority):
+        task = Task.get(Task.ref == task_id)
+        task.priority = new_priority
+        task.save()
+
+    @staticmethod
+    def set_milestone(task_id, new_milestone_state):
+        task = Task.get(Task.ref == task_id)
+        task.milestone = new_milestone_state
+        task.save()
+
+    @staticmethod
+    def add_precedent(task_id, precedent_id):
+        task = Task.get(Task.ref == task_id)
+        if precedent_id not in task.precedents:
+            task.precedents.append(precedent_id)
+            task.save()
+
+    @staticmethod
+    def remove_precedent(task_id, precedent_id):
+        task = Task.get(Task.ref == task_id)
+        task.precedents.remove(precedent_id)
+        task.save()
+
+    @staticmethod
+    def add_document(task_id, file_path):
+        task = Task.get(Task.ref == task_id)
+        if file_path not in task.documents:
+            task.documents.append(file_path)
+            task.save()
+
+    @staticmethod
+    def remove_document(task_id, file_path):
+        task = Task.get(Task.ref == task_id)
+        task.documents.remove(file_path)
         task.save()
 
     def clear_db(self, force=False):
@@ -409,35 +912,19 @@ if __name__ == '__main__':
     #                                      documents=[], priority=0, milestone=False,
     #                                      precedents=[], progress=0, subtasks=[])
     # task_database_manager.remove_task(task_id=13)
-    # task_database_manager.update_progress(task_id=2, new_progress=100)
-    # task_database_manager.add_subtask(10, 11)
+    # task_database_manager.set_progress(task_id=2, new_progress=100)
+    # task_database_manager.set_start_date(task_id=9, new_start_date='2024-02-28')
+    # task_database_manager.set_priority(task_id=2, new_priority=1)
+    # task_database_manager.set_milestone(task_id=6, new_milestone_state=True)
+    # task_database_manager.add_subtask(parent_id=10, child_id=11)
+    # task_database_manager.remove_subtask(parent_id=11, child_id=12)
+    # task_database_manager.add_precedent(task_id=6, precedent_id=5)
+    # task_database_manager.remove_precedent(task_id=6, precedent_id=5)
+    # task_database_manager.add_document(task_id=6, file_path='C:\\Users\\maxim\\Documents\\Git\\taskmanager\\main.py')
+    # task_database_manager.remove_document(task_id=6, file_path='C:\\Users\\maxim\\Documents\\Git\\taskmanager\\main.py')
     # task_database_manager.clear_db()
     #
     # for entry in task_database_manager.get_every_task():
     #     print(entry)
     #
     # task_database_manager.close_db()
-
-
-
-
-# # Define your model
-# class MyModel(Model):
-#     name = CharField()
-#     tags = ListField()  # Attribute that is a list of strings
-#
-#     class Meta:
-#         database = SqliteDatabase('my_database.db')  # SQLite database file
-#
-#
-# # Create tables
-# MyModel.create_table()
-#
-# # Example usage
-# tags_list = ['tag1', 'tag2', 'tag3']
-# instance = MyModel.create(name='example', tags=tags_list)
-#
-# # Querying
-# for entry in MyModel.select():
-#     print(entry.name, entry.tags)
-
