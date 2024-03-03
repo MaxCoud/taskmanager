@@ -7,7 +7,7 @@ from PySide6.QtGui import QStandardItemModel, QFont, Qt, QGuiApplication, QCurso
     QTextOption, QMouseEvent, QAction
 from PySide6.QtWidgets import QGridLayout, QWidget, QMainWindow, QTreeView, QLabel, QTreeWidget, QTabWidget, \
     QApplication, QLineEdit, QPlainTextEdit, QTreeWidgetItem, QDateEdit, QHBoxLayout, QCheckBox, QComboBox, QPushButton, \
-    QMenu, QMessageBox
+    QMenu, QMessageBox, QFileDialog
 from peewee import *
 import time
 from lib.style import style, select_icon, load_icons
@@ -38,11 +38,14 @@ class TestWindow(QMainWindow):
         self.tasksList = None
         self.projectList = []
         self.selected_item = None
+        self.selected_task = None
+        self.selected_section = None
         self.parent_list = None
         self.selectedProject = None
         self.selected_project_tasks_list = None
         self.updating = False
         self.copied_task = {}
+        self.last_dir = "/"
 
         # self.projectAscending = None
         self.priorityAscending = None
@@ -333,7 +336,7 @@ class TestWindow(QMainWindow):
         self.setCentralWidget(main_window)
         # self.setLayout(running_layout)
 
-        self.update_changes()
+        # self.update_changes()
         self.update_tree()
 
         self.showMaximized()
@@ -390,42 +393,8 @@ class TestWindow(QMainWindow):
         self.selectedProjectLbl.setText(project_text)
         # ----------------------------
 
-        # Create tasks lists
-        self.list_tree.clear()
-        self.finished_tree.clear()
-
-        task = self.task_database_manager.get_task(task_id=item.ref)
-        self.display_details(task)
-
-        self.precedents_combobox_refs.clear()
-
-        for subtask_id in task.subtasks:
-            task = self.task_database_manager.get_task(task_id=subtask_id)
-
-            if len(task.subtasks) == 0:
-                if task.progress < 100:
-                    tree_to_build = self.list_tree
-                else:
-                    tree_to_build = self.finished_tree
-
-                element = CustomTreeWidgetItem(ref=task.ref, tree=tree_to_build)
-
-                lbl = QLabel(f'\n{task.name}\n')
-                lbl.setWordWrap(True)
-                lbl.setFont(QFont('AnyStyle', self.itemFontSize))
-                lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-                tree_to_build.setItemWidget(element, 0, lbl)
-
-                lbl = QLabel(f'\n{task.description}\n')
-                lbl.setWordWrap(True)
-                lbl.setFont(QFont('AnyStyle', self.itemFontSize))
-                # lbl.setMaximumWidth(500)
-                lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-                tree_to_build.setItemWidget(element, 1, lbl)
-
-            self.precedents_combobox_refs.append(task.ref)
-
-        # ---------------
+        self.selected_section = self.task_database_manager.get_task(task_id=item.ref)
+        self.update_changes()
 
     @staticmethod
     def generate_parent_list(item: QStandardItem | None) -> list[QStandardItem]:
@@ -445,7 +414,8 @@ class TestWindow(QMainWindow):
 
     def item_clicked(self, item):
         self.selected_item = item
-        self.display_details(self.task_database_manager.get_task(task_id=item.ref))
+        self.selected_task = self.task_database_manager.get_task(task_id=item.ref)
+        self.display_details(self.selected_task)
         self.ts = time.time()
 
     def display_details(self, task):
@@ -476,7 +446,7 @@ class TestWindow(QMainWindow):
 
         self.display_selected_documents(task.documents)
 
-        self.item_details_grid_widget.show()
+        # self.item_details_grid_widget.show()
 
     def finished_tasks_tree_changed(self):
         pass
@@ -491,7 +461,43 @@ class TestWindow(QMainWindow):
         pass
 
     def update_changes(self):
-        pass
+        """
+        Create tasks lists from selected section
+        """
+        self.list_tree.clear()
+        self.finished_tree.clear()
+
+        self.display_details(self.selected_section)
+
+        self.precedents_combobox_refs.clear()
+
+        for subtask_id in self.selected_section.subtasks:
+            task = self.task_database_manager.get_task(task_id=subtask_id)
+
+            if len(task.subtasks) == 0:
+                if task.progress < 100:
+                    tree_to_build = self.list_tree
+                else:
+                    tree_to_build = self.finished_tree
+
+                element = CustomTreeWidgetItem(ref=task.ref, tree=tree_to_build)
+
+                lbl = QLabel(f'\n{task.name}\n')
+                lbl.setWordWrap(True)
+                lbl.setFont(QFont('AnyStyle', self.itemFontSize))
+                lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+                tree_to_build.setItemWidget(element, 0, lbl)
+
+                lbl = QLabel(f'\n{task.description}\n')
+                lbl.setWordWrap(True)
+                lbl.setFont(QFont('AnyStyle', self.itemFontSize))
+                # lbl.setMaximumWidth(500)
+                lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+                tree_to_build.setItemWidget(element, 1, lbl)
+
+            self.precedents_combobox_refs.append(task.ref)
+
+        # ---------------
 
     def update_tree(self):
 
@@ -559,12 +565,55 @@ class TestWindow(QMainWindow):
         iterate_items(self.model.item(0))
 
     def browse_btn_clicked(self):
-        pass
+        file = QFileDialog.getOpenFileNames(parent=self,
+                                            caption="Select one or more file(s)",
+                                            dir=self.last_dir)
+        if file:
+            if file[0]:
+                files_paths = file[0]
+                self.last_dir = os.path.dirname(files_paths[0])
+                self.display_selected_documents(files_paths)
 
     def save_modifications(self):
-        print("oui")
+        button = QMessageBox.warning(self,
+                                     "Modifying task",
+                                     f"Task {self.selected_task.name} will be modified",
+                                     buttons=QMessageBox.Cancel | QMessageBox.Ok,
+                                     defaultButton=QMessageBox.Ok)
+
+        if button == QMessageBox.Ok:
+            self.task_database_manager.set_name(task_id=self.selected_task.ref,
+                                                new_name=self.name_line_edit.text())
+            self.task_database_manager.set_description(task_id=self.selected_task.ref,
+                                                       new_desc=self.description_text_edit.toPlainText())
+            self.task_database_manager.set_progress(task_id=self.selected_task.ref,
+                                                    new_progress=int(self.progress_line_edit.text()))
+            self.task_database_manager.set_start_date(task_id=self.selected_task.ref,
+                                                      new_start_date=self.start_date_edit.date().toString(Qt.ISODate))
+            if not self.end_date_checkbox.isChecked():
+                task_end_date = ""
+            else:
+                task_end_date = self.end_date_edit.date().toString(Qt.ISODate)
+            self.task_database_manager.set_end_date(task_id=self.selected_task.ref,
+                                                    new_end_date=task_end_date)
+
+            self.task_database_manager.set_priority(task_id=self.selected_task.ref,
+                                                    new_priority=int(self.priority_combobox.currentText()))
+
+            self.task_database_manager.set_milestone(task_id=self.selected_task.ref,
+                                                     new_milestone_state=self.milestone_checkbox.isChecked())
+
+            self.task_database_manager.set_documents(task_id=self.selected_task.ref,
+                                                     file_paths=self.documents_list)
+            self.documents_list.clear()  # need to clear it now
+
+            self.update_changes()
 
     def display_selected_documents(self, files_paths):
+
+        self.documents_list.extend(files_paths)
+        files_paths = self.documents_list.copy()
+        self.documents_list.clear()
 
         while self.files_layout.count():
             item = self.files_layout.takeAt(0)
@@ -575,7 +624,6 @@ class TestWindow(QMainWindow):
         self.files_labels = []
         self.files_layout_column = 0
         self.files_layout_row = 0
-        self.documents_list = []
 
         if len(files_paths) > 0:
             for document in files_paths:
@@ -814,6 +862,18 @@ class TaskDatabaseManager(QObject):
         return task.ref
 
     @staticmethod
+    def set_name(task_id, new_name: str):
+        task = Task.get(Task.ref == task_id)
+        task.name = new_name
+        task.save()
+
+    @staticmethod
+    def set_description(task_id, new_desc: str):
+        task = Task.get(Task.ref == task_id)
+        task.description = new_desc
+        task.save()
+
+    @staticmethod
     def add_subtask(parent_id, child_id: int):
         task = Task.get(Task.ref == parent_id)
         if child_id not in task.subtasks:
@@ -899,6 +959,12 @@ class TaskDatabaseManager(QObject):
     def remove_document(task_id, file_path):
         task = Task.get(Task.ref == task_id)
         task.documents.remove(file_path)
+        task.save()
+
+    @staticmethod
+    def set_documents(task_id, file_paths: list[str]):
+        task = Task.get(Task.ref == task_id)
+        task.documents = file_paths
         task.save()
 
     def clear_db(self, force=False):
