@@ -46,6 +46,8 @@ class TestWindow(QMainWindow):
         self.updating = False
         self.copied_task = {}
         self.last_dir = "/"
+        self.modifying = False
+        self.start_app = True
 
         # self.projectAscending = None
         self.priorityAscending = None
@@ -60,9 +62,9 @@ class TestWindow(QMainWindow):
 
         self.setWindowModality(Qt.ApplicationModal)
 
-        self.titleFontSize = 14
-        self.subtitleFontSize = 11
-        self.itemFontSize = 10
+        self.title_font_size = 14
+        self.subtitle_font_size = 11
+        self.item_font_size = 10
 
         layout = QGridLayout()
 
@@ -89,14 +91,14 @@ class TestWindow(QMainWindow):
 
         self.selectedProjectLbl = QLabel()
         self.selectedProjectLbl.setText("No project selected")
-        self.selectedProjectLbl.setFont(QFont('AnyStyle', self.titleFontSize))
+        self.selectedProjectLbl.setFont(QFont('AnyStyle', self.title_font_size))
         self.selectedProjectLbl.setFixedHeight(30)
         self.selectedProjectLbl.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.selectedProjectLbl, 0, 1, 1, 2)
 
         self.list_tree = CustomTreeWidget()
         self.list_tree.setHeaderLabels(["Name", "Description"])
-        self.list_tree.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        self.list_tree.setFont(QFont('AnyStyle', self.subtitle_font_size))
         self.list_tree.setMinimumWidth(750)
         self.list_tree.setMinimumHeight(100)
         self.list_tree.setColumnWidth(0, 300)
@@ -123,7 +125,7 @@ class TestWindow(QMainWindow):
 
         self.finished_tree = CustomTreeWidget()
         self.finished_tree.setHeaderLabels(["Name", "Description"])
-        self.finished_tree.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        self.finished_tree.setFont(QFont('AnyStyle', self.subtitle_font_size))
         self.finished_tree.setMinimumWidth(750)
         self.finished_tree.setMinimumHeight(500)
         self.finished_tree.setColumnWidth(0, 300)
@@ -151,59 +153,63 @@ class TestWindow(QMainWindow):
 
         lbl = QLabel("Item details")
         lbl.setFixedWidth(350)
-        lbl.setFont(QFont('AnyStyle', self.titleFontSize))
+        lbl.setFont(QFont('AnyStyle', self.title_font_size))
         lbl.setAlignment(Qt.AlignCenter)
         item_details_grid.addWidget(lbl, 0, 0, 1, 3)
 
         self.name_line_edit = QLineEdit()
         # self.name_line_edit.setFixedWidth(350)
         self.name_line_edit.setFixedHeight(40)
-        self.name_line_edit.setFont(QFont('AnyStyle', self.itemFontSize))
+        self.name_line_edit.setFont(QFont('AnyStyle', self.subtitle_font_size))
+        self.name_line_edit.textChanged.connect(self.modification_detected)
         item_details_grid.addWidget(self.name_line_edit, 1, 0, 1, 3)
 
         self.description_text_edit = QPlainTextEdit()
         # self.description_text_edit.setFixedWidth(350)
         self.description_text_edit.setMinimumHeight(110)
         self.description_text_edit.setWordWrapMode(QTextOption.WordWrap.WrapAtWordBoundaryOrAnywhere)
-        self.description_text_edit.setFont(QFont('AnyStyle', self.itemFontSize))
+        self.description_text_edit.setFont(QFont('AnyStyle', self.item_font_size))
+        self.description_text_edit.textChanged.connect(self.modification_detected)
         item_details_grid.addWidget(self.description_text_edit, 2, 0, 1, 3)
 
         lbl = QLabel("Progress")
         # lbl.setFixedWidth(80)
         lbl.setFixedHeight(40)
-        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        lbl.setFont(QFont('AnyStyle', self.subtitle_font_size))
         lbl.setAlignment(Qt.AlignCenter)
         item_details_grid.addWidget(lbl, 3, 0)
 
         self.progress_line_edit = QLineEdit()
         self.progress_line_edit.setFixedWidth(180)
         self.progress_line_edit.setFixedHeight(40)
-        self.progress_line_edit.setFont(QFont('AnyStyle', self.itemFontSize))
+        self.progress_line_edit.setFont(QFont('AnyStyle', self.item_font_size))
+        self.progress_line_edit.textChanged.connect(self.modification_detected)
         item_details_grid.addWidget(self.progress_line_edit, 3, 1)
 
         lbl = QLabel("%")
         lbl.setFixedWidth(80)
         lbl.setFixedHeight(40)
-        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        lbl.setFont(QFont('AnyStyle', self.subtitle_font_size))
         lbl.setAlignment(Qt.AlignCenter)
         item_details_grid.addWidget(lbl, 3, 2)
 
         lbl = QLabel("Start Date")
         # lbl.setFixedWidth(80)
         lbl.setFixedHeight(40)
-        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        lbl.setFont(QFont('AnyStyle', self.subtitle_font_size))
         lbl.setAlignment(Qt.AlignCenter)
         item_details_grid.addWidget(lbl, 4, 0)
 
         self.start_date_edit = QDateEdit(calendarPopup=True)
         self.start_date_edit.setMinimumWidth(240)
         self.start_date_edit.setFixedHeight(40)
-        self.start_date_edit.setFont(QFont('AnyStyle', self.itemFontSize))
+        self.start_date_edit.setFont(QFont('AnyStyle', self.item_font_size))
+        self.start_date_edit.userDateChanged.connect(self.modification_detected)
         item_details_grid.addWidget(self.start_date_edit, 4, 1)
 
         lbl = QLabel("End date")
         lbl.setFixedHeight(40)
-        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        lbl.setFont(QFont('AnyStyle', self.subtitle_font_size))
         lbl.setAlignment(Qt.AlignCenter)
         item_details_grid.addWidget(lbl, 5, 0)
 
@@ -216,7 +222,8 @@ class TestWindow(QMainWindow):
         self.end_date_edit.setEnabled(False)
         self.end_date_edit.setMinimumWidth(220)
         self.end_date_edit.setFixedHeight(40)
-        self.end_date_edit.setFont(QFont('AnyStyle', self.itemFontSize))
+        self.end_date_edit.userDateChanged.connect(self.modification_detected)
+        self.end_date_edit.setFont(QFont('AnyStyle', self.item_font_size))
 
         end_date_layout.addWidget(self.end_date_checkbox, 0)
         end_date_layout.addWidget(self.end_date_edit, 1)
@@ -226,14 +233,15 @@ class TestWindow(QMainWindow):
         lbl = QLabel("Priority")
         # lbl.setFixedWidth(80)
         lbl.setFixedHeight(40)
-        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        lbl.setFont(QFont('AnyStyle', self.subtitle_font_size))
         lbl.setAlignment(Qt.AlignCenter)
         item_details_grid.addWidget(lbl, 6, 0)
 
         self.priority_combobox = QComboBox()
         self.priority_combobox.setMinimumWidth(240)
         self.priority_combobox.setFixedHeight(40)
-        self.priority_combobox.setFont(QFont('AnyStyle', self.itemFontSize))
+        self.priority_combobox.currentTextChanged.connect(self.modification_detected)
+        self.priority_combobox.setFont(QFont('AnyStyle', self.item_font_size))
         item_details_grid.addWidget(self.priority_combobox, 6, 1)
 
         for i in range(0, len(self.task_database_manager.priority_degrees)):
@@ -242,24 +250,26 @@ class TestWindow(QMainWindow):
         lbl = QLabel("Milestone")
         # lbl.setFixedWidth(80)
         lbl.setFixedHeight(40)
-        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        lbl.setFont(QFont('AnyStyle', self.subtitle_font_size))
         lbl.setAlignment(Qt.AlignCenter)
         item_details_grid.addWidget(lbl, 7, 0)
 
         self.milestone_checkbox = QCheckBox()
+        self.milestone_checkbox.stateChanged.connect(self.modification_detected)
         item_details_grid.addWidget(self.milestone_checkbox, 7, 1)
 
         lbl = QLabel("Precedents")
         # lbl.setFixedWidth(80)
         lbl.setFixedHeight(40)
-        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        lbl.setFont(QFont('AnyStyle', self.subtitle_font_size))
         lbl.setAlignment(Qt.AlignCenter)
         item_details_grid.addWidget(lbl, 8, 0)
 
         self.precedents_combobox = QComboBox()
         self.precedents_combobox.setMinimumWidth(240)
         self.precedents_combobox.setFixedHeight(40)
-        self.precedents_combobox.setFont(QFont('AnyStyle', self.itemFontSize))
+        self.precedents_combobox.setFont(QFont('AnyStyle', self.item_font_size))
+        self.precedents_combobox.currentTextChanged.connect(self.modification_detected)
         item_details_grid.addWidget(self.precedents_combobox, 8, 1)
 
         self.precedents_combobox_refs = []
@@ -267,21 +277,22 @@ class TestWindow(QMainWindow):
         lbl = QLabel("Sub tasks")
         # lbl.setFixedWidth(80)
         lbl.setFixedHeight(40)
-        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        lbl.setFont(QFont('AnyStyle', self.subtitle_font_size))
         lbl.setAlignment(Qt.AlignCenter)
         item_details_grid.addWidget(lbl, 9, 0)
 
         self.subtasks_combobox = QComboBox()
         self.subtasks_combobox.setMinimumWidth(240)
         self.subtasks_combobox.setFixedHeight(40)
-        self.subtasks_combobox.setFont(QFont('AnyStyle', self.itemFontSize))
+        self.subtasks_combobox.setFont(QFont('AnyStyle', self.item_font_size))
+        self.subtasks_combobox.currentTextChanged.connect(self.modification_detected)
         item_details_grid.addWidget(self.subtasks_combobox, 9, 1)
 
         self.subtasks_combobox_refs = []
 
         lbl = QLabel("Documents")
         lbl.setFixedHeight(40)
-        lbl.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        lbl.setFont(QFont('AnyStyle', self.subtitle_font_size))
         lbl.setAlignment(Qt.AlignCenter)
         item_details_grid.addWidget(lbl, 10, 0)
 
@@ -290,23 +301,24 @@ class TestWindow(QMainWindow):
         browse_btn = QPushButton("Browse")
         browse_btn.setFixedHeight(40)
         browse_btn.setFixedWidth(90)
-        browse_btn.setFont(QFont('AnyStyle', self.subtitleFontSize))
+        browse_btn.setFont(QFont('AnyStyle', self.subtitle_font_size))
         browse_btn.clicked.connect(self.browse_btn_clicked)
-        browse_layout.addWidget(browse_btn, 0, Qt.AlignLeft)
+        browse_layout.addWidget(browse_btn, alignment=Qt.AlignLeft)
 
         self.files_layout = QGridLayout()
         self.files_layout_row = 0
         self.files_layout_column = 0
         self.files_labels = []
+        files_layout_widget = QWidget()
+        files_layout_widget.setLayout(self.files_layout)
+        browse_layout.addWidget(files_layout_widget, alignment=Qt.AlignLeft)
 
-        browse_layout.addLayout(self.files_layout)
-
-        item_details_grid.addLayout(browse_layout, 10, 1)
+        item_details_grid.addLayout(browse_layout, 10, 1, 1, 2)
         self.documents_list = []
 
         save_btn = QPushButton("Save modifications")
         save_btn.setFixedHeight(50)
-        save_btn.setFont(QFont('AnyStyle', self.titleFontSize))
+        save_btn.setFont(QFont('AnyStyle', self.title_font_size))
         save_btn.clicked.connect(self.save_modifications)
         item_details_grid.addWidget(save_btn, 11, 0, 1, 3)
 
@@ -366,6 +378,12 @@ class TestWindow(QMainWindow):
                     #     self.item_details_grid_widget.hide()
         super().mousePressEvent(event)
 
+    def modification_detected(self):
+        if self.start_app:
+            self.start_app = False
+        elif not self.modifying:
+            self.modifying = True
+
     def end_date_checkbox_state_changed(self):
         if self.end_date_checkbox.isChecked():
             self.end_date_edit.setEnabled(True)
@@ -373,28 +391,44 @@ class TestWindow(QMainWindow):
             self.end_date_edit.setEnabled(False)
 
     def on_project_tree_clicked(self, index):
-        # Get item and set open folder item
-        item = self.model.itemFromIndex(index)
-        self.update_icons()
-        item.setIcon(QIcon(self.icons["open_folder"]))
-        # ---------------------------------
+        if self.modifying_msg_box():
+            # Get item and set open folder item
+            item = self.model.itemFromIndex(index)
+            self.update_icons()
+            item.setIcon(QIcon(self.icons["open_folder"]))
+            # ---------------------------------
 
-        self.ts = time.time()
+            self.ts = time.time()
 
-        # Build selected project title
-        self.parent_list = self.generate_parent_list(item)
-        project_text = ""
-        for i in range(len(self.parent_list) - 1, 0, -1):
-            if len(self.parent_list) - 1 > i > 0:
-                project_text += " → " + self.parent_list[i - 1]
+            # Build selected project title
+            self.parent_list = self.generate_parent_list(item)
+            project_text = ""
+            for i in range(len(self.parent_list) - 1, 0, -1):
+                if len(self.parent_list) - 1 > i > 0:
+                    project_text += " → " + self.parent_list[i - 1]
+                else:
+                    project_text += self.parent_list[i - 1]
+
+            self.selectedProjectLbl.setText(project_text)
+            # ----------------------------
+
+            self.selected_section = self.task_database_manager.get_task(task_id=item.ref)
+            self.update_changes()
+
+    def modifying_msg_box(self):
+        if self.modifying:
+            button = QMessageBox.warning(self,
+                                         "Modifying task",
+                                         f"Modifications will be lost, do you want to continue?",
+                                         buttons=QMessageBox.Cancel | QMessageBox.Ok,
+                                         defaultButton=QMessageBox.Ok)
+
+            if button == QMessageBox.Ok:
+                return True
             else:
-                project_text += self.parent_list[i - 1]
-
-        self.selectedProjectLbl.setText(project_text)
-        # ----------------------------
-
-        self.selected_section = self.task_database_manager.get_task(task_id=item.ref)
-        self.update_changes()
+                return False
+        else:
+            return True
 
     @staticmethod
     def generate_parent_list(item: QStandardItem | None) -> list[QStandardItem]:
@@ -413,10 +447,13 @@ class TestWindow(QMainWindow):
         pass
 
     def item_clicked(self, item):
-        self.selected_item = item
-        self.selected_task = self.task_database_manager.get_task(task_id=item.ref)
-        self.display_details(self.selected_task)
-        self.ts = time.time()
+        if self.modifying_msg_box():
+            self.selected_item = item
+            self.selected_task = self.task_database_manager.get_task(task_id=item.ref)
+            self.display_details(self.selected_task)
+            self.ts = time.time()
+
+            self.modifying = False
 
     def display_details(self, task):
         self.name_line_edit.setText(task.name)
@@ -444,6 +481,7 @@ class TestWindow(QMainWindow):
             task_name = self.task_database_manager.get_task(task_id).name
             self.subtasks_combobox.addItem(task_name)
 
+        self.documents_list.clear()
         self.display_selected_documents(task.documents)
 
         # self.item_details_grid_widget.show()
@@ -484,18 +522,19 @@ class TestWindow(QMainWindow):
 
                 lbl = QLabel(f'\n{task.name}\n')
                 lbl.setWordWrap(True)
-                lbl.setFont(QFont('AnyStyle', self.itemFontSize))
+                lbl.setFont(QFont('AnyStyle', self.item_font_size))
                 lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
                 tree_to_build.setItemWidget(element, 0, lbl)
 
                 lbl = QLabel(f'\n{task.description}\n')
                 lbl.setWordWrap(True)
-                lbl.setFont(QFont('AnyStyle', self.itemFontSize))
+                lbl.setFont(QFont('AnyStyle', self.item_font_size))
                 # lbl.setMaximumWidth(500)
                 lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
                 tree_to_build.setItemWidget(element, 1, lbl)
 
             self.precedents_combobox_refs.append(task.ref)
+            self.modifying = False
 
         # ---------------
 
@@ -611,7 +650,10 @@ class TestWindow(QMainWindow):
 
     def display_selected_documents(self, files_paths):
 
-        self.documents_list.extend(files_paths)
+        for file in files_paths:
+            if file not in self.documents_list:
+                self.documents_list.append(file)
+
         files_paths = self.documents_list.copy()
         self.documents_list.clear()
 
@@ -640,7 +682,7 @@ class TestWindow(QMainWindow):
 
                     lbl = QLabel(path)
                     lbl.setWordWrap(True)
-                    lbl.setFont(QFont('AnyStyle', self.itemFontSize))
+                    lbl.setFont(QFont('AnyStyle', self.item_font_size))
                     lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
                     lbl.linkActivated.connect(self.link_activated)
                     lbl.setToolTip(document)
@@ -651,7 +693,7 @@ class TestWindow(QMainWindow):
                     lbl.setContextMenuPolicy(Qt.CustomContextMenu)
                     lbl.customContextMenuRequested.connect(context_menu_fn)
 
-                    if self.files_layout_column < 6:
+                    if self.files_layout_column < 5:
                         self.files_layout.addWidget(lbl, self.files_layout_row, self.files_layout_column)
                     else:
                         self.files_layout_row += 1
@@ -712,7 +754,10 @@ class TestWindow(QMainWindow):
                                  defaultButton=QMessageBox.Ok)
 
     def closeEvent(self, event: QCloseEvent) -> None:
-        self.task_database_manager.close_db()
+        if self.modifying_msg_box():
+            self.task_database_manager.close_db()
+        else:
+            event.ignore()
 
 
 class CustomStandardItem(QStandardItem):
@@ -796,6 +841,7 @@ class IntListField(Field):
 
 class Task(Model):
 
+    # TODO: add levels to access to some tasks and modify them (manager, operator)
     ref = AutoField()  # primary key
     name = CharField()  # task name
     description = CharField()  # task description
