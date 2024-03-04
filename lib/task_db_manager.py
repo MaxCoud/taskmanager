@@ -152,7 +152,7 @@ class TestWindow(QMainWindow):
         item_details_grid = QGridLayout()
 
         lbl = QLabel("Item details")
-        lbl.setFixedWidth(350)
+        # lbl.setFixedWidth(250)
         lbl.setFont(QFont('AnyStyle', self.title_font_size))
         lbl.setAlignment(Qt.AlignCenter)
         item_details_grid.addWidget(lbl, 0, 0, 1, 3)
@@ -180,14 +180,14 @@ class TestWindow(QMainWindow):
         item_details_grid.addWidget(lbl, 3, 0)
 
         self.progress_line_edit = QLineEdit()
-        self.progress_line_edit.setFixedWidth(180)
+        # self.progress_line_edit.setFixedWidth(180)
         self.progress_line_edit.setFixedHeight(40)
         self.progress_line_edit.setFont(QFont('AnyStyle', self.item_font_size))
         self.progress_line_edit.textChanged.connect(self.modification_detected)
         item_details_grid.addWidget(self.progress_line_edit, 3, 1)
 
         lbl = QLabel("%")
-        lbl.setFixedWidth(80)
+        lbl.setFixedWidth(40)
         lbl.setFixedHeight(40)
         lbl.setFont(QFont('AnyStyle', self.subtitle_font_size))
         lbl.setAlignment(Qt.AlignCenter)
@@ -201,11 +201,11 @@ class TestWindow(QMainWindow):
         item_details_grid.addWidget(lbl, 4, 0)
 
         self.start_date_edit = QDateEdit(calendarPopup=True)
-        self.start_date_edit.setMinimumWidth(240)
+        # self.start_date_edit.setMinimumWidth(240)
         self.start_date_edit.setFixedHeight(40)
         self.start_date_edit.setFont(QFont('AnyStyle', self.item_font_size))
         self.start_date_edit.userDateChanged.connect(self.modification_detected)
-        item_details_grid.addWidget(self.start_date_edit, 4, 1)
+        item_details_grid.addWidget(self.start_date_edit, 4, 1, 1, 2)
 
         lbl = QLabel("End date")
         lbl.setFixedHeight(40)
@@ -220,7 +220,7 @@ class TestWindow(QMainWindow):
 
         self.end_date_edit = QDateEdit(calendarPopup=True)
         self.end_date_edit.setEnabled(False)
-        self.end_date_edit.setMinimumWidth(220)
+        # self.end_date_edit.setMinimumWidth(220)
         self.end_date_edit.setFixedHeight(40)
         self.end_date_edit.userDateChanged.connect(self.modification_detected)
         self.end_date_edit.setFont(QFont('AnyStyle', self.item_font_size))
@@ -228,7 +228,7 @@ class TestWindow(QMainWindow):
         end_date_layout.addWidget(self.end_date_checkbox, 0)
         end_date_layout.addWidget(self.end_date_edit, 1)
 
-        item_details_grid.addLayout(end_date_layout, 5, 1)
+        item_details_grid.addLayout(end_date_layout, 5, 1, 1, 2)
 
         lbl = QLabel("Priority")
         # lbl.setFixedWidth(80)
@@ -238,11 +238,11 @@ class TestWindow(QMainWindow):
         item_details_grid.addWidget(lbl, 6, 0)
 
         self.priority_combobox = QComboBox()
-        self.priority_combobox.setMinimumWidth(240)
+        # self.priority_combobox.setMinimumWidth(240)
         self.priority_combobox.setFixedHeight(40)
         self.priority_combobox.currentTextChanged.connect(self.modification_detected)
         self.priority_combobox.setFont(QFont('AnyStyle', self.item_font_size))
-        item_details_grid.addWidget(self.priority_combobox, 6, 1)
+        item_details_grid.addWidget(self.priority_combobox, 6, 1, 1, 2)
 
         for i in range(0, len(self.task_database_manager.priority_degrees)):
             self.priority_combobox.insertItem(i, str(self.task_database_manager.priority_degrees[i]))
@@ -266,13 +266,20 @@ class TestWindow(QMainWindow):
         item_details_grid.addWidget(lbl, 8, 0)
 
         self.precedents_combobox = QComboBox()
-        self.precedents_combobox.setMinimumWidth(240)
+        # self.precedents_combobox.setMinimumWidth(200)
         self.precedents_combobox.setFixedHeight(40)
         self.precedents_combobox.setFont(QFont('AnyStyle', self.item_font_size))
         self.precedents_combobox.currentTextChanged.connect(self.modification_detected)
         item_details_grid.addWidget(self.precedents_combobox, 8, 1)
 
         self.precedents_combobox_refs = []
+
+        self.set_precedents_btn = QPushButton("...")
+        self.set_precedents_btn.setFixedWidth(40)
+        self.set_precedents_btn.setFixedHeight(40)
+        self.set_precedents_btn.setFont(QFont('AnyStyle', self.item_font_size))
+        self.set_precedents_btn.clicked.connect(self.on_set_precedents_btn)
+        item_details_grid.addWidget(self.set_precedents_btn, 8, 2)
 
         lbl = QLabel("Sub tasks")
         # lbl.setFixedWidth(80)
@@ -282,13 +289,20 @@ class TestWindow(QMainWindow):
         item_details_grid.addWidget(lbl, 9, 0)
 
         self.subtasks_combobox = QComboBox()
-        self.subtasks_combobox.setMinimumWidth(240)
+        # self.subtasks_combobox.setMinimumWidth(240)
         self.subtasks_combobox.setFixedHeight(40)
         self.subtasks_combobox.setFont(QFont('AnyStyle', self.item_font_size))
         self.subtasks_combobox.currentTextChanged.connect(self.modification_detected)
         item_details_grid.addWidget(self.subtasks_combobox, 9, 1)
 
         self.subtasks_combobox_refs = []
+
+        self.set_subtasks_btn = QPushButton("...")
+        self.set_subtasks_btn.setFixedWidth(40)
+        self.set_subtasks_btn.setFixedHeight(40)
+        self.set_subtasks_btn.setFont(QFont('AnyStyle', self.item_font_size))
+        self.set_subtasks_btn.clicked.connect(self.on_set_subtasks_btn)
+        item_details_grid.addWidget(self.set_subtasks_btn, 9, 2)
 
         lbl = QLabel("Documents")
         lbl.setFixedHeight(40)
@@ -300,7 +314,7 @@ class TestWindow(QMainWindow):
 
         browse_btn = QPushButton("Browse")
         browse_btn.setFixedHeight(40)
-        browse_btn.setFixedWidth(90)
+        browse_btn.setFixedWidth(80)
         browse_btn.setFont(QFont('AnyStyle', self.subtitle_font_size))
         browse_btn.clicked.connect(self.browse_btn_clicked)
         browse_layout.addWidget(browse_btn, alignment=Qt.AlignLeft)
@@ -323,7 +337,7 @@ class TestWindow(QMainWindow):
         item_details_grid.addWidget(save_btn, 11, 0, 1, 3)
 
         self.item_details_grid_widget = QWidget()
-        self.item_details_grid_widget.setFixedWidth(350)
+        self.item_details_grid_widget.setFixedWidth(300)
         # self.item_details_grid_widget.setFixedHeight(500)
         self.item_details_grid_widget.setLayout(item_details_grid)
         self.list_tree.set_details_widget(self.item_details_grid_widget)
@@ -752,6 +766,12 @@ class TestWindow(QMainWindow):
                                  "The file you are requesting does not exist",
                                  buttons=QMessageBox.Ok,
                                  defaultButton=QMessageBox.Ok)
+
+    def on_set_precedents_btn(self):
+        pass
+
+    def on_set_subtasks_btn(self):
+        pass
 
     def closeEvent(self, event: QCloseEvent) -> None:
         if self.modifying_msg_box():
