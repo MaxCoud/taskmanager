@@ -152,20 +152,17 @@ class TestWindow(QMainWindow):
         item_details_grid = QGridLayout()
 
         lbl = QLabel("Item details")
-        # lbl.setFixedWidth(250)
         lbl.setFont(QFont('AnyStyle', self.title_font_size))
         lbl.setAlignment(Qt.AlignCenter)
         item_details_grid.addWidget(lbl, 0, 0, 1, 3)
 
         self.name_line_edit = QLineEdit()
-        # self.name_line_edit.setFixedWidth(350)
         self.name_line_edit.setFixedHeight(40)
         self.name_line_edit.setFont(QFont('AnyStyle', self.subtitle_font_size))
         self.name_line_edit.textChanged.connect(self.modification_detected)
         item_details_grid.addWidget(self.name_line_edit, 1, 0, 1, 3)
 
         self.description_text_edit = QPlainTextEdit()
-        # self.description_text_edit.setFixedWidth(350)
         self.description_text_edit.setMinimumHeight(110)
         self.description_text_edit.setWordWrapMode(QTextOption.WordWrap.WrapAtWordBoundaryOrAnywhere)
         self.description_text_edit.setFont(QFont('AnyStyle', self.item_font_size))
@@ -173,14 +170,12 @@ class TestWindow(QMainWindow):
         item_details_grid.addWidget(self.description_text_edit, 2, 0, 1, 3)
 
         lbl = QLabel("Progress")
-        # lbl.setFixedWidth(80)
         lbl.setFixedHeight(40)
         lbl.setFont(QFont('AnyStyle', self.subtitle_font_size))
         lbl.setAlignment(Qt.AlignCenter)
         item_details_grid.addWidget(lbl, 3, 0)
 
         self.progress_line_edit = QLineEdit()
-        # self.progress_line_edit.setFixedWidth(180)
         self.progress_line_edit.setFixedHeight(40)
         self.progress_line_edit.setFont(QFont('AnyStyle', self.item_font_size))
         self.progress_line_edit.textChanged.connect(self.modification_detected)
@@ -194,14 +189,12 @@ class TestWindow(QMainWindow):
         item_details_grid.addWidget(lbl, 3, 2)
 
         lbl = QLabel("Start Date")
-        # lbl.setFixedWidth(80)
         lbl.setFixedHeight(40)
         lbl.setFont(QFont('AnyStyle', self.subtitle_font_size))
         lbl.setAlignment(Qt.AlignCenter)
         item_details_grid.addWidget(lbl, 4, 0)
 
         self.start_date_edit = QDateEdit(calendarPopup=True)
-        # self.start_date_edit.setMinimumWidth(240)
         self.start_date_edit.setFixedHeight(40)
         self.start_date_edit.setFont(QFont('AnyStyle', self.item_font_size))
         self.start_date_edit.userDateChanged.connect(self.modification_detected)
@@ -220,7 +213,6 @@ class TestWindow(QMainWindow):
 
         self.end_date_edit = QDateEdit(calendarPopup=True)
         self.end_date_edit.setEnabled(False)
-        # self.end_date_edit.setMinimumWidth(220)
         self.end_date_edit.setFixedHeight(40)
         self.end_date_edit.userDateChanged.connect(self.modification_detected)
         self.end_date_edit.setFont(QFont('AnyStyle', self.item_font_size))
@@ -231,14 +223,12 @@ class TestWindow(QMainWindow):
         item_details_grid.addLayout(end_date_layout, 5, 1, 1, 2)
 
         lbl = QLabel("Priority")
-        # lbl.setFixedWidth(80)
         lbl.setFixedHeight(40)
         lbl.setFont(QFont('AnyStyle', self.subtitle_font_size))
         lbl.setAlignment(Qt.AlignCenter)
         item_details_grid.addWidget(lbl, 6, 0)
 
         self.priority_combobox = QComboBox()
-        # self.priority_combobox.setMinimumWidth(240)
         self.priority_combobox.setFixedHeight(40)
         self.priority_combobox.currentTextChanged.connect(self.modification_detected)
         self.priority_combobox.setFont(QFont('AnyStyle', self.item_font_size))
@@ -248,7 +238,6 @@ class TestWindow(QMainWindow):
             self.priority_combobox.insertItem(i, str(self.task_database_manager.priority_degrees[i]))
 
         lbl = QLabel("Milestone")
-        # lbl.setFixedWidth(80)
         lbl.setFixedHeight(40)
         lbl.setFont(QFont('AnyStyle', self.subtitle_font_size))
         lbl.setAlignment(Qt.AlignCenter)
@@ -259,14 +248,12 @@ class TestWindow(QMainWindow):
         item_details_grid.addWidget(self.milestone_checkbox, 7, 1)
 
         lbl = QLabel("Precedents")
-        # lbl.setFixedWidth(80)
         lbl.setFixedHeight(40)
         lbl.setFont(QFont('AnyStyle', self.subtitle_font_size))
         lbl.setAlignment(Qt.AlignCenter)
         item_details_grid.addWidget(lbl, 8, 0)
 
         self.precedents_combobox = QComboBox()
-        # self.precedents_combobox.setMinimumWidth(200)
         self.precedents_combobox.setFixedHeight(40)
         self.precedents_combobox.setFont(QFont('AnyStyle', self.item_font_size))
         self.precedents_combobox.currentTextChanged.connect(self.modification_detected)
@@ -282,14 +269,12 @@ class TestWindow(QMainWindow):
         item_details_grid.addWidget(self.set_precedents_btn, 8, 2)
 
         lbl = QLabel("Sub tasks")
-        # lbl.setFixedWidth(80)
         lbl.setFixedHeight(40)
         lbl.setFont(QFont('AnyStyle', self.subtitle_font_size))
         lbl.setAlignment(Qt.AlignCenter)
         item_details_grid.addWidget(lbl, 9, 0)
 
         self.subtasks_combobox = QComboBox()
-        # self.subtasks_combobox.setMinimumWidth(240)
         self.subtasks_combobox.setFixedHeight(40)
         self.subtasks_combobox.setFont(QFont('AnyStyle', self.item_font_size))
         self.subtasks_combobox.currentTextChanged.connect(self.modification_detected)
@@ -338,7 +323,6 @@ class TestWindow(QMainWindow):
 
         self.item_details_grid_widget = QWidget()
         self.item_details_grid_widget.setFixedWidth(300)
-        # self.item_details_grid_widget.setFixedHeight(500)
         self.item_details_grid_widget.setLayout(item_details_grid)
         self.list_tree.set_details_widget(self.item_details_grid_widget)
         self.finished_tree.set_details_widget(self.item_details_grid_widget)
