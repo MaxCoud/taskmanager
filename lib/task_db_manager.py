@@ -6,8 +6,8 @@ from PySide6.QtCore import Qt, QPoint, Signal, QDateTime, QDate
 from PySide6.QtGui import QStandardItemModel, QFont, Qt, QGuiApplication, QCursor, QCloseEvent, QStandardItem, QIcon, \
     QTextOption, QMouseEvent, QAction
 from PySide6.QtWidgets import QGridLayout, QWidget, QMainWindow, QTreeView, QLabel, QTreeWidget, QTabWidget, \
-    QApplication, QLineEdit, QPlainTextEdit, QTreeWidgetItem, QDateEdit, QHBoxLayout, QCheckBox, QComboBox, QPushButton, \
-    QMenu, QMessageBox, QFileDialog
+    QApplication, QLineEdit, QPlainTextEdit, QTreeWidgetItem, QDateEdit, QHBoxLayout, QCheckBox, QComboBox, \
+    QPushButton, QMenu, QMessageBox, QFileDialog, QDialog
 from peewee import *
 import time
 from lib.style import style, select_icon, load_icons
@@ -752,7 +752,9 @@ class TestWindow(QMainWindow):
                                  defaultButton=QMessageBox.Ok)
 
     def on_set_precedents_btn(self):
-        pass
+        # TODO: need to open dialog with complete tree with checkboxes
+        TasksDialog(self)
+        print("hey")
 
     def on_set_subtasks_btn(self):
         pass
@@ -762,6 +764,41 @@ class TestWindow(QMainWindow):
             self.task_database_manager.close_db()
         else:
             event.ignore()
+
+
+class TasksDialog(QDialog):
+
+    def __init__(self, main_window):
+        super(TasksDialog, self).__init__()
+
+        self.main_window = main_window
+
+        # self.setWindowIcon(self.main_window.app_logo)
+        self.setWindowModality(Qt.ApplicationModal)
+
+        self.setWindowTitle("Tasks tree")
+        self.setWindowFlags(Qt.WindowCloseButtonHint)
+
+        self.title_font_size = 14
+        self.subtitle_font_size = 11
+        self.item_font_size = 9
+
+        grid = QGridLayout()
+
+        self.tree_view = CustomTreeView()
+        self.tree_view.setFixedWidth(300)
+        self.tree_view.setFixedHeight(300)
+        grid.addWidget(self.tree_view, 0, 0)
+
+        # create a model for tree view
+        self.model = QStandardItemModel()
+
+        # get header of tree view
+        self.tree_view_header = self.tree_view.header()
+
+        self.setLayout(grid)
+
+        self.show()
 
 
 class CustomStandardItem(QStandardItem):
