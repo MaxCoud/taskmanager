@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 from PySide6.QtCore import Qt, QPoint, Signal, QDateTime, QDate
 from PySide6.QtGui import QStandardItemModel, QFont, Qt, QGuiApplication, QCursor, QCloseEvent, QStandardItem, QIcon, \
-    QTextOption, QMouseEvent, QAction
+    QTextOption, QMouseEvent, QAction, QKeySequence
 from PySide6.QtWidgets import QGridLayout, QWidget, QMainWindow, QTreeView, QLabel, QTreeWidget, QTabWidget, \
     QApplication, QLineEdit, QPlainTextEdit, QTreeWidgetItem, QDateEdit, QHBoxLayout, QCheckBox, QComboBox, \
     QPushButton, QMenu, QMessageBox, QFileDialog, QDialog
@@ -65,6 +65,25 @@ class TestWindow(QMainWindow):
         self.title_font_size = 14
         self.subtitle_font_size = 11
         self.item_font_size = 10
+
+        # menu bar
+        menu = self.menuBar()
+        file = menu.addMenu("File")
+        file.addAction("Quit", lambda: sys.exit(0))
+
+        task_menu = menu.addMenu("Tasks")
+        task_menu.addAction("Add task ...", lambda: self.add_task_btn_clicked(), QKeySequence("a"))
+        task_menu.addAction("Delete task", lambda: self.delete_task_btn_clicked(), QKeySequence.Delete)
+
+        project_menu = menu.addMenu("Sections")
+        project_menu.addAction("Add section", lambda: self.add_section_btn_clicked(), QKeySequence("s"))
+        project_menu.addAction("Expand sections tree", lambda: self.expand_section_tree(),
+                               QKeySequence(Qt.CTRL | Qt.ALT | Qt.Key_Plus))
+        project_menu.addAction("Collapse sections tree", lambda: self.collapse_section_tree(),
+                               QKeySequence(Qt.CTRL | Qt.ALT | Qt.Key_Minus))
+
+        option_menu = menu.addMenu("Options")
+        option_menu.addAction("Settings...", lambda: self.open_param_btn_clicked())
 
         layout = QGridLayout()
 
@@ -496,7 +515,47 @@ class TestWindow(QMainWindow):
     def modify_task_btn_clicked(self):
         pass
 
-    def show_lists_context_menu(self):
+    def show_lists_context_menu(self, position):
+        if time.time() - self.ts < 0.1:
+            copy_action = QAction("Copy task")
+            copy_action.triggered.connect(self.copy_task_btn_clicked)
+            cut_action = QAction("Cut task")
+            cut_action.triggered.connect(self.cut_task_btn_clicked)
+            paste_action = QAction("Paste task here")
+            paste_action.triggered.connect(self.paste_task_btn_clicked)
+            add_task = QAction("Add task")
+            add_task.triggered.connect(self.add_task_btn_clicked)
+            modify_action = QAction("Modify task")
+            modify_action.triggered.connect(self.modify_task_btn_clicked)
+            delete_action = QAction("Delete task")
+            delete_action.triggered.connect(self.delete_task_btn_clicked)
+
+            menu = QMenu(self.list_tree)
+            menu.addAction(copy_action)
+            menu.addAction(cut_action)
+            menu.addAction(paste_action)
+            menu.addAction(add_task)
+            menu.addAction(modify_action)
+            menu.addAction(delete_action)
+        else:
+            add_task = QAction("Add task")
+            add_task.triggered.connect(self.add_task_btn_clicked)
+            paste_action = QAction("Paste task here")
+            paste_action.triggered.connect(self.paste_task_btn_clicked)
+
+            menu = QMenu(self.list_tree)
+            menu.addAction(add_task)
+            menu.addAction(paste_action)
+
+        menu.exec(self.list_tree.mapToGlobal(position))
+
+    def copy_task_btn_clicked(self):
+        pass
+
+    def cut_task_btn_clicked(self):
+        pass
+
+    def paste_task_btn_clicked(self):
         pass
 
     def custom_sort_by_column(self):
@@ -511,6 +570,7 @@ class TestWindow(QMainWindow):
         self.selected_task = None
 
         if self.selected_section is not None:
+            self.selected_section = self.task_database_manager.get_task(task_id=self.selected_section.ref)
             self.display_details(self.selected_section)
 
             self.precedents_combobox_refs.clear()
@@ -794,6 +854,32 @@ class TestWindow(QMainWindow):
             self.task_database_manager.close_db()
         else:
             event.ignore()
+
+    def add_task_btn_clicked(self):
+        ref = self.task_database_manager.add_task(name="New task", start_date=QDate.currentDate().toString(Qt.ISODate))
+        if self.selected_section is not None or self.selected_task is not None:
+            if self.selected_task is not None:
+                self.task_database_manager.add_subtask(parent_id=self.selected_task.ref, child_id=ref)
+            else:
+                self.task_database_manager.add_subtask(parent_id=self.selected_section.ref, child_id=ref)
+        self.update_tree()
+
+    def delete_task_btn_clicked(self):
+        if self.selected_task is not None:
+            self.task_database_manager.remove_task(task_id=self.selected_task.ref)
+            self.update_tree()
+
+    def add_section_btn_clicked(self):
+        pass
+
+    def expand_section_tree(self):
+        pass
+
+    def collapse_section_tree(self):
+        pass
+
+    def open_param_btn_clicked(self):
+        pass
 
 
 class TasksDialog(QDialog):
@@ -1100,6 +1186,9 @@ class TaskDatabaseManager(QObject):
         try:
             task_to_remove = Task.get(Task.ref == task_id)
             task_to_remove.delete_instance()
+            for task in TaskDatabaseManager.get_every_task():
+                if task_id in task.subtasks:
+                    TaskDatabaseManager.remove_subtask(parent_id=task, child_id=task_id)
         except Task.DoesNotExist:
             print(f"Task with ref={task_id} does not exists in database")
 
@@ -1201,7 +1290,7 @@ if __name__ == '__main__':
     # task_database_manager.set_priority(task_id=2, new_priority=1)
     # task_database_manager.set_milestone(task_id=6, new_milestone_state=True)
     # task_database_manager.add_subtask(parent_id=10, child_id=11)
-    # task_database_manager.remove_subtask(parent_id=11, child_id=12)
+    # task_database_manager.remove_subtask(parent_id=7, child_id=14)
     # task_database_manager.add_precedent(task_id=6, precedent_id=5)
     # task_database_manager.remove_precedent(task_id=6, precedent_id=5)
     # task_database_manager.add_document(task_id=6, file_path='C:\\Users\\maxim\\Documents\\Git\\taskmanager\\main.py')
