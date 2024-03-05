@@ -352,6 +352,9 @@ class TestWindow(QMainWindow):
         self.precedents_dialog = TasksDialog(self)
         self.precedents_dialog.updated_refs.connect(self.update_precedents)
 
+        self.subtasks_dialog = TasksDialog(self)
+        self.subtasks_dialog.updated_refs.connect(self.update_subtasks)
+
         self.showMaximized()
         # self.item_details_grid_widget.hide()
 
@@ -505,6 +508,7 @@ class TestWindow(QMainWindow):
         """
         self.list_tree.clear()
         self.finished_tree.clear()
+        self.selected_task = None
 
         if self.selected_section is not None:
             self.display_details(self.selected_section)
@@ -536,7 +540,7 @@ class TestWindow(QMainWindow):
                     tree_to_build.setItemWidget(element, 1, lbl)
 
                 self.precedents_combobox_refs.append(task.ref)
-                self.modifying = False
+            self.modifying = False
 
             # ---------------
 
@@ -564,13 +568,12 @@ class TestWindow(QMainWindow):
         if self.task_database_manager.get_task(task_id=1).subtasks == [0]:
             for task in self.task_database_manager.get_every_task():
                 print(f'{task=}')
-                if len(task.subtasks) > 0:
-                    has_parent = False
-                    for task_ in self.task_database_manager.get_every_task():
-                        if task.ref in task_.subtasks:
-                            has_parent = True
-                    if not has_parent:
-                        add_item(root_item, self.task_database_manager.get_task(task.ref))
+                has_parent = False
+                for task_ in self.task_database_manager.get_every_task():
+                    if task.ref in task_.subtasks:
+                        has_parent = True
+                if not has_parent:
+                    add_item(root_item, self.task_database_manager.get_task(task.ref))
 
         self.tree_view.setModel(self.model)
         self.tree_view.expandAll()
@@ -756,16 +759,35 @@ class TestWindow(QMainWindow):
                                  defaultButton=QMessageBox.Ok)
 
     def on_set_precedents_btn(self):
-        self.precedents_dialog.display_data(window_title=f"Precedents tasks of {self.selected_task.name}",
-                                            task_database=self.task_database_manager,
-                                            refs=self.selected_task.precedents)
+        if self.selected_task is not None or self.selected_section is not None:
+            if self.selected_task is None:
+                task = self.selected_section
+            else:
+                task = self.selected_task
 
-    def update_precedents(self, ref_list):
-        self.task_database_manager.set_precedents(task_id=self.selected_task.ref, new_precedents=ref_list)
+            self.precedents_dialog.display_data(task=task,
+                                                task_database=self.task_database_manager,
+                                                refs=task.precedents,
+                                                title_suffix="Precedent tasks of")
+
+    def update_precedents(self, task, ref_list):
+        self.task_database_manager.set_precedents(task_id=task.ref, new_precedents=ref_list)
         self.update_tree()
 
     def on_set_subtasks_btn(self):
-        pass
+        if self.selected_task is not None or self.selected_section is not None:
+            if self.selected_task is None:
+                task = self.selected_section
+            else:
+                task = self.selected_task
+            self.subtasks_dialog.display_data(task=task,
+                                              task_database=self.task_database_manager,
+                                              refs=task.subtasks,
+                                              title_suffix="Sub tasks of")
+
+    def update_subtasks(self, task, subtasks_list):
+        self.task_database_manager.set_subtasks(task_id=task.ref, new_subtasks=subtasks_list)
+        self.update_tree()
 
     def closeEvent(self, event: QCloseEvent) -> None:
         if self.modifying_msg_box():
@@ -776,7 +798,7 @@ class TestWindow(QMainWindow):
 
 class TasksDialog(QDialog):
 
-    updated_refs = Signal(object)
+    updated_refs = Signal(object, object)
 
     def __init__(self, main_window):
         super(TasksDialog, self).__init__()
@@ -808,19 +830,21 @@ class TasksDialog(QDialog):
 
         self.ref_list = []
         self.primary_ref_list = []
+        self.task = None
 
         self.setLayout(grid)
 
-    def display_data(self, window_title, task_database, refs):
-        self.setWindowTitle(window_title)
+    def display_data(self, task, task_database, refs, title_suffix):
+        self.setWindowTitle(f'{title_suffix} {task.name}')
         self.tree_widget.clear()
+        self.task = task
         self.ref_list = refs.copy()
         self.primary_ref_list = refs.copy()
 
         def add_item(data, tree, ref_list):
             parent = CustomTreeWidgetItem(ref=data.ref, tree=tree)
             parent.setText(0, data.name)
-            parent.setFlags(parent.flags() | Qt.ItemIsUserCheckable | Qt.ItemIsAutoTristate)
+            parent.setFlags(parent.flags() | Qt.ItemIsUserCheckable)
             if data.ref in ref_list:
                 parent.setCheckState(0, Qt.Checked)
             else:
@@ -842,14 +866,14 @@ class TasksDialog(QDialog):
 
         if task_database.get_task(task_id=1).subtasks == [0]:
             for task in task_database.get_every_task():
-                if len(task.subtasks) > 0:
-                    has_parent = False
-                    for task_ in task_database.get_every_task():
-                        if task.ref in task_.subtasks:
-                            has_parent = True
-                    if not has_parent:
-                        add_item(task_database.get_task(task.ref), self.tree_widget, refs)
+                has_parent = False
+                for task_ in task_database.get_every_task():
+                    if task.ref in task_.subtasks:
+                        has_parent = True
+                if not has_parent:
+                    add_item(task_database.get_task(task.ref), self.tree_widget, refs)
 
+        self.tree_widget.expandAll()
         self.show()
 
     def handle_item_clicked(self, item, column):
@@ -868,7 +892,7 @@ class TasksDialog(QDialog):
                                      defaultButton=QMessageBox.Ok)
 
         if button == QMessageBox.Ok:
-            self.updated_refs.emit(self.ref_list)
+            self.updated_refs.emit(self.task, self.ref_list)
             self.primary_ref_list = self.ref_list.copy()
 
     def closeEvent(self, event: QCloseEvent) -> None:
@@ -1055,6 +1079,12 @@ class TaskDatabaseManager(QObject):
         task.save()
 
     @staticmethod
+    def set_subtasks(task_id, new_subtasks):
+        task = Task.get(Task.ref == task_id)
+        task.subtasks = new_subtasks
+        task.save()
+
+    @staticmethod
     def get_task(task_id: int):
         return Task.get(Task.ref == task_id)
 
@@ -1162,7 +1192,7 @@ if __name__ == '__main__':
     # db_path = f'{Path(__file__).resolve().parent}\\task_database.db'
     # task_database_manager = TaskDatabaseManager(db_path)
     #
-    # ref = task_database_manager.add_task(name="Task2bis.1", description="desc", start_date="2024-02-29", end_date="2024-02-29",
+    # ref = task_database_manager.add_task(name="Task2.1.2.1", description="desc", start_date="2024-03-05", end_date="2024-03-05",
     #                                      documents=[], priority=0, milestone=False,
     #                                      precedents=[], progress=0, subtasks=[])
     # task_database_manager.remove_task(task_id=13)
