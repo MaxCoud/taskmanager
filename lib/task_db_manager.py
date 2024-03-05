@@ -7,7 +7,7 @@ from PySide6.QtGui import QStandardItemModel, QFont, Qt, QGuiApplication, QCurso
     QTextOption, QMouseEvent, QAction, QKeySequence
 from PySide6.QtWidgets import QGridLayout, QWidget, QMainWindow, QTreeView, QLabel, QTreeWidget, QTabWidget, \
     QApplication, QLineEdit, QPlainTextEdit, QTreeWidgetItem, QDateEdit, QHBoxLayout, QCheckBox, QComboBox, \
-    QPushButton, QMenu, QMessageBox, QFileDialog, QDialog
+    QPushButton, QMenu, QMessageBox, QFileDialog, QDialog, QInputDialog
 from peewee import *
 import time
 from lib.style import style, select_icon, load_icons
@@ -76,7 +76,7 @@ class TestWindow(QMainWindow):
         task_menu.addAction("Delete task", lambda: self.delete_task_btn_clicked(), QKeySequence.Delete)
 
         project_menu = menu.addMenu("Sections")
-        project_menu.addAction("Add section", lambda: self.add_section_btn_clicked(), QKeySequence("s"))
+        project_menu.addAction("Add section", lambda: self.add_project_btn_clicked(), QKeySequence("s"))
         project_menu.addAction("Expand sections tree", lambda: self.expand_section_tree(),
                                QKeySequence(Qt.CTRL | Qt.ALT | Qt.Key_Plus))
         project_menu.addAction("Collapse sections tree", lambda: self.collapse_section_tree(),
@@ -129,7 +129,6 @@ class TestWindow(QMainWindow):
         self.list_tree.itemChanged.connect(self.list_tree_changed)
         # self.listTree.itemClicked.connect(self.listTree_itemClicked)
         self.list_tree.itemPressed.connect(self.item_clicked)
-        self.list_tree.itemDoubleClicked.connect(self.modify_task_btn_clicked)
         self.list_tree.clicked_outside.connect(self.mousePressEvent)
         running_layout.addWidget(self.list_tree, 0, 0)
 
@@ -152,7 +151,6 @@ class TestWindow(QMainWindow):
         self.finished_tree.itemChanged.connect(self.finished_tasks_tree_changed)
         # self.finishedTasksTree.itemClicked.connect(self.finishedTasksTree_itemClicked)
         self.finished_tree.itemPressed.connect(self.item_clicked)
-        self.finished_tree.itemDoubleClicked.connect(self.modify_task_btn_clicked)
         self.finished_tree.clicked_outside.connect(self.mousePressEvent)
         finished_layout.addWidget(self.finished_tree, 0, 0)
 
@@ -463,8 +461,66 @@ class TestWindow(QMainWindow):
 
         return parent_list
 
-    def show_tree_context_menu(self):
+    def show_tree_context_menu(self, position):
+
+        if time.time() - self.ts < 0.3:
+
+            add_task = QAction("Add task")
+            add_task.triggered.connect(self.add_task_btn_clicked)
+            modify_section = QAction("Modify")
+            modify_section.triggered.connect(self.modify_section_btn_clicked)
+            delete_section = QAction("Delete")
+            delete_section.triggered.connect(self.remove_section_btn_clicked)
+
+            menu = QMenu(self.tree_view)
+            menu.addAction(add_task)
+            menu.addAction(modify_section)
+            menu.addAction(delete_section)
+
+        else:
+            add_project = QAction("Add project")
+            add_project.triggered.connect(self.add_project_btn_clicked)
+
+            menu = QMenu(self.tree_view)
+            menu.addAction(add_project)
+
+        menu.exec(self.tree_view.mapToGlobal(position))
+
+    def modify_section_btn_clicked(self):
         pass
+
+    def remove_section_btn_clicked(self):
+        # TODO: if delete section which have subtask, inform user before to delete every subtasks recursively
+        if self.selected_section is not None:
+            if len(self.selected_section.subtasks) > 0:
+                button = QMessageBox.warning(self,
+                                             "Delete section",
+                                             f'This section has {len(self.selected_section.subtasks)} sub tasks.\n'
+                                             f'Delete this section means delete every subtask. Do you want to continue?',
+                                             buttons=QMessageBox.Cancel | QMessageBox.Ok,
+                                             defaultButton=QMessageBox.Ok)
+
+                if button == QMessageBox.Ok:
+
+                    def delete_recursively(task):
+                        if len(task.subtasks) > 0:
+                            for subtask_id_ in task.subtasks:
+                                subtask_ = self.task_database_manager.get_task(subtask_id_)
+                                if len(subtask_.subtasks) > 0:
+                                    delete_recursively(subtask_)
+
+                                self.task_database_manager.remove_task(subtask_id_)
+
+                    for subtask_id in self.selected_section.subtasks:
+                        delete_recursively(self.task_database_manager.get_task(subtask_id))
+
+                    # for subtask_id in self.selected_section.subtasks:
+                    #     subtask = self.task_database_manager.get_task(subtask_id)
+                    #     if len(subtask.subtasks) > 0:
+                    #         delete_recursively(subtask)
+
+                    # self.task_database_manager.remove_task(task_id=self.selected_task.ref)
+                    self.update_tree()
 
     def list_tree_changed(self):
         pass
@@ -512,9 +568,6 @@ class TestWindow(QMainWindow):
     def finished_tasks_tree_changed(self):
         pass
 
-    def modify_task_btn_clicked(self):
-        pass
-
     def show_lists_context_menu(self, position):
         if time.time() - self.ts < 0.1:
             copy_action = QAction("Copy task")
@@ -523,10 +576,8 @@ class TestWindow(QMainWindow):
             cut_action.triggered.connect(self.cut_task_btn_clicked)
             paste_action = QAction("Paste task here")
             paste_action.triggered.connect(self.paste_task_btn_clicked)
-            add_task = QAction("Add task")
-            add_task.triggered.connect(self.add_task_btn_clicked)
-            modify_action = QAction("Modify task")
-            modify_action.triggered.connect(self.modify_task_btn_clicked)
+            add_task = QAction("Add task under this one")
+            add_task.triggered.connect(self.add_task_under_task_btn_clicked)
             delete_action = QAction("Delete task")
             delete_action.triggered.connect(self.delete_task_btn_clicked)
 
@@ -535,16 +586,12 @@ class TestWindow(QMainWindow):
             menu.addAction(cut_action)
             menu.addAction(paste_action)
             menu.addAction(add_task)
-            menu.addAction(modify_action)
             menu.addAction(delete_action)
         else:
-            add_task = QAction("Add task")
-            add_task.triggered.connect(self.add_task_btn_clicked)
             paste_action = QAction("Paste task here")
             paste_action.triggered.connect(self.paste_task_btn_clicked)
 
             menu = QMenu(self.list_tree)
-            menu.addAction(add_task)
             menu.addAction(paste_action)
 
         menu.exec(self.list_tree.mapToGlobal(position))
@@ -856,21 +903,66 @@ class TestWindow(QMainWindow):
             event.ignore()
 
     def add_task_btn_clicked(self):
-        ref = self.task_database_manager.add_task(name="New task", start_date=QDate.currentDate().toString(Qt.ISODate))
-        if self.selected_section is not None or self.selected_task is not None:
+
+        add_task_dialog = QInputDialog(self)
+        add_task_dialog.setInputMode(QInputDialog.TextInput)
+        add_task_dialog.setWindowTitle('Add new task')
+        add_task_dialog.setLabelText('Task name:')
+        add_task_dialog.setFont(QFont('AnyStyle', 9))
+        ok = add_task_dialog.exec()
+        text = add_task_dialog.textValue()
+
+        if ok:
+            ref = self.task_database_manager.add_task(name=text, start_date=QDate.currentDate().toString(Qt.ISODate))
+
+            if self.selected_section is not None or self.selected_task is not None:
+                if self.selected_task is not None:
+                    self.task_database_manager.add_subtask(parent_id=self.selected_task.ref, child_id=ref)
+                else:
+                    self.task_database_manager.add_subtask(parent_id=self.selected_section.ref, child_id=ref)
+                self.update_tree()
+
+    def add_task_under_task_btn_clicked(self):
+
+        add_task_dialog = QInputDialog(self)
+        add_task_dialog.setInputMode(QInputDialog.TextInput)
+        add_task_dialog.setWindowTitle('Add new task')
+        add_task_dialog.setLabelText('Task name:')
+        add_task_dialog.setFont(QFont('AnyStyle', 9))
+        ok = add_task_dialog.exec()
+        text = add_task_dialog.textValue()
+
+        if ok:
+            ref = self.task_database_manager.add_task(name=text, start_date=QDate.currentDate().toString(Qt.ISODate))
+
             if self.selected_task is not None:
                 self.task_database_manager.add_subtask(parent_id=self.selected_task.ref, child_id=ref)
-            else:
-                self.task_database_manager.add_subtask(parent_id=self.selected_section.ref, child_id=ref)
-        self.update_tree()
+                self.update_tree()
 
     def delete_task_btn_clicked(self):
         if self.selected_task is not None:
-            self.task_database_manager.remove_task(task_id=self.selected_task.ref)
-            self.update_tree()
+            button = QMessageBox.warning(self,
+                                         "Removing task",
+                                         f'Task "{self.selected_task.name}" is going to be removed',
+                                         buttons=QMessageBox.Cancel | QMessageBox.Ok,
+                                         defaultButton=QMessageBox.Ok)
 
-    def add_section_btn_clicked(self):
-        pass
+            if button == QMessageBox.Ok:
+                self.task_database_manager.remove_task(task_id=self.selected_task.ref)
+                self.update_tree()
+
+    def add_project_btn_clicked(self):
+        add_section_dialog = QInputDialog(self)
+        add_section_dialog.setInputMode(QInputDialog.TextInput)
+        add_section_dialog.setWindowTitle('Add new project')
+        add_section_dialog.setLabelText('Project name:')
+        add_section_dialog.setFont(QFont('AnyStyle', 9))
+        ok = add_section_dialog.exec()
+        text = add_section_dialog.textValue()
+
+        if ok:
+            ref = self.task_database_manager.add_task(name=text, start_date=QDate.currentDate().toString(Qt.ISODate))
+            self.update_tree()
 
     def expand_section_tree(self):
         pass
