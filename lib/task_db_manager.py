@@ -349,6 +349,9 @@ class TestWindow(QMainWindow):
         # self.update_changes()
         self.update_tree()
 
+        self.precedents_dialog = TasksDialog(self)
+        self.precedents_dialog.updated_refs.connect(self.update_precedents)
+
         self.showMaximized()
         # self.item_details_grid_widget.hide()
 
@@ -503,41 +506,41 @@ class TestWindow(QMainWindow):
         self.list_tree.clear()
         self.finished_tree.clear()
 
-        self.display_details(self.selected_section)
+        if self.selected_section is not None:
+            self.display_details(self.selected_section)
 
-        self.precedents_combobox_refs.clear()
+            self.precedents_combobox_refs.clear()
 
-        for subtask_id in self.selected_section.subtasks:
-            task = self.task_database_manager.get_task(task_id=subtask_id)
+            for subtask_id in self.selected_section.subtasks:
+                task = self.task_database_manager.get_task(task_id=subtask_id)
 
-            if len(task.subtasks) == 0:
-                if task.progress < 100:
-                    tree_to_build = self.list_tree
-                else:
-                    tree_to_build = self.finished_tree
+                if len(task.subtasks) == 0:
+                    if task.progress < 100:
+                        tree_to_build = self.list_tree
+                    else:
+                        tree_to_build = self.finished_tree
 
-                element = CustomTreeWidgetItem(ref=task.ref, tree=tree_to_build)
+                    element = CustomTreeWidgetItem(ref=task.ref, tree=tree_to_build)
 
-                lbl = QLabel(f'\n{task.name}\n')
-                lbl.setWordWrap(True)
-                lbl.setFont(QFont('AnyStyle', self.item_font_size))
-                lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-                tree_to_build.setItemWidget(element, 0, lbl)
+                    lbl = QLabel(f'\n{task.name}\n')
+                    lbl.setWordWrap(True)
+                    lbl.setFont(QFont('AnyStyle', self.item_font_size))
+                    lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+                    tree_to_build.setItemWidget(element, 0, lbl)
 
-                lbl = QLabel(f'\n{task.description}\n')
-                lbl.setWordWrap(True)
-                lbl.setFont(QFont('AnyStyle', self.item_font_size))
-                # lbl.setMaximumWidth(500)
-                lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-                tree_to_build.setItemWidget(element, 1, lbl)
+                    lbl = QLabel(f'\n{task.description}\n')
+                    lbl.setWordWrap(True)
+                    lbl.setFont(QFont('AnyStyle', self.item_font_size))
+                    # lbl.setMaximumWidth(500)
+                    lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+                    tree_to_build.setItemWidget(element, 1, lbl)
 
-            self.precedents_combobox_refs.append(task.ref)
-            self.modifying = False
+                self.precedents_combobox_refs.append(task.ref)
+                self.modifying = False
 
-        # ---------------
+            # ---------------
 
     def update_tree(self):
-
         self.model.clear()
 
         def add_item(parent, data):
@@ -578,6 +581,7 @@ class TestWindow(QMainWindow):
         self.tree_view_header.resizeSection(0, self.tree_view.sizeHintForColumn(0))
 
         self.update_icons()
+        self.update_changes()
 
     def update_icons(self):
 
@@ -752,9 +756,13 @@ class TestWindow(QMainWindow):
                                  defaultButton=QMessageBox.Ok)
 
     def on_set_precedents_btn(self):
-        # TODO: need to open dialog with complete tree with checkboxes
-        TasksDialog(self)
-        print("hey")
+        self.precedents_dialog.display_data(window_title=f"Precedents tasks of {self.selected_task.name}",
+                                            task_database=self.task_database_manager,
+                                            refs=self.selected_task.precedents)
+
+    def update_precedents(self, ref_list):
+        self.task_database_manager.set_precedents(task_id=self.selected_task.ref, new_precedents=ref_list)
+        self.update_tree()
 
     def on_set_subtasks_btn(self):
         pass
@@ -767,6 +775,8 @@ class TestWindow(QMainWindow):
 
 
 class TasksDialog(QDialog):
+
+    updated_refs = Signal(object)
 
     def __init__(self, main_window):
         super(TasksDialog, self).__init__()
@@ -785,20 +795,91 @@ class TasksDialog(QDialog):
 
         grid = QGridLayout()
 
-        self.tree_view = CustomTreeView()
-        self.tree_view.setFixedWidth(300)
-        self.tree_view.setFixedHeight(300)
-        grid.addWidget(self.tree_view, 0, 0)
+        self.tree_widget = CustomTreeWidget()
+        self.tree_widget.setFixedWidth(300)
+        self.tree_widget.setFixedHeight(300)
+        self.tree_widget.itemClicked.connect(self.handle_item_clicked)
+        grid.addWidget(self.tree_widget, 0, 0)
 
-        # create a model for tree view
-        self.model = QStandardItemModel()
+        save_btn = QPushButton("Save modifications")
+        save_btn.setFont(QFont('AnyStyle', self.subtitle_font_size))
+        save_btn.clicked.connect(self.on_save_btn)
+        grid.addWidget(save_btn, 1, 0)
 
-        # get header of tree view
-        self.tree_view_header = self.tree_view.header()
+        self.ref_list = []
+        self.primary_ref_list = []
 
         self.setLayout(grid)
 
+    def display_data(self, window_title, task_database, refs):
+        self.setWindowTitle(window_title)
+        self.tree_widget.clear()
+        self.ref_list = refs.copy()
+        self.primary_ref_list = refs.copy()
+
+        def add_item(data, tree, ref_list):
+            parent = CustomTreeWidgetItem(ref=data.ref, tree=tree)
+            parent.setText(0, data.name)
+            parent.setFlags(parent.flags() | Qt.ItemIsUserCheckable | Qt.ItemIsAutoTristate)
+            if data.ref in ref_list:
+                parent.setCheckState(0, Qt.Checked)
+            else:
+                parent.setCheckState(0, Qt.Unchecked)
+
+            for subtask_id in data.subtasks:
+                if len(task_database.get_task(subtask_id).subtasks) > 0:
+                    add_item(task_database.get_task(subtask_id), parent, ref_list)
+                else:
+                    child = CustomTreeWidgetItem(ref=subtask_id, tree=parent)
+                    child.setText(0, task_database.get_task(subtask_id).name)
+                    child.setFlags(parent.flags() | Qt.ItemIsUserCheckable)
+                    if subtask_id in ref_list:
+                        child.setCheckState(0, Qt.Checked)
+                    else:
+                        child.setCheckState(0, Qt.Unchecked)
+
+        self.tree_widget.setHeaderLabel(task_database.get_task(task_id=1).name)
+
+        if task_database.get_task(task_id=1).subtasks == [0]:
+            for task in task_database.get_every_task():
+                if len(task.subtasks) > 0:
+                    has_parent = False
+                    for task_ in task_database.get_every_task():
+                        if task.ref in task_.subtasks:
+                            has_parent = True
+                    if not has_parent:
+                        add_item(task_database.get_task(task.ref), self.tree_widget, refs)
+
         self.show()
+
+    def handle_item_clicked(self, item, column):
+        if item.checkState(column) == Qt.Unchecked:
+            if item.ref in self.ref_list:
+                self.ref_list.remove(item.ref)
+        else:
+            if item.ref not in self.ref_list:
+                self.ref_list.append(item.ref)
+
+    def on_save_btn(self):
+        button = QMessageBox.warning(self,
+                                     self.windowTitle(),
+                                     f"Do you want to save modifications?",
+                                     buttons=QMessageBox.Cancel | QMessageBox.Ok,
+                                     defaultButton=QMessageBox.Ok)
+
+        if button == QMessageBox.Ok:
+            self.updated_refs.emit(self.ref_list)
+            self.primary_ref_list = self.ref_list.copy()
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        if self.primary_ref_list != self.ref_list:
+            button = QMessageBox.warning(self,
+                                         self.windowTitle(),
+                                         f"You are going to lose potential modifications",
+                                         buttons=QMessageBox.Cancel | QMessageBox.Ok,
+                                         defaultButton=QMessageBox.Ok)
+            if button == QMessageBox.Cancel:
+                event.ignore()
 
 
 class CustomStandardItem(QStandardItem):
@@ -810,7 +891,7 @@ class CustomStandardItem(QStandardItem):
 
 class CustomTreeWidgetItem(QTreeWidgetItem):
 
-    def __init__(self, ref, tree: QTreeWidget):
+    def __init__(self, ref, tree):
         super().__init__(tree)
         self.ref = ref
 
@@ -1033,6 +1114,12 @@ class TaskDatabaseManager(QObject):
     def remove_precedent(task_id, precedent_id):
         task = Task.get(Task.ref == task_id)
         task.precedents.remove(precedent_id)
+        task.save()
+
+    @staticmethod
+    def set_precedents(task_id, new_precedents):
+        task = Task.get(Task.ref == task_id)
+        task.precedents = new_precedents
         task.save()
 
     @staticmethod
