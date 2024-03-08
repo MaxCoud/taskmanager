@@ -10,6 +10,7 @@ from PySide6.QtWidgets import QGridLayout, QWidget, QMainWindow, QTreeView, QLab
     QPushButton, QMenu, QMessageBox, QFileDialog, QDialog, QInputDialog
 from peewee import *
 import time
+import webbrowser
 from lib.style import style, select_icon, load_icons
 
 from PySide6.QtCore import QObject
@@ -84,6 +85,14 @@ class TestWindow(QMainWindow):
 
         option_menu = menu.addMenu("Options")
         option_menu.addAction("Settings...", lambda: self.open_param_btn_clicked())
+
+        help_menu = menu.addMenu("Help")
+        help_menu.addAction("Open GitHub repository", lambda: webbrowser.open("https://github.com/MaxCoud/taskmanager",
+                                                                              new=0,
+                                                                              autoraise=True))
+        help_menu.addAction("Report an issue", lambda: webbrowser.open("https://github.com/MaxCoud/taskmanager/issues",
+                                                                       new=0,
+                                                                       autoraise=True))
 
         layout = QGridLayout()
 
