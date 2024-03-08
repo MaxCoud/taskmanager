@@ -1206,13 +1206,14 @@ class TaskDatabaseManager(QObject):
 
         Task._meta.database = self.tasks_db
 
-        self.tasks_db.connect()
+        self.priority_degrees = (1, 2, 3, 4, 5)
 
         if not os.path.exists(db_path):
+            self.tasks_db.connect()
             self.tasks_db.create_tables([Task], safe=True)
             self.add_task(name="Projects", subtasks=[0])
-
-        self.priority_degrees = (1, 2, 3, 4, 5)
+        else:
+            self.tasks_db.connect()
 
     def add_task(self, name="", description="", start_date="", end_date="", documents=None,
                  priority=None, milestone=False, precedents=None, progress=0,
