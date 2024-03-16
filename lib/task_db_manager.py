@@ -221,6 +221,7 @@ class TestWindow(QMainWindow):
         item_details_grid.addWidget(lbl, 3, 0)
 
         self.progress_line_edit = QLineEdit()
+        self.progress_line_edit.setEnabled(False)
         self.progress_line_edit.setFixedHeight(40)
         self.progress_line_edit.setFont(QFont('AnyStyle', self.item_font_size))
         self.progress_line_edit.textChanged.connect(self.modification_detected)
@@ -453,12 +454,13 @@ class TestWindow(QMainWindow):
 
             # Build selected project title
             self.parent_list = self.generate_parent_list(item)
+
             project_text = ""
             for i in range(len(self.parent_list) - 1, 0, -1):
                 if len(self.parent_list) - 1 > i > 0:
-                    project_text += " → " + self.parent_list[i - 1]
+                    project_text += " → " + self.parent_list[i - 1].text()
                 else:
-                    project_text += self.parent_list[i - 1]
+                    project_text += self.parent_list[i - 1].text()
 
             self.selectedProjectLbl.setText(project_text)
             # ----------------------------
@@ -486,7 +488,7 @@ class TestWindow(QMainWindow):
         parent_list = []
         child = item
         while child is not None:
-            parent_list.append(child.text())
+            parent_list.append(child)
             child = child.parent()
 
         return parent_list
@@ -562,7 +564,7 @@ class TestWindow(QMainWindow):
             self.cut_task_action.setEnabled(True)
             self.display_details(self.selected_task)
             self.ts = time.time()
-
+            self.progress_line_edit.setEnabled(True)
             self.modifying = False
 
     def display_details(self, task):
@@ -715,6 +717,7 @@ class TestWindow(QMainWindow):
         if self.selected_section is not None:
             self.selected_section = self.task_database_manager.get_task(task_id=self.selected_section.ref)
             self.display_details(self.selected_section)
+            self.progress_line_edit.setEnabled(False)
 
             self.precedents_combobox_refs.clear()
 
@@ -788,6 +791,8 @@ class TestWindow(QMainWindow):
 
         self.update_icons()
         self.update_changes()
+
+        self.compute_sections_progress()
 
     def update_icons(self):
 
@@ -1076,6 +1081,56 @@ class TestWindow(QMainWindow):
     def open_param_btn_clicked(self):
         # TODO: implement param window and parameters
         pass
+
+    def compute_sections_progress(self):
+        def add_item(data, parent_table):
+            parent_table.append(data)
+
+            for subtask_id in data.subtasks:
+                if len(self.task_database_manager.get_task(subtask_id).subtasks) > 0:
+                    sub_parent_table = []
+                    add_item(self.task_database_manager.get_task(subtask_id), sub_parent_table)
+                    parent_table.append(sub_parent_table)
+
+        main_parent_table = []
+
+        if self.task_database_manager.get_task(task_id=1).subtasks == [0]:
+            for task in self.task_database_manager.get_every_task():
+                has_parent = False
+                for task_ in self.task_database_manager.get_every_task():
+                    if task.ref in task_.subtasks:
+                        has_parent = True
+                if not has_parent:
+                    new_parent_table = []
+                    add_item(self.task_database_manager.get_task(task.ref), new_parent_table)
+                    main_parent_table.append(new_parent_table)
+
+        def compute_data(main_parent_table_):
+            # Start processing from the deepest levels
+            for item in reversed(main_parent_table_):
+                if isinstance(item, list):
+                    if all(isinstance(sub_item, Task) for sub_item in item[1:]):
+                        # If all elements in the sublist are tasks (excluding the first one which is the parent item)
+                        compute_data_for_element(item)
+                    else:
+                        # Recursively call compute_data for child elements
+                        compute_data(item)
+                else:
+                    compute_data_for_element([item])
+
+        def compute_data_for_element(element):
+            parent = element[0]
+
+            if len(parent.subtasks) > 0:
+                subtasks_progress_sum = 0
+                subtasks_number = len(parent.subtasks)
+                for subtask_id in parent.subtasks:
+                    subtasks_progress_sum += self.task_database_manager.get_task(task_id=subtask_id).progress
+
+                task_progress = round(subtasks_progress_sum / subtasks_number)
+                self.task_database_manager.set_progress(task_id=parent.ref, new_progress=task_progress)
+
+        compute_data(main_parent_table)
 
 
 class TasksDialog(QDialog):
