@@ -144,12 +144,13 @@ class TestWindow(QMainWindow):
         layout.addWidget(self.selectedProjectLbl, 0, 1, 1, 2)
 
         self.list_tree = CustomTreeWidget()
-        self.list_tree.setHeaderLabels(["Name", "Description"])
+        self.list_tree.setHeaderLabels(["", "Name", "Description"])
         self.list_tree.setFont(QFont('AnyStyle', self.subtitle_font_size))
         self.list_tree.setMinimumWidth(750)
         self.list_tree.setMinimumHeight(100)
-        self.list_tree.setColumnWidth(0, 300)
-        # self.listTree.setColumnWidth(1, 680)
+        self.list_tree.setColumnWidth(0, 1)
+        self.list_tree.setColumnWidth(1, 300)
+        # self.listTree.setColumnWidth(2, 680)
 
         self.list_tree.setContextMenuPolicy(Qt.CustomContextMenu)
         self.list_tree.customContextMenuRequested.connect(self.show_lists_context_menu)
@@ -170,11 +171,12 @@ class TestWindow(QMainWindow):
         finished_layout = QGridLayout()
 
         self.finished_tree = CustomTreeWidget()
-        self.finished_tree.setHeaderLabels(["Name", "Description"])
+        self.finished_tree.setHeaderLabels(["", "Name", "Description"])
         self.finished_tree.setFont(QFont('AnyStyle', self.subtitle_font_size))
         self.finished_tree.setMinimumWidth(750)
         self.finished_tree.setMinimumHeight(500)
-        self.finished_tree.setColumnWidth(0, 300)
+        self.finished_tree.setColumnWidth(0, 1)
+        self.finished_tree.setColumnWidth(1, 300)
         # self.finishedTasksTree.setColumnWidth(1, 680)
         self.finished_tree.itemChanged.connect(self.finished_tasks_tree_changed)
         # self.finishedTasksTree.itemClicked.connect(self.finishedTasksTree_itemClicked)
@@ -552,8 +554,19 @@ class TestWindow(QMainWindow):
                     # self.task_database_manager.remove_task(task_id=self.selected_task.ref)
                     self.update_tree()
 
-    def list_tree_changed(self):
-        pass
+    def list_tree_changed(self, item, col):
+        # TODO: ensure that the checkbox is easy to use and does not crash the software
+        if item.checkState(0) == Qt.Checked and self.task_database_manager.get_task(task_id=item.ref).progress < 100:
+            # self.progress_line_edit.setText("100")
+            # self.task_database_manager.set_progress(task_id=item.ref, new_progress=100)
+            # self.update_tree()
+            pass
+        elif item.checkState(0) == Qt.Unchecked and self.task_database_manager.get_task(
+                task_id=item.ref).progress == 100:
+            # self.progress_line_edit.setText("0")
+            # self.task_database_manager.set_progress(task_id=item.ref, new_progress=0)
+            # self.update_tree()
+            pass
 
     def item_clicked(self, item):
         if self.modifying_msg_box():
@@ -598,8 +611,19 @@ class TestWindow(QMainWindow):
 
         # self.item_details_grid_widget.show()
 
-    def finished_tasks_tree_changed(self):
-        pass
+    def finished_tasks_tree_changed(self, item, col):
+        # TODO: ensure that the checkbox is easy to use and does not crash the software
+        if item.checkState(0) == Qt.Checked and self.task_database_manager.get_task(task_id=item.ref).progress < 100:
+            # self.progress_line_edit.setText("100")
+            # self.task_database_manager.set_progress(task_id=item.ref, new_progress=100)
+            # self.update_tree()
+            pass
+        elif item.checkState(0) == Qt.Unchecked and self.task_database_manager.get_task(
+                task_id=item.ref).progress == 100:
+            # self.progress_line_edit.setText("0")
+            # self.task_database_manager.set_progress(task_id=item.ref, new_progress=0)
+            # self.update_tree()
+            pass
 
     def show_lists_context_menu(self, position):
         if time.time() - self.ts < 0.1:
@@ -731,19 +755,25 @@ class TestWindow(QMainWindow):
                         tree_to_build = self.finished_tree
 
                     element = CustomTreeWidgetItem(ref=task.ref, tree=tree_to_build)
+                    element.setFlags(element.flags() | Qt.ItemIsUserCheckable)
+
+                    if task.progress == 100:
+                        element.setCheckState(0, Qt.Checked)
+                    else:
+                        element.setCheckState(0, Qt.Unchecked)
 
                     lbl = QLabel(f'\n{task.name}\n')
                     lbl.setWordWrap(True)
                     lbl.setFont(QFont('AnyStyle', self.item_font_size))
                     lbl.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-                    tree_to_build.setItemWidget(element, 0, lbl)
+                    tree_to_build.setItemWidget(element, 1, lbl)
 
                     lbl = QLabel(f'\n{task.description}\n')
                     lbl.setWordWrap(True)
                     lbl.setFont(QFont('AnyStyle', self.item_font_size))
                     # lbl.setMaximumWidth(500)
                     lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-                    tree_to_build.setItemWidget(element, 1, lbl)
+                    tree_to_build.setItemWidget(element, 2, lbl)
 
                 self.precedents_combobox_refs.append(task.ref)
             self.modifying = False
