@@ -476,14 +476,11 @@ class TestWindow(QMainWindow):
 
             add_task = QAction("Add task")
             add_task.triggered.connect(self.add_task_btn_clicked)
-            modify_section = QAction("Modify")
-            modify_section.triggered.connect(self.modify_section_btn_clicked)
             delete_section = QAction("Delete")
             delete_section.triggered.connect(self.remove_section_btn_clicked)
 
             menu = QMenu(self.tree_view)
             menu.addAction(add_task)
-            menu.addAction(modify_section)
             menu.addAction(delete_section)
 
         else:
@@ -494,9 +491,6 @@ class TestWindow(QMainWindow):
             menu.addAction(add_project)
 
         menu.exec(self.tree_view.mapToGlobal(position))
-
-    def modify_section_btn_clicked(self):
-        pass
 
     def remove_section_btn_clicked(self):
         # TODO: if delete section which have subtask, inform user before to delete every subtasks recursively
@@ -735,38 +729,45 @@ class TestWindow(QMainWindow):
                 self.display_selected_documents(files_paths)
 
     def save_modifications(self):
+
+        if self.selected_task is None:
+            task = self.selected_section
+        else:
+            task = self.selected_task
+
         button = QMessageBox.warning(self,
                                      "Modifying task",
-                                     f"Task {self.selected_task.name} will be modified",
+                                     f"Task {task.name} will be modified",
                                      buttons=QMessageBox.Cancel | QMessageBox.Ok,
                                      defaultButton=QMessageBox.Ok)
 
         if button == QMessageBox.Ok:
-            self.task_database_manager.set_name(task_id=self.selected_task.ref,
+            self.task_database_manager.set_name(task_id=task.ref,
                                                 new_name=self.name_line_edit.text())
-            self.task_database_manager.set_description(task_id=self.selected_task.ref,
+            self.task_database_manager.set_description(task_id=task.ref,
                                                        new_desc=self.description_text_edit.toPlainText())
-            self.task_database_manager.set_progress(task_id=self.selected_task.ref,
+            self.task_database_manager.set_progress(task_id=task.ref,
                                                     new_progress=int(self.progress_line_edit.text()))
-            self.task_database_manager.set_start_date(task_id=self.selected_task.ref,
+            self.task_database_manager.set_start_date(task_id=task.ref,
                                                       new_start_date=self.start_date_edit.date().toString(Qt.ISODate))
             if not self.end_date_checkbox.isChecked():
                 task_end_date = ""
             else:
                 task_end_date = self.end_date_edit.date().toString(Qt.ISODate)
-            self.task_database_manager.set_end_date(task_id=self.selected_task.ref,
+            self.task_database_manager.set_end_date(task_id=task.ref,
                                                     new_end_date=task_end_date)
 
-            self.task_database_manager.set_priority(task_id=self.selected_task.ref,
+            self.task_database_manager.set_priority(task_id=task.ref,
                                                     new_priority=int(self.priority_combobox.currentText()))
 
-            self.task_database_manager.set_milestone(task_id=self.selected_task.ref,
+            self.task_database_manager.set_milestone(task_id=task.ref,
                                                      new_milestone_state=self.milestone_checkbox.isChecked())
 
-            self.task_database_manager.set_documents(task_id=self.selected_task.ref,
+            self.task_database_manager.set_documents(task_id=task.ref,
                                                      file_paths=self.documents_list)
             self.documents_list.clear()  # need to clear it now
 
+            self.update_tree()
             self.update_changes()
 
     def display_selected_documents(self, files_paths):
