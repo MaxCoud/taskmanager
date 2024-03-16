@@ -493,7 +493,6 @@ class TestWindow(QMainWindow):
         menu.exec(self.tree_view.mapToGlobal(position))
 
     def remove_section_btn_clicked(self):
-        # TODO: if delete section which have subtask, inform user before to delete every subtasks recursively
         if self.selected_section is not None:
             if len(self.selected_section.subtasks) > 0:
                 button = QMessageBox.warning(self,
@@ -516,6 +515,11 @@ class TestWindow(QMainWindow):
 
                     for subtask_id in self.selected_section.subtasks:
                         delete_recursively(self.task_database_manager.get_task(subtask_id))
+                        self.task_database_manager.remove_task(subtask_id)
+
+                    self.task_database_manager.remove_task(self.selected_section.ref)
+
+                    self.selected_section = None
 
                     # for subtask_id in self.selected_section.subtasks:
                     #     subtask = self.task_database_manager.get_task(subtask_id)
