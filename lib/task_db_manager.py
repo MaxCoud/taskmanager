@@ -367,6 +367,8 @@ class TestWindow(QMainWindow):
         layout.addWidget(self.tabs, 1, 1, 2, 1, Qt.AlignTop)
         layout.addWidget(self.item_details_grid_widget, 1, 2, 2, 1, Qt.AlignTop)
 
+        # TODO: add gantt widget and create it with precedents, milestones, dates, etc.
+
         main_window = QWidget()
         main_window.setLayout(layout)  # running_layout
         self.setCentralWidget(main_window)
@@ -604,15 +606,19 @@ class TestWindow(QMainWindow):
         menu.exec(self.list_tree.mapToGlobal(position))
 
     def copy_task_btn_clicked(self):
+        # TODO: implement copy function
         pass
 
     def cut_task_btn_clicked(self):
+        # TODO: implement cut function
         pass
 
     def paste_task_btn_clicked(self):
+        # TODO: implement paste function
         pass
 
     def custom_sort_by_column(self):
+        # TODO: implement sorting features (by start dates, end dates, priority, names ?
         pass
 
     def update_changes(self):
@@ -985,6 +991,7 @@ class TestWindow(QMainWindow):
         pass
 
     def open_param_btn_clicked(self):
+        # TODO: implement param window and parameters
         pass
 
 
