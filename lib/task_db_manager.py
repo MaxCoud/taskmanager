@@ -70,7 +70,30 @@ class TestWindow(QMainWindow):
 
         task_menu = menu.addMenu("Tasks")
         task_menu.addAction("Add task ...", lambda: self.add_task_btn_clicked(), QKeySequence("a"))
-        task_menu.addAction("Delete task", lambda: self.delete_task_btn_clicked(), QKeySequence.Delete)
+
+        self.copy_task_action = QAction("Copy task")
+        self.copy_task_action.triggered.connect(self.copy_task_btn_clicked)
+        self.copy_task_action.setShortcut(QKeySequence(Qt.CTRL | Qt.Key_C))
+        self.copy_task_action.setEnabled(False)
+        task_menu.addAction(self.copy_task_action)
+
+        self.cut_task_action = QAction("Cut task")
+        self.cut_task_action.triggered.connect(self.cut_task_btn_clicked)
+        self.cut_task_action.setShortcut(QKeySequence(Qt.CTRL | Qt.Key_X))
+        self.cut_task_action.setEnabled(False)
+        task_menu.addAction(self.cut_task_action)
+
+        self.paste_task_action = QAction("Paste task")
+        self.paste_task_action.triggered.connect(self.paste_task_btn_clicked)
+        self.paste_task_action.setShortcut(QKeySequence(Qt.CTRL | Qt.Key_V))
+        self.paste_task_action.setEnabled(False)
+        task_menu.addAction(self.paste_task_action)
+
+        self.delete_action = QAction("Delete task")
+        self.delete_action.triggered.connect(self.delete_task_btn_clicked)
+        self.delete_action.setShortcut(QKeySequence.Delete)
+        self.delete_action.setEnabled(False)
+        task_menu.addAction(self.delete_action)
 
         project_menu = menu.addMenu("Sections")
         project_menu.addAction("Add section", lambda: self.add_project_btn_clicked(), QKeySequence("s"))
@@ -534,6 +557,9 @@ class TestWindow(QMainWindow):
         if self.modifying_msg_box():
             self.selected_item = item
             self.selected_task = self.task_database_manager.get_task(task_id=item.ref)
+            self.delete_action.setEnabled(True)
+            self.copy_task_action.setEnabled(True)
+            self.cut_task_action.setEnabled(True)
             self.display_details(self.selected_task)
             self.ts = time.time()
 
@@ -602,7 +628,6 @@ class TestWindow(QMainWindow):
         menu.exec(self.list_tree.mapToGlobal(position))
 
     def copy_task_btn_clicked(self):
-        # TODO: add Ctrl+C shortcut, and button in menu (not enabled if no task selected)
         # TODO: in the future, add drag and drop ?
 
         task_to_copy = self.selected_task
@@ -616,9 +641,10 @@ class TestWindow(QMainWindow):
                              "precedents": task_to_copy.precedents,
                              "progress": task_to_copy.progress,
                              }
+        # enable action in menu Task of menu bar
+        self.paste_task_action.setEnabled(True)
 
     def cut_task_btn_clicked(self):
-        # TODO: add Ctrl+X shortcut, and button in menu (not enabled if no task selected)
         # TODO: in the future, add drag and drop ?
 
         task_to_cut = self.selected_task
@@ -633,6 +659,9 @@ class TestWindow(QMainWindow):
                              "progress": task_to_cut.progress,
                              }
 
+        # enable action in menu Task of menu bar
+        self.paste_task_action.setEnabled(True)
+
         button = QMessageBox.warning(self,
                                      "Removing task",
                                      f'Task "{task_to_cut.name}" is going to be cut',
@@ -644,7 +673,6 @@ class TestWindow(QMainWindow):
             self.update_tree()
 
     def paste_task_btn_clicked(self):
-        # TODO: add Ctrl+V shortcut, and button in menu (not enabled if no copy or cut task)
         # TODO: in the future, add drag and drop ?
 
         if self.task_to_copy is not None:
@@ -680,6 +708,9 @@ class TestWindow(QMainWindow):
         self.list_tree.clear()
         self.finished_tree.clear()
         self.selected_task = None
+        self.delete_action.setEnabled(False)
+        self.copy_task_action.setEnabled(False)
+        self.cut_task_action.setEnabled(False)
 
         if self.selected_section is not None:
             self.selected_section = self.task_database_manager.get_task(task_id=self.selected_section.ref)
