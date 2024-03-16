@@ -36,19 +36,15 @@ class TestWindow(QMainWindow):
 
         self.setWindowTitle("Task Manager")
 
-        self.tasksList = None
-        self.projectList = []
         self.selected_item = None
         self.selected_task = None
         self.selected_section = None
         self.parent_list = None
-        self.selectedProject = None
-        self.selected_project_tasks_list = None
         self.updating = False
-        self.copied_task = {}
         self.last_dir = "/"
         self.modifying = False
         self.start_app = True
+        self.task_to_copy = None
 
         # self.projectAscending = None
         self.priorityAscending = None
@@ -606,19 +602,75 @@ class TestWindow(QMainWindow):
         menu.exec(self.list_tree.mapToGlobal(position))
 
     def copy_task_btn_clicked(self):
-        # TODO: implement copy function
-        pass
+        # TODO: add Ctrl+C shortcut, and button in menu (not enabled if no task selected)
+        # TODO: in the future, add drag and drop ?
+
+        task_to_copy = self.selected_task
+        self.task_to_copy = {"name": task_to_copy.name + ' (copy)',
+                             "description": task_to_copy.description,
+                             "start_date": task_to_copy.start_date,
+                             "end_date": task_to_copy.end_date,
+                             "documents": task_to_copy.documents,
+                             "priority": task_to_copy.priority,
+                             "milestone": task_to_copy.milestone,
+                             "precedents": task_to_copy.precedents,
+                             "progress": task_to_copy.progress,
+                             }
 
     def cut_task_btn_clicked(self):
-        # TODO: implement cut function
-        pass
+        # TODO: add Ctrl+X shortcut, and button in menu (not enabled if no task selected)
+        # TODO: in the future, add drag and drop ?
+
+        task_to_cut = self.selected_task
+        self.task_to_copy = {"name": task_to_cut.name,
+                             "description": task_to_cut.description,
+                             "start_date": task_to_cut.start_date,
+                             "end_date": task_to_cut.end_date,
+                             "documents": task_to_cut.documents,
+                             "priority": task_to_cut.priority,
+                             "milestone": task_to_cut.milestone,
+                             "precedents": task_to_cut.precedents,
+                             "progress": task_to_cut.progress,
+                             }
+
+        button = QMessageBox.warning(self,
+                                     "Removing task",
+                                     f'Task "{task_to_cut.name}" is going to be cut',
+                                     buttons=QMessageBox.Cancel | QMessageBox.Ok,
+                                     defaultButton=QMessageBox.Ok)
+
+        if button == QMessageBox.Ok:
+            self.task_database_manager.remove_task(task_to_cut.ref)
+            self.update_tree()
 
     def paste_task_btn_clicked(self):
-        # TODO: implement paste function
-        pass
+        # TODO: add Ctrl+V shortcut, and button in menu (not enabled if no copy or cut task)
+        # TODO: in the future, add drag and drop ?
+
+        if self.task_to_copy is not None:
+            ref = self.task_database_manager.add_task(name=self.task_to_copy["name"],
+                                                      description=self.task_to_copy["description"],
+                                                      start_date=self.task_to_copy["start_date"],
+                                                      end_date=self.task_to_copy["end_date"],
+                                                      documents=self.task_to_copy["documents"],
+                                                      priority=self.task_to_copy["priority"],
+                                                      milestone=self.task_to_copy["milestone"],
+                                                      precedents=self.task_to_copy["precedents"],
+                                                      progress=self.task_to_copy["progress"])
+
+            if self.selected_section is not None:
+                self.task_database_manager.add_subtask(parent_id=self.selected_section.ref, child_id=ref)
+                self.update_tree()
+        else:
+            QMessageBox.warning(self,
+                                "No task copied",
+                                "No task to paste",
+                                buttons=QMessageBox.Ok,
+                                defaultButton=QMessageBox.Ok)
 
     def custom_sort_by_column(self):
         # TODO: implement sorting features (by start dates, end dates, priority, names ?
+        # TODO: in the future, add drag and drop to arrange task order? (need field in database)
         pass
 
     def update_changes(self):
